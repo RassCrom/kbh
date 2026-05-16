@@ -1,4 +1,4 @@
-import { Satellite, Cpu, BarChart3, Globe, Database, FileJson, MapPin } from 'lucide-react';
+import { Satellite, Cpu, BarChart3, Globe, Database, FileJson } from 'lucide-react';
 import s from './HowItWorks.module.scss';
 
 const STEPS = [

@@ -197,7 +197,6 @@ export default function MapPage() {
       zoom: 13,
       minZoom: 10,
       maxZoom: 19,
-      attributionControl: true,
     });
 
     map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
