@@ -1,0 +1,114 @@
+// =============================================================================
+// _typography.scss — Astana Buildings type tokens
+// Extracted from design system (Barlow Semi Condensed / Open Sans / DM Mono)
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Font families
+// -----------------------------------------------------------------------------
+
+$font-heading: 'Barlow Semi Condensed', sans-serif;
+$font-body:    'Open Sans', sans-serif;
+$font-data:    'DM Mono', monospace;
+
+:root {
+  --font-heading: #{$font-heading};
+  --font-body:    #{$font-body};
+  --font-data:    #{$font-data};
+}
+
+// -----------------------------------------------------------------------------
+// Font weights
+// -----------------------------------------------------------------------------
+
+$weight-light:    300;
+$weight-regular:  400;
+$weight-medium:   500;
+$weight-semibold: 600;
+$weight-bold:     700;
+
+:root {
+  --weight-light:    #{$weight-light};
+  --weight-regular:  #{$weight-regular};
+  --weight-medium:   #{$weight-medium};
+  --weight-semibold: #{$weight-semibold};
+  --weight-bold:     #{$weight-bold};
+}
+
+// -----------------------------------------------------------------------------
+// Type scale — sizes
+// -----------------------------------------------------------------------------
+
+$text-display-xl-size:  96px;
+$text-display-lg-size:  72px;
+$text-heading-lg-size:  48px;
+$text-heading-md-size:  32px;
+$text-heading-sm-size:  22px;
+$text-label-lg-size:    14px;
+$text-label-sm-size:    11px;
+$text-body-lg-size:     18px;
+$text-body-md-size:     15px;
+$text-body-sm-size:     13px;
+$text-data-lg-size:     32px;
+$text-data-sm-size:     12px;
+
+:root {
+  --text-display-xl-size:  #{$text-display-xl-size};
+  --text-display-lg-size:  #{$text-display-lg-size};
+  --text-heading-lg-size:  #{$text-heading-lg-size};
+  --text-heading-md-size:  #{$text-heading-md-size};
+  --text-heading-sm-size:  #{$text-heading-sm-size};
+  --text-label-lg-size:    #{$text-label-lg-size};
+  --text-label-sm-size:    #{$text-label-sm-size};
+  --text-body-lg-size:     #{$text-body-lg-size};
+  --text-body-md-size:     #{$text-body-md-size};
+  --text-body-sm-size:     #{$text-body-sm-size};
+  --text-data-lg-size:     #{$text-data-lg-size};
+  --text-data-sm-size:     #{$text-data-sm-size};
+}
+
+// -----------------------------------------------------------------------------
+// Type scale — line heights
+// -----------------------------------------------------------------------------
+
+$text-display-xl-lh:  1.0;
+$text-display-lg-lh:  1.05;
+$text-heading-lg-lh:  1.1;
+$text-heading-md-lh:  1.2;
+$text-heading-sm-lh:  1.3;
+$text-label-lg-lh:    1.4;
+$text-label-sm-lh:    1.4;
+$text-body-lg-lh:     1.6;
+$text-body-md-lh:     1.6;
+$text-body-sm-lh:     1.5;
+$text-data-lg-lh:     1.2;
+$text-data-sm-lh:     1.4;
+
+// -----------------------------------------------------------------------------
+// Type scale — letter spacings
+// -----------------------------------------------------------------------------
+
+$text-display-xl-tracking:  -0.02em;
+$text-display-lg-tracking:  -0.01em;
+$text-heading-lg-tracking:   0em;
+$text-heading-md-tracking:   0em;
+$text-heading-sm-tracking:   0.01em;
+$text-label-lg-tracking:     0.08em;
+$text-label-sm-tracking:     0.10em;
+$text-body-tracking:         0em;
+$text-data-tracking:         0.04em;
+// Utility: section-tag tracking (01 · 02 · 03 etc.)
+$text-tag-tracking:          0.06em;
+
+:root {
+  --text-display-xl-tracking:  #{$text-display-xl-tracking};
+  --text-display-lg-tracking:  #{$text-display-lg-tracking};
+  --text-heading-lg-tracking:  #{$text-heading-lg-tracking};
+  --text-heading-md-tracking:  #{$text-heading-md-tracking};
+  --text-heading-sm-tracking:  #{$text-heading-sm-tracking};
+  --text-label-lg-tracking:    #{$text-label-lg-tracking};
+  --text-label-sm-tracking:    #{$text-label-sm-tracking};
+  --text-body-tracking:        #{$text-body-tracking};
+  --text-data-tracking:        #{$text-data-tracking};
+  --text-tag-tracking:         #{$text-tag-tracking};
+}

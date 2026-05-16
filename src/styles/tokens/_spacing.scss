@@ -1,0 +1,52 @@
+// =============================================================================
+// _spacing.scss — Astana Buildings spacing tokens
+// 8px base grid. Values extracted from spacing section: 4 8 12 16 24 32 48 64 96
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Spacing scale
+// -----------------------------------------------------------------------------
+
+$space-1:  4px;   // Intra-element — badge padding, tight gaps
+$space-2:  8px;   // Base unit — icon padding, chip gap
+$space-3:  12px;  // Component padding tight — chip horizontal padding
+$space-4:  16px;  // Component padding standard — card inner, row gap
+$space-6:  24px;  // Section element gap — card sections
+$space-8:  32px;  // Panel padding — map drawer
+$space-12: 48px;  // Section gap — within a page section
+$space-16: 64px;  // Major gap — between sections
+$space-24: 96px;  // Page-level gap — large viewport breathing room
+
+:root {
+  --space-1:  #{$space-1};
+  --space-2:  #{$space-2};
+  --space-3:  #{$space-3};
+  --space-4:  #{$space-4};
+  --space-6:  #{$space-6};
+  --space-8:  #{$space-8};
+  --space-12: #{$space-12};
+  --space-16: #{$space-16};
+  --space-24: #{$space-24};
+}
+
+// Semantic aliases used in components
+$gap-xs:  $space-2;   // 8px  — within data rows
+$gap-sm:  $space-3;   // 12px — between chips/badges
+$gap-md:  $space-4;   // 16px — between card elements
+$gap-lg:  $space-6;   // 24px — between cards
+$gap-xl:  $space-8;   // 32px — between major groups
+
+$pad-chip:    $space-1 $space-3;   // 4px 12px
+$pad-btn:     10px 20px;           // matches design
+$pad-input:   10px 14px;           // matches design
+$pad-card-sm: $space-4;            // 16px — small cards
+$pad-card-md: $space-6;            // 24px — standard panels
+$pad-card-lg: $space-8;            // 32px — large content panels
+
+:root {
+  --gap-xs: #{$gap-xs};
+  --gap-sm: #{$gap-sm};
+  --gap-md: #{$gap-md};
+  --gap-lg: #{$gap-lg};
+  --gap-xl: #{$gap-xl};
+}

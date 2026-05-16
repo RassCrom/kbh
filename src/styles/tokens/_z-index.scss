@@ -1,0 +1,28 @@
+// =============================================================================
+// _z-index.scss — Astana Buildings layer order tokens
+// Inferred from component hierarchy (map, panels, tooltips, modals)
+// =============================================================================
+
+$z-map-base:    0;     // Map canvas — base layer
+$z-map-labels:  10;    // Map labels and road overlays
+$z-map-overlay: 20;    // Heatmap, building layer overlays
+$z-panel:       100;   // Side panels — story panel, filter drawer
+$z-toolbar:     200;   // Top/bottom toolbars, map controls
+$z-tooltip:     300;   // Map building tooltip, hover cards
+$z-dropdown:    400;   // Dropdowns, scheme picker
+$z-modal:       500;   // Modals, lightboxes, full-screen story view
+$z-toast:       600;   // Notifications, loading banners
+$z-top:         9999;  // Debug overlays, critical error banners
+
+:root {
+  --z-map-base:    #{$z-map-base};
+  --z-map-labels:  #{$z-map-labels};
+  --z-map-overlay: #{$z-map-overlay};
+  --z-panel:       #{$z-panel};
+  --z-toolbar:     #{$z-toolbar};
+  --z-tooltip:     #{$z-tooltip};
+  --z-dropdown:    #{$z-dropdown};
+  --z-modal:       #{$z-modal};
+  --z-toast:       #{$z-toast};
+  --z-top:         #{$z-top};
+}

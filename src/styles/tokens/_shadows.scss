@@ -1,0 +1,63 @@
+// =============================================================================
+// _shadows.scss — Astana Buildings shadow tokens
+// Extracted from spacing section + component glow patterns
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Base shadows
+// -----------------------------------------------------------------------------
+
+// Subtle lift — cards at rest
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+
+// Floating panels — map side panel, popups
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+
+// Elevated overlay — map tooltip, frosted card
+$shadow-float: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+// Slider thumb, small raised controls
+$shadow-control: 0 1px 4px rgba(0, 0, 0, 0.4);
+
+// Input focus ring (not a shadow but uses box-shadow)
+$shadow-focus-gold: 0 0 0 1px rgba(212, 168, 94, 0.2); // gold 33 hex
+
+// -----------------------------------------------------------------------------
+// Glow shadows — active and accent states
+// -----------------------------------------------------------------------------
+
+// Active CTA button glow (gold)
+$shadow-glow-gold-btn: 0 0 16px rgba(212, 168, 94, 0.267), 0 0 32px rgba(212, 168, 94, 0.133);
+
+// Map building selected / landmark hover (gold)
+$shadow-glow-gold: 0 0 20px rgba(212, 168, 94, 0.267), 0 0 40px rgba(212, 168, 94, 0.133), 0 4px 16px rgba(0, 0, 0, 0.4);
+
+// Round icon in active row (gold)
+$shadow-glow-gold-icon: 0 0 12px rgba(212, 168, 94, 0.267);
+
+// Sky / hover glow (sky blue) — building hovered state
+$shadow-glow-sky: 0 0 8px rgba(77, 138, 173, 0.4);
+
+// Active building on map (sky glow + outer ring) — combined drop-shadow
+$shadow-glow-sky-full: 0 0 12px rgba(77, 138, 173, 0.267);
+
+// Active row highlight (subtle gold border + diffuse glow)
+$shadow-row-active: 0 0 20px rgba(212, 168, 94, 0.133);
+
+// Border glow — input active, panel selected
+$shadow-border-gold: 0 0 0 1px rgba(212, 168, 94, 0.2);
+
+:root {
+  --shadow-sm:            #{$shadow-sm};
+  --shadow-md:            #{$shadow-md};
+  --shadow-float:         #{$shadow-float};
+  --shadow-control:       #{$shadow-control};
+  --shadow-focus-gold:    #{$shadow-focus-gold};
+  --shadow-glow-gold-btn: #{$shadow-glow-gold-btn};
+  --shadow-glow-gold:     #{$shadow-glow-gold};
+  --shadow-glow-gold-icon:#{$shadow-glow-gold-icon};
+  --shadow-glow-sky:      #{$shadow-glow-sky};
+  --shadow-glow-sky-full: #{$shadow-glow-sky-full};
+  --shadow-row-active:    #{$shadow-row-active};
+  --shadow-border-gold:   #{$shadow-border-gold};
+}

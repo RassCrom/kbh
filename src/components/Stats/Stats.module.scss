@@ -1,0 +1,117 @@
+@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/radius' as *;
+@use '../../styles/tokens/shadows' as *;
+@use '../../styles/tokens/transitions' as *;
+@use '../../styles/mixins/typography' as typ;
+@use '../../styles/mixins/responsive' as *;
+
+.stats {
+  padding: $space-24 $space-8;
+  position: relative;
+
+  @include bp-down('md') {
+    padding: $space-16 $space-6;
+  }
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tag {
+  @include typ.section-tag;
+  text-align: center;
+  display: block;
+  margin-bottom: $space-4;
+}
+
+.heading {
+  @include typ.heading-md;
+  color: var(--color-text-primary);
+  text-align: center;
+  margin-bottom: $space-16;
+
+  @include bp-down('md') {
+    font-size: 32px;
+    margin-bottom: $space-12;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $space-6;
+
+  @include bp-down('lg') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include bp-down('sm') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-lg;
+  padding: $space-8 $space-6;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: border-color $duration-mid $ease-cinematic,
+              transform $duration-mid $ease-cinematic,
+              box-shadow $duration-mid $ease-cinematic;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--color-accent-gold), transparent);
+    opacity: 0;
+    transition: opacity $duration-mid $ease-cinematic;
+  }
+
+  &:hover {
+    border-color: var(--color-accent-gold);
+    transform: translateY(-4px);
+    box-shadow: $shadow-glow-gold;
+
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto $space-4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+  background: rgba(212, 168, 94, 0.08);
+  color: var(--color-accent-gold);
+}
+
+.number {
+  @include typ.data-lg;
+  color: var(--color-accent-gold);
+  font-size: 48px;
+  display: block;
+  margin-bottom: $space-2;
+}
+
+.label {
+  @include typ.label-lg;
+  color: var(--color-text-secondary);
+  text-transform: none;
+  letter-spacing: 0.01em;
+}

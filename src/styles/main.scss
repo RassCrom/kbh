@@ -1,0 +1,122 @@
+// =============================================================================
+// main.scss — Astana Buildings
+// Single entry point. Import once in main.tsx. Nothing else imports this file.
+// Components use .module.scss + @use '../styles/tokens/colors' as *
+// =============================================================================
+
+// 1. Tokens — order matters (shadows reference color values)
+@use 'tokens/colors';
+@use 'tokens/typography';
+@use 'tokens/spacing';
+@use 'tokens/radius';
+@use 'tokens/shadows';
+@use 'tokens/transitions';
+@use 'tokens/z-index';
+
+// 2. Mixins
+@use 'mixins/surface';
+@use 'mixins/typography' as typ-mixins;
+@use 'mixins/animation';
+@use 'mixins/responsive';
+
+// 3. Building era color schemes
+@use 'building-schemes';
+
+// 4. Reset
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// 5. Fonts
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Open+Sans:wght@300;400&family=DM+Mono:wght@400;500&display=swap');
+
+// 6. Global base
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--color-accent-gold);
+  text-decoration: none;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: var(--color-accent-sky);
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// Scrollbar — minimal, themed
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-subtle);
+  border-radius: 999px;
+}
+
+// Focus ring — accessible, on-brand
+:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 2px;
+}
+
+// 7. Map layer base — canvas fills viewport
+.map-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-map-base);
+}
+
+// Building footprint states on map
+// Components read var(--building-era-N) for fill color
+.building-footprint {
+  opacity: 0.85;
+  transition:
+    opacity   200ms var(--ease-map),
+    fill      200ms var(--ease-map),
+    filter    200ms var(--ease-map);
+
+  &:hover,
+  &.is-hovered {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+
+  &.is-selected {
+    opacity: 1;
+    // Gold stroke applied inline via JS for SVG
+  }
+
+  &.is-dimmed {
+    opacity: 0.15;
+  }
+}

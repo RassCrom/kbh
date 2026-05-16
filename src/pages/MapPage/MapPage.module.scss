@@ -1,0 +1,405 @@
+@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/radius' as *;
+@use '../../styles/tokens/transitions' as *;
+@use '../../styles/tokens/shadows' as *;
+@use '../../styles/tokens/z-index' as *;
+@use '../../styles/mixins/typography' as typ;
+
+/* ------------------------------------------------------------------ */
+/*  Full-viewport map page                                             */
+/* ------------------------------------------------------------------ */
+
+.mapPage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: $color-bg-base;
+}
+
+.mapContainer {
+  width: 100%;
+  height: 100%;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Floating UI overlays                                               */
+/* ------------------------------------------------------------------ */
+
+.backBtn {
+  position: absolute;
+  top: $space-4;
+  left: $space-4;
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4 $space-2 $space-3;
+  background: rgba(14, 21, 33, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-pill;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: background $duration-ui $ease-snap,
+              border-color $duration-ui $ease-snap,
+              box-shadow $duration-ui $ease-snap;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(14, 21, 33, 0.95);
+    border-color: $color-accent-gold;
+    box-shadow: 0 0 16px rgba(212, 168, 94, 0.15);
+    color: $color-accent-gold;
+  }
+}
+
+.titleChip {
+  position: absolute;
+  top: $space-4;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+  background: rgba(14, 21, 33, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-pill;
+  color: $color-accent-gold;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Legend panel                                                        */
+/* ------------------------------------------------------------------ */
+
+.legend {
+  position: absolute;
+  bottom: $space-2;
+  left: $space-4;
+  z-index: $z-panel;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  max-width: 220px;
+}
+
+.legendToggle {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(14, 21, 33, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap,
+              color $duration-ui $ease-snap,
+              border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: $color-accent-gold;
+    border-color: $color-accent-gold;
+  }
+}
+
+.legendBody {
+  background: rgba(14, 21, 33, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-lg;
+  padding: $space-4;
+  animation: fadeSlideUp 250ms $ease-cinematic;
+}
+
+.legendTitle {
+  @include typ.label-lg;
+  color: var(--color-accent-gold);
+  margin-bottom: $space-3;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.legendList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.legendSwatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.legendLabel {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.resetButton {
+  margin-top: $space-3;
+  width: 100%;
+  padding: $space-2;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: $radius-sm;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.1);
+    color: var(--color-accent-gold);
+    border-color: rgba(212, 168, 94, 0.3);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Hover tooltip                                                      */
+/* ------------------------------------------------------------------ */
+
+.tooltip {
+  position: absolute;
+  z-index: $z-tooltip;
+  background: rgba(14, 21, 33, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-md;
+  padding: $space-3 $space-4;
+  pointer-events: none;
+  max-width: 260px;
+  animation: fadeIn 120ms ease-out;
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  gap: $space-4;
+  padding: 2px 0;
+  font-size: 12px;
+  line-height: 1.4;
+
+  & + & {
+    border-top: 1px solid rgba(30, 42, 56, 0.4);
+  }
+}
+
+.tooltipKey {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tooltipVal {
+  color: var(--color-text-primary);
+  text-align: right;
+  word-break: break-word;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Timeline Slider                                                    */
+/* ------------------------------------------------------------------ */
+
+.timelineContainer {
+  position: absolute;
+  bottom: $space-2;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1000px;
+  background: rgba(14, 21, 33, 0.88);
+  backdrop-filter: blur(4px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-lg;
+  padding: $space-4 $space-6;
+  z-index: $z-panel;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  box-shadow: $shadow-md;
+}
+
+.histogram {
+  display: flex;
+  align-items: flex-end;
+  height: 5rem;
+  gap: 1px;
+}
+
+.bar {
+  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s, height 0.2s;
+  border-radius: 1px 1px 0 0;
+  min-width: 2px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+}
+
+.bar.active {
+  background: $color-accent-gold;
+  
+  &:hover {
+    background: lighten($color-accent-gold, 10%);
+  }
+}
+
+.sliders {
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.sliderTrack {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.sliderRange {
+  position: absolute;
+  height: 100%;
+  background: $color-accent-gold;
+  border-radius: 2px;
+}
+
+.thumb {
+  position: absolute;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: none;
+  background: transparent;
+  outline: none;
+  z-index: 2;
+  margin: 0;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $color-accent-gold;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    border: 2px solid #fff;
+  }
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animations                                                         */
+/* ------------------------------------------------------------------ */
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ------------------------------------------------------------------ */
+/*  MapLibre control overrides                                         */
+/* ------------------------------------------------------------------ */
+
+:global {
+  .maplibregl-ctrl-group {
+    background: rgba(14, 21, 33, 0.82) !important;
+    backdrop-filter: blur(16px);
+    border: 1px solid $color-border-subtle !important;
+    border-radius: $radius-md !important;
+    box-shadow: $shadow-md !important;
+
+    button {
+      background: transparent !important;
+      border-color: $color-border-subtle !important;
+      color: var(--color-text-secondary) !important;
+
+      &:hover {
+        background: rgba(212, 168, 94, 0.08) !important;
+      }
+
+      .maplibregl-ctrl-icon {
+        filter: invert(0.8);
+      }
+    }
+  }
+
+  .maplibregl-ctrl-attrib {
+    background: rgba(14, 21, 33, 0.7) !important;
+    color: var(--color-text-secondary) !important;
+    font-size: 10px !important;
+    border-radius: $radius-sm !important;
+
+    a {
+      color: var(--color-accent-sky) !important;
+    }
+  }
+}

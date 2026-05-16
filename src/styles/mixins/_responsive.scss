@@ -1,0 +1,38 @@
+// =============================================================================
+// _responsive.scss — mobile-first breakpoint mixins
+// Inferred from layout (map + side panel pattern)
+// =============================================================================
+
+// Breakpoints
+$bp-sm:  480px;   // Large phone landscape
+$bp-md:  768px;   // Tablet portrait
+$bp-lg:  1024px;  // Tablet landscape / small laptop
+$bp-xl:  1280px;  // Desktop standard
+$bp-2xl: 1600px;  // Wide desktop
+
+// bp($breakpoint) — min-width media query
+// Usage: @include bp('md') { ... }
+@mixin bp($breakpoint) {
+  @if $breakpoint == 'sm' {
+    @media (min-width: $bp-sm) { @content; }
+  } @else if $breakpoint == 'md' {
+    @media (min-width: $bp-md) { @content; }
+  } @else if $breakpoint == 'lg' {
+    @media (min-width: $bp-lg) { @content; }
+  } @else if $breakpoint == 'xl' {
+    @media (min-width: $bp-xl) { @content; }
+  } @else if $breakpoint == '2xl' {
+    @media (min-width: $bp-2xl) { @content; }
+  }
+}
+
+// bp-down($breakpoint) — max-width (mobile-only overrides)
+@mixin bp-down($breakpoint) {
+  @if $breakpoint == 'sm' {
+    @media (max-width: #{$bp-sm - 1}) { @content; }
+  } @else if $breakpoint == 'md' {
+    @media (max-width: #{$bp-md - 1}) { @content; }
+  } @else if $breakpoint == 'lg' {
+    @media (max-width: #{$bp-lg - 1}) { @content; }
+  }
+}

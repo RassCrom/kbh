@@ -1,0 +1,122 @@
+// =============================================================================
+// _colors.scss — Astana Buildings color tokens
+// Extracted from design system (Frozen Night palette as default)
+// Three UI palette options: frozen · dusk · brass
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Frozen Night (default — matches #0e1521 base)
+// -----------------------------------------------------------------------------
+
+$color-bg-base:        #0e1521;
+$color-bg-surface:     #15202e;
+$color-bg-overlay:     rgba(14, 21, 33, 0.85);
+
+$color-text-primary:   #dfe0e4;
+$color-text-secondary: #6d7d94;
+$color-text-data:      #8ba0bc;
+
+$color-accent-gold:    #d4a85e;
+$color-accent-sky:     #4d8aad;
+$color-accent-terra:   #8f5040;
+
+$color-border-subtle:  #1e2a38;
+$color-border-active:  #d4a85e; // same as accent-gold
+
+// Tinted surfaces (used in active states, frosted overlays)
+$color-gold-tint-12:   rgba(212, 168, 94, 0.12);
+$color-gold-tint-08:   rgba(212, 168, 94, 0.08);
+$color-gold-tint-06:   rgba(212, 168, 94, 0.06);
+$color-gold-tint-44:   rgba(212, 168, 94, 0.267); // hex 44 = 26.7%
+$color-sky-tint-15:    rgba(77, 138, 173, 0.15);
+$color-white-tint-06:  rgba(255, 255, 255, 0.06);
+$color-white-tint-04:  rgba(255, 255, 255, 0.04);
+$color-white-tint-08:  rgba(255, 255, 255, 0.08);
+
+// CSS custom properties — :root (frozen defaults)
+:root {
+  --color-bg-base:        #{$color-bg-base};
+  --color-bg-surface:     #{$color-bg-surface};
+  --color-bg-overlay:     #{$color-bg-overlay};
+
+  --color-text-primary:   #{$color-text-primary};
+  --color-text-secondary: #{$color-text-secondary};
+  --color-text-data:      #{$color-text-data};
+
+  --color-accent-gold:    #{$color-accent-gold};
+  --color-accent-sky:     #{$color-accent-sky};
+  --color-accent-terra:   #{$color-accent-terra};
+
+  --color-border-subtle:  #{$color-border-subtle};
+  --color-border-active:  #{$color-border-active};
+
+  --color-gold-tint-12:   #{$color-gold-tint-12};
+  --color-gold-tint-08:   #{$color-gold-tint-08};
+  --color-gold-tint-06:   #{$color-gold-tint-06};
+  --color-sky-tint-15:    #{$color-sky-tint-15};
+  --color-white-tint-06:  #{$color-white-tint-06};
+  --color-white-tint-04:  #{$color-white-tint-04};
+  --color-white-tint-08:  #{$color-white-tint-08};
+}
+
+// -----------------------------------------------------------------------------
+// Palette: Dusk Steppe — slightly warmer, less cold
+// body.palette-dusk
+// -----------------------------------------------------------------------------
+
+$palette-dusk-bg-base:        #131820;
+$palette-dusk-bg-surface:     #1a2230;
+$palette-dusk-bg-overlay:     rgba(19, 24, 32, 0.85);
+$palette-dusk-text-primary:   #e8e2d6;
+$palette-dusk-text-secondary: #7a8599;
+$palette-dusk-text-data:      #92a3b8;
+$palette-dusk-accent-gold:    #c8954a;
+$palette-dusk-accent-sky:     #5a8fa6;
+$palette-dusk-accent-terra:   #a05a42;
+$palette-dusk-border-subtle:  #242e3c;
+$palette-dusk-border-active:  #c8954a;
+
+body.palette-dusk {
+  --color-bg-base:        #{$palette-dusk-bg-base};
+  --color-bg-surface:     #{$palette-dusk-bg-surface};
+  --color-bg-overlay:     #{$palette-dusk-bg-overlay};
+  --color-text-primary:   #{$palette-dusk-text-primary};
+  --color-text-secondary: #{$palette-dusk-text-secondary};
+  --color-text-data:      #{$palette-dusk-text-data};
+  --color-accent-gold:    #{$palette-dusk-accent-gold};
+  --color-accent-sky:     #{$palette-dusk-accent-sky};
+  --color-accent-terra:   #{$palette-dusk-accent-terra};
+  --color-border-subtle:  #{$palette-dusk-border-subtle};
+  --color-border-active:  #{$palette-dusk-border-active};
+}
+
+// -----------------------------------------------------------------------------
+// Palette: Brass & Stone — warm amber undertones
+// body.palette-brass
+// -----------------------------------------------------------------------------
+
+$palette-brass-bg-base:        #151a22;
+$palette-brass-bg-surface:     #1e2430;
+$palette-brass-bg-overlay:     rgba(21, 26, 34, 0.85);
+$palette-brass-text-primary:   #ebe4d2;
+$palette-brass-text-secondary: #8a8878;
+$palette-brass-text-data:      #9aaa9e;
+$palette-brass-accent-gold:    #b8842e;
+$palette-brass-accent-sky:     #4a8a7a;
+$palette-brass-accent-terra:   #a8573a;
+$palette-brass-border-subtle:  #272e38;
+$palette-brass-border-active:  #b8842e;
+
+body.palette-brass {
+  --color-bg-base:        #{$palette-brass-bg-base};
+  --color-bg-surface:     #{$palette-brass-bg-surface};
+  --color-bg-overlay:     #{$palette-brass-bg-overlay};
+  --color-text-primary:   #{$palette-brass-text-primary};
+  --color-text-secondary: #{$palette-brass-text-secondary};
+  --color-text-data:      #{$palette-brass-text-data};
+  --color-accent-gold:    #{$palette-brass-accent-gold};
+  --color-accent-sky:     #{$palette-brass-accent-sky};
+  --color-accent-terra:   #{$palette-brass-accent-terra};
+  --color-border-subtle:  #{$palette-brass-border-subtle};
+  --color-border-active:  #{$palette-brass-border-active};
+}

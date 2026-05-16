@@ -1,0 +1,154 @@
+@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/transitions' as *;
+@use '../../styles/mixins/typography' as typ;
+@use '../../styles/mixins/responsive' as *;
+
+.footer {
+  padding: $space-12 $space-8 $space-6;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: $space-12;
+
+  @include bp-down('md') {
+    grid-template-columns: 1fr;
+    gap: $space-8;
+    text-align: center;
+  }
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+
+  @include bp-down('md') {
+    align-items: center;
+  }
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  color: var(--color-accent-gold);
+}
+
+.logoText {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-accent-gold);
+}
+
+.brandDesc {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+  max-width: 280px;
+
+  @include bp-down('md') {
+    max-width: 100%;
+  }
+}
+
+.colTitle {
+  @include typ.label-lg;
+  color: var(--color-text-primary);
+  margin-bottom: $space-4;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.link {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-gold);
+  }
+}
+
+.socialLinks {
+  list-style: none;
+  display: flex;
+  gap: $space-3;
+
+  @include bp-down('md') {
+    justify-content: center;
+  }
+}
+
+.socialLink {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: border-color $duration-ui $ease-snap,
+              color $duration-ui $ease-snap,
+              background $duration-ui $ease-snap;
+
+  &:hover {
+    border-color: var(--color-accent-gold);
+    color: var(--color-accent-gold);
+    background: rgba(212, 168, 94, 0.06);
+  }
+}
+
+.divider {
+  max-width: 1200px;
+  margin: $space-8 auto 0;
+  padding-top: $space-6;
+  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @include bp-down('md') {
+    flex-direction: column;
+    gap: $space-3;
+    text-align: center;
+  }
+}
+
+.copyright {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+}
+
+.legalLinks {
+  display: flex;
+  gap: $space-4;
+}
+
+.legalLink {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}

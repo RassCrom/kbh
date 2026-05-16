@@ -1,0 +1,179 @@
+// =============================================================================
+// _building-schemes.scss — Building era color schemes
+// 4 schemes toggled via body class. Map reads var(--building-era-N).
+// Each scheme = 9 era stops from Pre-1900 → 2024.
+//
+// Era index map:
+//   1 = Pre-1900   2 = 1940s   3 = 1960s   4 = 1980s   5 = 1991
+//   6 = 2000s      7 = 2010s   8 = 2017+   9 = 2024
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Steppe Sky (default) — cold-to-warm, Central Asian sky & light
+// -----------------------------------------------------------------------------
+
+$scheme-steppe-1: #2e3a5e;  // Pre-1900 — deep slate blue
+$scheme-steppe-2: #4a5a7a;  // 1940s    — muted indigo
+$scheme-steppe-3: #4d7a8a;  // 1960s    — steel teal
+$scheme-steppe-4: #6a8a6e;  // 1980s    — steppe grey-green
+$scheme-steppe-5: #7a8a5e;  // 1991     — olive independence
+$scheme-steppe-6: #b8a06a;  // 2000s    — warm sandstone
+$scheme-steppe-7: #c8954a;  // 2010s    — Kazakh gold
+$scheme-steppe-8: #b87a30;  // 2017+    — deep amber
+$scheme-steppe-9: #a05a42;  // 2024     — terra cotta
+
+$scheme-steppe-era-stops: (
+  $scheme-steppe-1,
+  $scheme-steppe-2,
+  $scheme-steppe-3,
+  $scheme-steppe-4,
+  $scheme-steppe-5,
+  $scheme-steppe-6,
+  $scheme-steppe-7,
+  $scheme-steppe-8,
+  $scheme-steppe-9
+);
+
+// -----------------------------------------------------------------------------
+// Soviet to Capital — desaturated grey shifts to vivid post-independence
+// -----------------------------------------------------------------------------
+
+$scheme-soviet-1: #5a5e66;  // Pre-1960 — Soviet concrete grey
+$scheme-soviet-2: #6a7078;  // 1970s    — medium grey
+$scheme-soviet-3: #7a828a;  // 1980s    — light grey
+$scheme-soviet-4: #c8954a;  // 1991     — gold independence divider
+$scheme-soviet-5: #4d8a8a;  // 1995     — teal transition
+$scheme-soviet-6: #7a9a5e;  // 2000s    — green growth
+$scheme-soviet-7: #c89040;  // 2010s    — amber capital
+$scheme-soviet-8: #d08050;  // 2017+    — warm orange
+$scheme-soviet-9: #c06a5a;  // 2024     — coral new city
+
+$scheme-soviet-era-stops: (
+  $scheme-soviet-1,
+  $scheme-soviet-2,
+  $scheme-soviet-3,
+  $scheme-soviet-4,
+  $scheme-soviet-5,
+  $scheme-soviet-6,
+  $scheme-soviet-7,
+  $scheme-soviet-8,
+  $scheme-soviet-9
+);
+
+// -----------------------------------------------------------------------------
+// Ornament — Kazakh ornamental textile palette, jewel-toned
+// -----------------------------------------------------------------------------
+
+$scheme-ornament-1: #5e2a3a;  // Pre-1900 — deep wine
+$scheme-ornament-2: #8a4030;  // 1940s    — brick red
+$scheme-ornament-3: #a06030;  // 1960s    — burnt sienna
+$scheme-ornament-4: #a08030;  // 1980s    — ochre gold
+$scheme-ornament-5: #6a7a30;  // 1991     — olive green
+$scheme-ornament-6: #2a6a5e;  // 2000s    — deep teal
+$scheme-ornament-7: #2a4a8a;  // 2010s    — cobalt blue
+$scheme-ornament-8: #3a3a8a;  // 2017+    — indigo
+$scheme-ornament-9: #5a7aaa;  // 2024     — sky blue
+
+$scheme-ornament-era-stops: (
+  $scheme-ornament-1,
+  $scheme-ornament-2,
+  $scheme-ornament-3,
+  $scheme-ornament-4,
+  $scheme-ornament-5,
+  $scheme-ornament-6,
+  $scheme-ornament-7,
+  $scheme-ornament-8,
+  $scheme-ornament-9
+);
+
+// -----------------------------------------------------------------------------
+// Nightglow — old buildings cold/ghostly, new buildings burn warm
+// -----------------------------------------------------------------------------
+
+$scheme-nightglow-1: #4a5a7e;  // Pre-1900 — deep cold blue
+$scheme-nightglow-2: #5a6a8e;  // 1940s    — blue-grey ghost
+$scheme-nightglow-3: #6a7a8e;  // 1960s    — slate
+$scheme-nightglow-4: #7a8a7e;  // 1980s    — grey-green neutral
+$scheme-nightglow-5: #8a8a5e;  // 1991     — olive shift
+$scheme-nightglow-6: #aa8a3e;  // 2000s    — warm amber ignition
+$scheme-nightglow-7: #ca8a2a;  // 2010s    — deep orange glow
+$scheme-nightglow-8: #daa020;  // 2017+    — bright gold
+$scheme-nightglow-9: #eab010;  // 2024     — maximum luminance
+
+$scheme-nightglow-era-stops: (
+  $scheme-nightglow-1,
+  $scheme-nightglow-2,
+  $scheme-nightglow-3,
+  $scheme-nightglow-4,
+  $scheme-nightglow-5,
+  $scheme-nightglow-6,
+  $scheme-nightglow-7,
+  $scheme-nightglow-8,
+  $scheme-nightglow-9
+);
+
+// =============================================================================
+// Body-level class switches — map reads var(--building-era-N)
+// Toggle by adding scheme-* class to <body>
+// =============================================================================
+
+// Default (no class) = steppe
+:root {
+  --building-era-1: #{$scheme-steppe-1};
+  --building-era-2: #{$scheme-steppe-2};
+  --building-era-3: #{$scheme-steppe-3};
+  --building-era-4: #{$scheme-steppe-4};
+  --building-era-5: #{$scheme-steppe-5};
+  --building-era-6: #{$scheme-steppe-6};
+  --building-era-7: #{$scheme-steppe-7};
+  --building-era-8: #{$scheme-steppe-8};
+  --building-era-9: #{$scheme-steppe-9};
+}
+
+body.scheme-steppe {
+  --building-era-1: #{$scheme-steppe-1};
+  --building-era-2: #{$scheme-steppe-2};
+  --building-era-3: #{$scheme-steppe-3};
+  --building-era-4: #{$scheme-steppe-4};
+  --building-era-5: #{$scheme-steppe-5};
+  --building-era-6: #{$scheme-steppe-6};
+  --building-era-7: #{$scheme-steppe-7};
+  --building-era-8: #{$scheme-steppe-8};
+  --building-era-9: #{$scheme-steppe-9};
+}
+
+body.scheme-soviet {
+  --building-era-1: #{$scheme-soviet-1};
+  --building-era-2: #{$scheme-soviet-2};
+  --building-era-3: #{$scheme-soviet-3};
+  --building-era-4: #{$scheme-soviet-4};
+  --building-era-5: #{$scheme-soviet-5};
+  --building-era-6: #{$scheme-soviet-6};
+  --building-era-7: #{$scheme-soviet-7};
+  --building-era-8: #{$scheme-soviet-8};
+  --building-era-9: #{$scheme-soviet-9};
+}
+
+body.scheme-ornament {
+  --building-era-1: #{$scheme-ornament-1};
+  --building-era-2: #{$scheme-ornament-2};
+  --building-era-3: #{$scheme-ornament-3};
+  --building-era-4: #{$scheme-ornament-4};
+  --building-era-5: #{$scheme-ornament-5};
+  --building-era-6: #{$scheme-ornament-6};
+  --building-era-7: #{$scheme-ornament-7};
+  --building-era-8: #{$scheme-ornament-8};
+  --building-era-9: #{$scheme-ornament-9};
+}
+
+body.scheme-nightglow {
+  --building-era-1: #{$scheme-nightglow-1};
+  --building-era-2: #{$scheme-nightglow-2};
+  --building-era-3: #{$scheme-nightglow-3};
+  --building-era-4: #{$scheme-nightglow-4};
+  --building-era-5: #{$scheme-nightglow-5};
+  --building-era-6: #{$scheme-nightglow-6};
+  --building-era-7: #{$scheme-nightglow-7};
+  --building-era-8: #{$scheme-nightglow-8};
+  --building-era-9: #{$scheme-nightglow-9};
+}

@@ -1,0 +1,59 @@
+// =============================================================================
+// _transitions.scss — Astana Buildings motion tokens
+// Extracted from animation section (durations + easing curves)
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Duration tokens
+// -----------------------------------------------------------------------------
+
+$duration-fast: 120ms;  // Micro — button press, checkbox, toggle
+$duration-mid:  240ms;  // Panel open/close, tooltip appear, tab switch
+$duration-slow: 480ms;  // Page transition, map fly-to, popup entrance
+
+// Observed in components (CSS shorthand values)
+$duration-ui:   150ms;  // Generic UI element hover (button border, color change)
+$duration-map:  200ms;  // Building state change on map (border-color transition)
+
+:root {
+  --duration-fast: #{$duration-fast};
+  --duration-mid:  #{$duration-mid};
+  --duration-slow: #{$duration-slow};
+  --duration-ui:   #{$duration-ui};
+  --duration-map:  #{$duration-map};
+}
+
+// -----------------------------------------------------------------------------
+// Easing tokens
+// -----------------------------------------------------------------------------
+
+// Standard UI motion — most interactive elements
+$ease-snap:      cubic-bezier(0.4, 0, 0.2, 1);
+
+// Dramatic entrances — section reveals, modals, story panels
+$ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+
+// Smooth map fly — camera pan, zoom transitions
+$ease-map:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+:root {
+  --ease-snap:      #{$ease-snap};
+  --ease-cinematic: #{$ease-cinematic};
+  --ease-map:       #{$ease-map};
+}
+
+// -----------------------------------------------------------------------------
+// Shorthand transition presets
+// -----------------------------------------------------------------------------
+
+$transition-ui:    all $duration-ui $ease-snap;
+$transition-color: color $duration-ui $ease-snap, background-color $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+$transition-map:   opacity $duration-map $ease-map, transform $duration-map $ease-map;
+$transition-panel: opacity $duration-mid $ease-cinematic, transform $duration-mid $ease-cinematic;
+
+:root {
+  --transition-ui:    #{$transition-ui};
+  --transition-color: #{$transition-color};
+  --transition-map:   #{$transition-map};
+  --transition-panel: #{$transition-panel};
+}

@@ -1,0 +1,27 @@
+// =============================================================================
+// _radius.scss — Astana Buildings border-radius tokens
+// Extracted from spacing section and component usage
+// =============================================================================
+
+// Named in the design system's Spacing · Radius section
+$radius-sm:   4px;   // Chips, badges, code blocks, checkboxes
+$radius-md:   8px;   // Cards, inputs, buttons, icon wrappers
+$radius-lg:   12px;  // Panels, dialogs, larger cards
+$radius-pill: 999px; // Year tags, era chips, fully-rounded
+
+// Additional values observed in components (not in the named scale)
+$radius-xs:   3px;   // Micro bars (histogram, range track)
+$radius-icon: 6px;   // Icon-sized square containers (28–32px icons)
+$radius-map:  10px;  // Map panel containers (between md and lg)
+$radius-full: 50%;   // Perfect circles — avatar, round buttons (40px)
+
+:root {
+  --radius-sm:   #{$radius-sm};
+  --radius-md:   #{$radius-md};
+  --radius-lg:   #{$radius-lg};
+  --radius-pill: #{$radius-pill};
+  --radius-xs:   #{$radius-xs};
+  --radius-icon: #{$radius-icon};
+  --radius-map:  #{$radius-map};
+  --radius-full: #{$radius-full};
+}

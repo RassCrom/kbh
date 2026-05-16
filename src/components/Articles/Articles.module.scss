@@ -1,0 +1,202 @@
+@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/radius' as *;
+@use '../../styles/tokens/shadows' as *;
+@use '../../styles/tokens/transitions' as *;
+@use '../../styles/mixins/typography' as typ;
+@use '../../styles/mixins/responsive' as *;
+
+.articles {
+  padding: $space-24 $space-8;
+  background: var(--color-bg-surface);
+
+  @include bp-down('md') {
+    padding: $space-16 $space-6;
+  }
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tag {
+  @include typ.section-tag;
+  display: block;
+  margin-bottom: $space-4;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: $space-12;
+
+  @include bp-down('md') {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $space-4;
+    margin-bottom: $space-8;
+  }
+}
+
+.heading {
+  @include typ.heading-md;
+  color: var(--color-text-primary);
+
+  @include bp-down('md') {
+    font-size: 32px;
+  }
+}
+
+.viewAll {
+  @include typ.label-lg;
+  color: var(--color-accent-gold);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  transition: gap $duration-mid $ease-cinematic;
+
+  &:hover {
+    gap: $space-3;
+    color: var(--color-accent-gold);
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-6;
+
+  @include bp-down('lg') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include bp-down('sm') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: border-color $duration-mid $ease-cinematic,
+              transform $duration-mid $ease-cinematic,
+              box-shadow $duration-mid $ease-cinematic;
+  opacity: 0;
+  transform: translateY(30px);
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color $duration-mid $ease-cinematic,
+                box-shadow $duration-mid $ease-cinematic;
+  }
+
+  &:hover {
+    border-color: var(--color-accent-gold);
+    transform: translateY(-4px);
+    box-shadow: $shadow-glow-gold;
+  }
+}
+
+.cardImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  background: linear-gradient(
+    135deg,
+    rgba(77, 138, 173, 0.15),
+    rgba(212, 168, 94, 0.1)
+  );
+}
+
+.cardImagePlaceholder {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(77, 138, 173, 0.1),
+    rgba(212, 168, 94, 0.08)
+  );
+  color: var(--color-text-secondary);
+}
+
+.cardBody {
+  padding: $space-6;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  margin-bottom: $space-3;
+}
+
+.cardEra {
+  @include typ.label-sm;
+  padding: 2px $space-3;
+  border-radius: 999px;
+  background: rgba(212, 168, 94, 0.1);
+  color: var(--color-accent-gold);
+  border: 1px solid rgba(212, 168, 94, 0.2);
+}
+
+.cardDate {
+  @include typ.data-sm;
+  color: var(--color-text-secondary);
+}
+
+.cardTitle {
+  @include typ.heading-xs;
+  color: var(--color-text-primary);
+  margin-bottom: $space-2;
+}
+
+.cardExcerpt {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: $space-4;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.readTime {
+  @include typ.data-sm;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+.readMore {
+  @include typ.label-sm;
+  color: var(--color-accent-gold);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  transition: gap $duration-ui $ease-snap;
+
+  &:hover {
+    gap: $space-2;
+    color: var(--color-accent-gold);
+  }
+}

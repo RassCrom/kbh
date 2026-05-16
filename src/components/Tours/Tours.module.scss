@@ -1,0 +1,143 @@
+@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/radius' as *;
+@use '../../styles/tokens/shadows' as *;
+@use '../../styles/tokens/transitions' as *;
+@use '../../styles/mixins/typography' as typ;
+@use '../../styles/mixins/responsive' as *;
+
+.tours {
+  padding: $space-24 $space-8;
+
+  @include bp-down('md') {
+    padding: $space-16 $space-6;
+  }
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tag {
+  @include typ.section-tag;
+  display: block;
+  margin-bottom: $space-4;
+}
+
+.heading {
+  @include typ.heading-md;
+  color: var(--color-text-primary);
+  margin-bottom: $space-12;
+
+  @include bp-down('md') {
+    font-size: 32px;
+    margin-bottom: $space-8;
+  }
+}
+
+.scroll {
+  display: flex;
+  gap: $space-6;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: $space-4;
+
+  // Hide scrollbar but keep functionality
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.card {
+  min-width: 320px;
+  max-width: 360px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  position: relative;
+  transition: border-color $duration-mid $ease-cinematic,
+              transform $duration-mid $ease-cinematic,
+              box-shadow $duration-mid $ease-cinematic;
+
+  &:hover {
+    border-color: var(--color-accent-gold);
+    transform: translateY(-4px);
+    box-shadow: $shadow-glow-gold;
+  }
+
+  @include bp-down('sm') {
+    min-width: 280px;
+  }
+}
+
+.eraStrip {
+  height: 4px;
+  width: 100%;
+}
+
+.cardContent {
+  padding: $space-6;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.cardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 168, 94, 0.08);
+  color: var(--color-accent-gold);
+}
+
+.cardTitle {
+  @include typ.heading-xs;
+  color: var(--color-text-primary);
+}
+
+.cardDesc {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+}
+
+.cardMeta {
+  display: flex;
+  gap: $space-4;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  @include typ.data-sm;
+  color: var(--color-text-data);
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+.startBtn {
+  @include typ.label-lg;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: 10px 20px;
+  border: 1px solid var(--color-accent-gold);
+  border-radius: $radius-md;
+  background: transparent;
+  color: var(--color-accent-gold);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background $duration-ui $ease-snap,
+              color $duration-ui $ease-snap;
+
+  &:hover {
+    background: var(--color-accent-gold);
+    color: var(--color-bg-base);
+  }
+}

@@ -1,0 +1,126 @@
+// =============================================================================
+// _typography.scss — heading, body, label, data typography mixins
+// =============================================================================
+
+@use '../tokens/typography' as *;
+
+// heading-xl — hero display headings
+@mixin heading-xl() {
+  font-family: $font-heading;
+  font-size: $text-display-xl-size;
+  font-weight: $weight-bold;
+  line-height: $text-display-xl-lh;
+  letter-spacing: $text-display-xl-tracking;
+}
+
+// heading-lg — section display headings
+@mixin heading-lg() {
+  font-family: $font-heading;
+  font-size: $text-display-lg-size;
+  font-weight: $weight-bold;
+  line-height: $text-display-lg-lh;
+  letter-spacing: $text-display-lg-tracking;
+}
+
+// heading-md — section headings
+@mixin heading-md() {
+  font-family: $font-heading;
+  font-size: $text-heading-lg-size;
+  font-weight: $weight-semibold;
+  line-height: $text-heading-lg-lh;
+  letter-spacing: $text-heading-lg-tracking;
+}
+
+// heading-sm — card headings, sub-sections
+@mixin heading-sm() {
+  font-family: $font-heading;
+  font-size: $text-heading-md-size;
+  font-weight: $weight-semibold;
+  line-height: $text-heading-md-lh;
+  letter-spacing: $text-heading-md-tracking;
+}
+
+// heading-xs — small headings
+@mixin heading-xs() {
+  font-family: $font-heading;
+  font-size: $text-heading-sm-size;
+  font-weight: $weight-medium;
+  line-height: $text-heading-sm-lh;
+  letter-spacing: $text-heading-sm-tracking;
+}
+
+// body-lg — main body text
+@mixin body-lg() {
+  font-family: $font-body;
+  font-size: $text-body-lg-size;
+  font-weight: $weight-regular;
+  line-height: $text-body-lg-lh;
+  letter-spacing: $text-body-tracking;
+}
+
+// body-md — secondary body text
+@mixin body-md() {
+  font-family: $font-body;
+  font-size: $text-body-md-size;
+  font-weight: $weight-regular;
+  line-height: $text-body-md-lh;
+  letter-spacing: $text-body-tracking;
+}
+
+// body-sm — small body text
+@mixin body-sm() {
+  font-family: $font-body;
+  font-size: $text-body-sm-size;
+  font-weight: $weight-regular;
+  line-height: $text-body-sm-lh;
+  letter-spacing: $text-body-tracking;
+}
+
+// label-lg — navigation, buttons, tags
+@mixin label-lg() {
+  font-family: $font-heading;
+  font-size: $text-label-lg-size;
+  font-weight: $weight-semibold;
+  line-height: $text-label-lg-lh;
+  letter-spacing: $text-label-lg-tracking;
+  text-transform: uppercase;
+}
+
+// label-sm — micro labels, badges
+@mixin label-sm() {
+  font-family: $font-heading;
+  font-size: $text-label-sm-size;
+  font-weight: $weight-semibold;
+  line-height: $text-label-sm-lh;
+  letter-spacing: $text-label-sm-tracking;
+  text-transform: uppercase;
+}
+
+// data-lg — large data/stat numbers
+@mixin data-lg() {
+  font-family: $font-data;
+  font-size: $text-data-lg-size;
+  font-weight: $weight-medium;
+  line-height: $text-data-lg-lh;
+  letter-spacing: $text-data-tracking;
+}
+
+// data-sm — small data labels
+@mixin data-sm() {
+  font-family: $font-data;
+  font-size: $text-data-sm-size;
+  font-weight: $weight-regular;
+  line-height: $text-data-sm-lh;
+  letter-spacing: $text-data-tracking;
+}
+
+// section-tag — "01 · HERO" style tags
+@mixin section-tag() {
+  font-family: $font-data;
+  font-size: $text-label-sm-size;
+  font-weight: $weight-medium;
+  line-height: $text-label-sm-lh;
+  letter-spacing: $text-tag-tracking;
+  text-transform: uppercase;
+  color: var(--color-accent-gold);
+}

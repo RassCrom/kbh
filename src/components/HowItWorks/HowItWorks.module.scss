@@ -1,0 +1,179 @@
+@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/radius' as *;
+@use '../../styles/tokens/shadows' as *;
+@use '../../styles/tokens/transitions' as *;
+@use '../../styles/mixins/typography' as typ;
+@use '../../styles/mixins/responsive' as *;
+
+.section {
+  padding: $space-24 $space-8;
+  background: var(--color-bg-surface);
+
+  @include bp-down('md') {
+    padding: $space-16 $space-6;
+  }
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tag {
+  @include typ.section-tag;
+  display: block;
+  text-align: center;
+  margin-bottom: $space-4;
+}
+
+.heading {
+  @include typ.heading-md;
+  color: var(--color-text-primary);
+  text-align: center;
+  margin-bottom: $space-4;
+
+  @include bp-down('md') {
+    font-size: 32px;
+  }
+}
+
+.subtitle {
+  @include typ.body-lg;
+  color: var(--color-text-secondary);
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto $space-16;
+
+  @include bp-down('md') {
+    margin-bottom: $space-12;
+  }
+}
+
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-8;
+  margin-bottom: $space-16;
+  position: relative;
+
+  @include bp-down('md') {
+    grid-template-columns: 1fr;
+    gap: $space-6;
+  }
+}
+
+.connector {
+  display: none;
+
+  @include bp('lg') {
+    display: block;
+    position: absolute;
+    top: 60px;
+    left: calc(33.33% + 8px);
+    width: calc(33.33% - 16px);
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--color-accent-gold) 0,
+      var(--color-accent-gold) 8px,
+      transparent 8px,
+      transparent 16px
+    );
+    opacity: 0.4;
+
+    &:nth-child(2) {
+      left: calc(66.66% + 8px);
+    }
+  }
+}
+
+.step {
+  text-align: center;
+  padding: $space-8;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-lg;
+  position: relative;
+  transition: border-color $duration-mid $ease-cinematic,
+              box-shadow $duration-mid $ease-cinematic;
+
+  &:hover {
+    border-color: rgba(212, 168, 94, 0.3);
+    box-shadow: $shadow-glow-gold;
+  }
+}
+
+.stepNumber {
+  @include typ.data-lg;
+  color: var(--color-accent-gold);
+  opacity: 0.3;
+  font-size: 64px;
+  position: absolute;
+  top: $space-4;
+  right: $space-6;
+  line-height: 1;
+}
+
+.stepIcon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto $space-6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-full;
+  background: rgba(212, 168, 94, 0.1);
+  color: var(--color-accent-gold);
+  border: 1px solid rgba(212, 168, 94, 0.2);
+}
+
+.stepTitle {
+  @include typ.heading-xs;
+  color: var(--color-text-primary);
+  margin-bottom: $space-3;
+}
+
+.stepDesc {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+}
+
+.sources {
+  margin-top: $space-12;
+}
+
+.sourcesTitle {
+  @include typ.heading-xs;
+  color: var(--color-text-primary);
+  text-align: center;
+  margin-bottom: $space-8;
+}
+
+.sourceGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-4;
+}
+
+.source {
+  @include typ.label-lg;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-base);
+  text-transform: none;
+  letter-spacing: 0;
+  transition: border-color $duration-ui $ease-snap,
+              color $duration-ui $ease-snap;
+
+  &:hover {
+    border-color: var(--color-accent-sky);
+    color: var(--color-accent-sky);
+  }
+}

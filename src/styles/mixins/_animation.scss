@@ -1,0 +1,43 @@
+// =============================================================================
+// _animation.scss — cinematic-enter() and map-transition() mixins
+// =============================================================================
+
+@use '../tokens/transitions' as *;
+
+// cinematic-enter($delay) — opacity + translateY entrance for panels and cards
+// Usage: @include cinematic-enter(100ms);
+@mixin cinematic-enter($delay: 0ms) {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: cinematic-enter $duration-slow $ease-cinematic #{$delay} both;
+}
+
+@keyframes cinematic-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// map-transition() — smooth transition for map-layer elements
+// (building color change, opacity, filter)
+@mixin map-transition() {
+  transition:
+    opacity   $duration-map $ease-map,
+    fill      $duration-map $ease-map,
+    transform $duration-map $ease-map,
+    filter    $duration-map $ease-map;
+}
+
+// panel-transition() — enter/exit for side panels and modals
+@mixin panel-transition() {
+  transition:
+    opacity   $duration-mid $ease-cinematic,
+    transform $duration-mid $ease-cinematic;
+}
+
+// ui-transition() — standard interactive state change
+// (button hover, tab select, border glow)
+@mixin ui-transition() {
+  transition: $transition-color;
+}

@@ -1,0 +1,104 @@
+// =============================================================================
+// _typography.scss — heading() and data-label() mixins
+// =============================================================================
+
+@use '../tokens/typography' as *;
+@use '../tokens/colors' as *;
+
+// heading($size) — Barlow Semi Condensed heading
+// Sizes: 'xl' | 'lg' | 'md' | 'sm'
+@mixin heading($size: 'md') {
+  font-family: var(--font-heading);
+
+  @if $size == 'xl' {
+    font-size: $text-display-xl-size;
+    font-weight: $weight-bold;
+    letter-spacing: $text-display-xl-tracking;
+    line-height: $text-display-xl-lh;
+  } @else if $size == 'lg' {
+    font-size: $text-heading-lg-size;
+    font-weight: $weight-semibold;
+    letter-spacing: $text-heading-lg-tracking;
+    line-height: $text-heading-lg-lh;
+  } @else if $size == 'md' {
+    font-size: $text-heading-md-size;
+    font-weight: $weight-semibold;
+    letter-spacing: $text-heading-md-tracking;
+    line-height: $text-heading-md-lh;
+  } @else if $size == 'sm' {
+    font-size: $text-heading-sm-size;
+    font-weight: $weight-medium;
+    letter-spacing: $text-heading-sm-tracking;
+    line-height: $text-heading-sm-lh;
+  }
+
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+// label($size) — Barlow Semi Condensed uppercase label
+// Sizes: 'lg' | 'sm'
+@mixin label($size: 'lg') {
+  font-family: var(--font-heading);
+  font-weight: $weight-semibold;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+
+  @if $size == 'lg' {
+    font-size: $text-label-lg-size;
+    letter-spacing: $text-label-lg-tracking;
+    line-height: $text-label-lg-lh;
+  } @else if $size == 'sm' {
+    font-size: $text-label-sm-size;
+    letter-spacing: $text-label-sm-tracking;
+    line-height: $text-label-sm-lh;
+  }
+}
+
+// data-label($size) — DM Mono instrument-panel text
+// Sizes: 'lg' | 'sm'
+@mixin data-label($size: 'sm') {
+  font-family: var(--font-data);
+  font-weight: $weight-regular;
+  letter-spacing: $text-data-tracking;
+  color: var(--color-text-data);
+
+  @if $size == 'lg' {
+    font-size: $text-data-lg-size;
+    line-height: $text-data-lg-lh;
+  } @else if $size == 'sm' {
+    font-size: $text-data-sm-size;
+    line-height: $text-data-sm-lh;
+  }
+}
+
+// section-tag() — numbered section tag (01, 02, 03…)
+@mixin section-tag() {
+  font-family: var(--font-data);
+  font-size: $text-data-sm-size;
+  letter-spacing: $text-tag-tracking;
+  color: var(--color-accent-sky);
+}
+
+// body-text($size) — Open Sans body copy
+// Sizes: 'lg' | 'md' | 'sm'
+@mixin body-text($size: 'md') {
+  font-family: var(--font-body);
+
+  @if $size == 'lg' {
+    font-size: $text-body-lg-size;
+    font-weight: $weight-light;
+    line-height: $text-body-lg-lh;
+  } @else if $size == 'md' {
+    font-size: $text-body-md-size;
+    font-weight: $weight-regular;
+    line-height: $text-body-md-lh;
+  } @else if $size == 'sm' {
+    font-size: $text-body-sm-size;
+    font-weight: $weight-regular;
+    line-height: $text-body-sm-lh;
+  }
+
+  letter-spacing: $text-body-tracking;
+  color: var(--color-text-secondary);
+}

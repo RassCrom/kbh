@@ -1,0 +1,54 @@
+// =============================================================================
+// _surface.scss — surface() and frosted-panel() mixins
+// =============================================================================
+
+@use '../tokens/colors' as *;
+@use '../tokens/radius' as *;
+@use '../tokens/shadows' as *;
+
+// surface($level) — background + border + radius by elevation level
+// Levels: 'base' | 'raised' | 'overlay'
+@mixin surface($level: 'base') {
+  @if $level == 'base' {
+    background-color: var(--color-bg-base);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: $radius-lg;
+  } @else if $level == 'raised' {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: $radius-lg;
+    box-shadow: $shadow-sm;
+  } @else if $level == 'overlay' {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: $radius-lg;
+    box-shadow: $shadow-md;
+  }
+}
+
+// frosted-panel() — semi-transparent backdrop-filtered overlay
+// Used for map tooltip, floating cards, info popups
+@mixin frosted-panel() {
+  background-color: var(--color-bg-overlay);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-map;
+  box-shadow: $shadow-float;
+}
+
+// card() — standard content card
+@mixin card() {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+// card-active() — selected or highlighted card
+@mixin card-active() {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-active);
+  border-radius: $radius-lg;
+  box-shadow: $shadow-row-active;
+}
