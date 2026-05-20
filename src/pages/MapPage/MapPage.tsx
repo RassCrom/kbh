@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Protocol } from 'pmtiles';
@@ -11,6 +11,7 @@ import { buildParsedYearExpr, buildYearColorExpr, buildCombinedFilter } from './
 import { darkDramaticStyle } from './darkDramaticStyle';
 import { TimelineSlider } from './components/TimelineSlider';
 import { FilterSidebar } from './components/FilterSidebar';
+import { BuildingPanel } from './components/BuildingPanel';
 
 export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -25,6 +26,7 @@ export default function MapPage() {
   const [sliderMax, setSliderMax] = useState<number>(2029);
   const [yearRange, setYearRange] = useState<[number, number]>([1900, 2029]);
   const [yearCounts, setYearCounts] = useState<Record<number, number>>({});
+  const [typeCounts, setTypeCounts] = useState<Record<string, number>>({});
   const [hoveredEra, setHoveredEra] = useState<string | null>(null);
 
   // Filter sidebar state
@@ -35,6 +37,59 @@ export default function MapPage() {
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [archStyleOptions, setArchStyleOptions] = useState<string[]>([]);
   const [companyOptions, setCompanyOptions] = useState<string[]>([]);
+
+  // Building detail panel state
+  const [selectedBuilding, setSelectedBuilding] = useState<Record<string, unknown> | null>(null);
+
+  // Time-lapse state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playSpeed, setPlaySpeed] = useState<1 | 2 | 4>(1);
+  const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sliderMaxRef = useRef(sliderMax);
+  const playSpeedRef = useRef(playSpeed);
+
+  useEffect(() => { sliderMaxRef.current = sliderMax; }, [sliderMax]);
+  useEffect(() => { playSpeedRef.current = playSpeed; }, [playSpeed]);
+
+  // Start / restart interval whenever isPlaying or playSpeed changes
+  useEffect(() => {
+    if (!isPlaying) {
+      if (playIntervalRef.current) {
+        clearInterval(playIntervalRef.current);
+        playIntervalRef.current = null;
+      }
+      return;
+    }
+    playIntervalRef.current = setInterval(() => {
+      setYearRange(prev => {
+        const next = prev[1] + playSpeedRef.current;
+        if (next >= sliderMaxRef.current) {
+          clearInterval(playIntervalRef.current!);
+          playIntervalRef.current = null;
+          setIsPlaying(false);
+          return [prev[0], sliderMaxRef.current];
+        }
+        return [prev[0], next];
+      });
+    }, 80);
+    return () => {
+      if (playIntervalRef.current) clearInterval(playIntervalRef.current);
+    };
+  }, [isPlaying, playSpeed]);
+
+  const handleTogglePlay = useCallback(() => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    } else {
+      setYearRange([1900, 1900]);
+      setIsPlaying(true);
+    }
+  }, [isPlaying]);
+
+  const handlePlayReset = useCallback(() => {
+    setIsPlaying(false);
+    setYearRange([1900, sliderMaxRef.current]);
+  }, []);
 
   useEffect(() => {
     if (window.innerWidth > 1024) {
@@ -224,6 +279,19 @@ export default function MapPage() {
       map.on('mouseleave', 'buildings-fill', handleMouseLeave);
       map.on('mouseleave', 'buildings-3d', handleMouseLeave);
 
+      // Building click — open detail panel, close filter sidebar
+      map.on('click', (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['buildings-fill', 'buildings-3d'],
+        });
+        if (features.length) {
+          setSelectedBuilding(features[0].properties as Record<string, unknown>);
+          setSidebarOpen(false);
+        } else {
+          setSelectedBuilding(null);
+        }
+      });
+
       const archStyles = new Set<string>();
       const companies = new Set<string>();
       let currentSliderMax = 2029;
@@ -235,6 +303,7 @@ export default function MapPage() {
         debounceTimer = setTimeout(() => {
           const features = map.queryRenderedFeatures(undefined, { layers: ['buildings-hidden'] });
           const counts: Record<number, number> = {};
+          const types: Record<string, number> = {};
           let localMax = currentSliderMax;
           let hasUpdates = false;
 
@@ -281,9 +350,16 @@ export default function MapPage() {
             if (company && typeof company === 'string' && company.trim()) {
               companies.add(company.trim());
             }
+
+            // Type counts for charts tab
+            const type = f.properties.type;
+            if (type && typeof type === 'string' && type.trim()) {
+              types[type.trim()] = (types[type.trim()] || 0) + 1;
+            }
           }
 
           setYearCounts(counts);
+          setTypeCounts(types);
           if (hasUpdates) {
             currentSliderMax = localMax;
             setSliderMax(localMax);
@@ -432,6 +508,8 @@ export default function MapPage() {
         companyOptions={companyOptions}
         onReset={handleReset}
         activeCount={activeCount}
+        yearCounts={yearCounts}
+        typeCounts={typeCounts}
       />
 
       {/* Legend panel */}
@@ -484,14 +562,11 @@ export default function MapPage() {
         )}
       </div>
 
-      {/* Hover tooltip */}
-      {hoverInfo && (
+      {/* Hover tooltip — hidden while a building is selected */}
+      {hoverInfo && !selectedBuilding && (
         <div
           className={s.tooltip}
-          style={{
-            left: hoverInfo.x + 14,
-            top: hoverInfo.y - 14,
-          }}
+          style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}
         >
           {Object.entries(hoverInfo.properties).map(([key, val]) => (
             <div key={key} className={s.tooltipRow}>
@@ -502,7 +577,13 @@ export default function MapPage() {
         </div>
       )}
 
-      {/* Timeline Slider */}
+      {/* Building detail panel */}
+      <BuildingPanel
+        properties={selectedBuilding}
+        onClose={() => setSelectedBuilding(null)}
+      />
+
+      {/* Timeline Slider with play controls */}
       <TimelineSlider
         min={1900}
         max={sliderMax}
@@ -510,6 +591,12 @@ export default function MapPage() {
         onChange={setYearRange}
         data={yearCounts}
         sidebarOpen={sidebarOpen}
+        buildingOpen={!!selectedBuilding}
+        isPlaying={isPlaying}
+        playSpeed={playSpeed}
+        onTogglePlay={handleTogglePlay}
+        onSpeedChange={setPlaySpeed}
+        onPlayReset={handlePlayReset}
       />
     </div>
   );

@@ -1,0 +1,235 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/z-index' as *;
+
+// Building panel sits above filter sidebar (z-panel = 100)
+$z-building-panel: 150;
+
+/* ── Slide-in container ─────────────────────────────────────────── */
+
+.panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  z-index: $z-building-panel;
+  display: flex;
+  flex-direction: column;
+  background: rgba(14, 21, 33, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid $color-border-subtle;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.55);
+  transform: translateX(100%);
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+  padding: 14px $space-4;
+  border-bottom: 1px solid $color-border-subtle;
+  flex-shrink: 0;
+  min-height: 52px;
+}
+
+.eraBadge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px 4px 7px;
+  border: 1px solid transparent;
+  border-radius: $radius-pill;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.eraDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.eraLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: color $duration-ui ease,
+    border-color $duration-ui ease,
+    background $duration-ui ease;
+
+  &:hover {
+    color: $color-text-primary;
+    border-color: $color-border-subtle;
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* ── Scrollable body ────────────────────────────────────────────── */
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  scrollbar-width: thin;
+  scrollbar-color: $color-border-subtle transparent;
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: $color-border-subtle; border-radius: 2px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+}
+
+/* ── Name block ─────────────────────────────────────────────────── */
+
+.nameBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.name {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 600;
+  color: $color-text-primary;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.eraDesc {
+  font-size: 12px;
+  color: $color-text-secondary;
+  line-height: 1.55;
+}
+
+/* ── Property sections ──────────────────────────────────────────── */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $color-text-secondary;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(30, 42, 56, 0.7);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.fieldLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $color-text-secondary;
+}
+
+.fieldValue {
+  font-size: 13px;
+  font-weight: 400;
+  color: $color-text-primary;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* ── Photo header ───────────────────────────────────────────────── */
+
+.photoWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-border-subtle;
+  flex-shrink: 0;
+}
+
+.photoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
+.photoPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: $color-text-secondary;
+  border-radius: inherit;
+
+  svg {
+    opacity: 0.35;
+  }
+
+  span {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.45;
+  }
+}
+

@@ -5,6 +5,7 @@ import s from './Articles.module.scss';
 
 const STORY_ROUTES: Record<string, string> = {
   'article-soviet-grid': '/stories/soviet-grid',
+  'article-bayterek': '/stories/bayterek',
 };
 
 const ARTICLES = [

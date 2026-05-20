@@ -103,7 +103,7 @@ export const TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: 'Airport', value: 'airport' },
   { label: 'Train Station', value: 'train station' },
   { label: 'School', value: 'school' },
-  { label: 'Kindergarten', value: 'kindergarten' },
-  { label: 'University', value: 'university' },
+  { label: 'Kindergarten', value: 'kdgd' },
+  { label: 'University', value: 'uni' },
   { label: 'House', value: 'house' },
 ];

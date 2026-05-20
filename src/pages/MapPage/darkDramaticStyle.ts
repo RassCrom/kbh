@@ -3,7 +3,7 @@ import type { StyleSpecification } from 'maplibre-gl';
 export const darkDramaticStyle: StyleSpecification = {
   version: 8,
   name: 'Dark Dramatic',
-  glyphs: 'https://tiles.openfreemap.org/font/{fontstack}/{range}.pbf',
+  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
   sources: {
     openmaptiles: {
       type: 'vector',

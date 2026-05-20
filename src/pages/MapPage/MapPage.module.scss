@@ -393,6 +393,115 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Play / time-lapse controls row                                    */
+/* ------------------------------------------------------------------ */
+
+.playRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding-top: $space-3;
+  margin-top: $space-1;
+  border-top: 1px solid rgba(30, 42, 56, 0.5);
+}
+
+.playReset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-sm;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap;
+
+  &:hover {
+    color: $color-accent-gold;
+    border-color: $color-accent-gold;
+    background: $color-gold-tint-06;
+  }
+}
+
+.playMain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  background: $color-gold-tint-08;
+  border: 1px solid $color-accent-gold;
+  border-radius: 50%;
+  color: $color-accent-gold;
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap;
+
+  &:hover {
+    background: $color-gold-tint-12;
+    box-shadow: 0 0 14px rgba(212, 168, 94, 0.22);
+  }
+
+  &.playing {
+    background: rgba(212, 168, 94, 0.18);
+    box-shadow: 0 0 10px rgba(212, 168, 94, 0.18);
+  }
+}
+
+.playYear {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: $color-text-primary;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.speedGroup {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-sm;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.speedBtn {
+  padding: 3px 7px;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  color: $color-text-secondary;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap;
+
+  &:hover {
+    color: $color-text-primary;
+    background: $color-white-tint-06;
+  }
+
+  &.speedActive {
+    color: $color-accent-gold;
+    background: $color-gold-tint-08;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Animations                                                         */
 /* ------------------------------------------------------------------ */
 
@@ -884,6 +993,252 @@
     background: rgba(212, 168, 94, 0.15);
     border-color: $color-accent-gold;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Filter sidebar — tab switcher                                      */
+/* ------------------------------------------------------------------ */
+
+.tabRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.tabBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-1;
+  padding: $space-1 $space-2;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &.tabActive {
+    color: $color-accent-gold;
+    background: rgba(212, 168, 94, 0.1);
+    border-color: rgba(212, 168, 94, 0.3);
+  }
+}
+
+.tabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: $color-accent-gold;
+  color: $color-bg-base;
+  border-radius: $radius-pill;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Charts tab body                                                    */
+/* ------------------------------------------------------------------ */
+
+.chartBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  scrollbar-width: thin;
+  scrollbar-color: $color-border-subtle transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $color-border-subtle; border-radius: 2px; }
+}
+
+.chartLiveRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.chartLiveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.chartLiveLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.chartCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(30, 42, 56, 0.6);
+  border-radius: $radius-md;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.chartCardHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.chartCardTitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-primary);
+}
+
+.chartCardMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.chartEmpty {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: $space-4 0;
+  opacity: 0.6;
+}
+
+/* Horizontal bar rows */
+
+.hBarList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.hBarRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.hBarLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  width: 72px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hBarTrack {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hBarCount {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Vertical decade bars */
+
+.decadeChart {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.decadeBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 64px;
+}
+
+.decadeCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+}
+
+.decadeBarWrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.decadeBar {
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+  min-height: 0;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.decadeLabel {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0.7;
 }
 
 /* ------------------------------------------------------------------ */
