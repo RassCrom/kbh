@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { Clock, ArrowRight, ChevronRight, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import s from './Articles.module.scss';
+
+const STORY_ROUTES: Record<string, string> = {
+  'article-soviet-grid': '/stories/soviet-grid',
+};
 
 const ARTICLES = [
   {
@@ -88,9 +93,15 @@ export default function Articles() {
                   <span className={s.readTime}>
                     <Clock size={12} /> {article.readTime}
                   </span>
-                  <a href="#" className={s.readMore}>
-                    Read <ArrowRight size={12} />
-                  </a>
+                  {STORY_ROUTES[article.id] ? (
+                    <Link to={STORY_ROUTES[article.id]} className={s.readMore}>
+                      Read <ArrowRight size={12} />
+                    </Link>
+                  ) : (
+                    <a href="#" className={s.readMore}>
+                      Read <ArrowRight size={12} />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

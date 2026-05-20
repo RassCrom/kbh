@@ -63,31 +63,6 @@
   }
 }
 
-.connector {
-  display: none;
-
-  @include bp('lg') {
-    display: block;
-    position: absolute;
-    top: 60px;
-    left: calc(33.33% + 8px);
-    width: calc(33.33% - 16px);
-    height: 2px;
-    background: repeating-linear-gradient(
-      90deg,
-      var(--color-accent-gold) 0,
-      var(--color-accent-gold) 8px,
-      transparent 8px,
-      transparent 16px
-    );
-    opacity: 0.4;
-
-    &:nth-child(2) {
-      left: calc(66.66% + 8px);
-    }
-  }
-}
-
 .step {
   text-align: center;
   padding: $space-8;

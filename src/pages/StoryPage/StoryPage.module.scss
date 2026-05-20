@@ -1,0 +1,297 @@
+@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/radius' as *;
+@use '../../styles/tokens/shadows' as *;
+@use '../../styles/tokens/transitions' as *;
+@use '../../styles/mixins/typography' as typ;
+@use '../../styles/mixins/responsive' as *;
+
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+}
+
+// ── Back button ────────────────────────────────────────────────────────────────
+
+.backBtn {
+  position: fixed;
+  top: $space-6;
+  left: $space-6;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-pill;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  @include typ.label-sm;
+  transition: border-color $duration-mid $ease-cinematic,
+              box-shadow $duration-mid $ease-cinematic;
+
+  &:hover {
+    border-color: var(--color-accent-gold);
+    box-shadow: $shadow-glow-gold;
+  }
+}
+
+// ── Story header ───────────────────────────────────────────────────────────────
+
+.header {
+  background: var(--color-bg-surface);
+  background-image: url(/story-one-bg-photo.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: $space-24 $space-8 $space-16;
+  text-align: center;
+  position: relative;
+
+  &::after {
+    content: '';
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  @include bp-down('md') {
+    padding: $space-16 $space-6 $space-12;
+  }
+}
+
+.headerInner {
+  max-width: 760px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 100;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-4;
+  margin-bottom: $space-6;
+}
+
+.eraTag {
+  @include typ.label-sm;
+  padding: 3px $space-3;
+  border-radius: $radius-pill;
+  background: rgba(212, 168, 94, 0.1);
+  color: var(--color-accent-gold);
+  border: 1px solid rgba(212, 168, 94, 0.25);
+}
+
+.readTime {
+  @include typ.data-sm;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+.title {
+  @include typ.heading-lg;
+  color: var(--color-text-primary);
+  margin-bottom: $space-6;
+
+  @include bp-down('md') {
+    font-size: 32px;
+  }
+}
+
+.lead {
+  @include typ.body-lg;
+  color: var(--color-text-secondary);
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+// ── Article body ───────────────────────────────────────────────────────────────
+
+.content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $space-16 $space-8;
+
+  @include bp-down('md') {
+    padding: $space-12 $space-6;
+  }
+}
+
+.section {
+  margin-bottom: $space-16;
+
+  @include bp-down('md') {
+    margin-bottom: $space-12;
+  }
+}
+
+.sectionHeading {
+  @include typ.heading-sm;
+  color: var(--color-text-primary);
+  margin-bottom: $space-6;
+  padding-bottom: $space-3;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.body {
+  @include typ.body-md;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  margin-bottom: $space-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// ── Placeholders ───────────────────────────────────────────────────────────────
+
+.placeholder {
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: $radius-lg;
+  padding: $space-8 $space-6;
+  margin: $space-6 0;
+  background: linear-gradient(
+    135deg,
+    rgba(77, 138, 173, 0.04),
+    rgba(212, 168, 94, 0.04)
+  );
+  text-align: center;
+}
+
+.placeholderLabel {
+  @include typ.label-sm;
+  color: var(--color-accent-gold);
+  display: block;
+  margin-bottom: $space-3;
+}
+
+.placeholderDesc {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+// ── Population stats grid ──────────────────────────────────────────────────────
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-4;
+  margin: $space-6 0;
+
+  @include bp-down('sm') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statItem {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-md;
+  padding: $space-6 $space-4;
+  text-align: center;
+}
+
+.statYear {
+  @include typ.data-sm;
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: $space-2;
+}
+
+.statValue {
+  @include typ.data-lg;
+  color: var(--color-accent-gold);
+  display: block;
+  margin-bottom: $space-1;
+}
+
+.statLabel {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+  font-size: 11px;
+}
+
+// ── Callout / interesting fact ─────────────────────────────────────────────────
+
+.callout {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 3px solid var(--color-accent-sky);
+  border-radius: $radius-md;
+  padding: $space-6;
+  margin: $space-8 0;
+}
+
+.calloutLabel {
+  @include typ.label-sm;
+  color: var(--color-accent-sky);
+  display: block;
+  margin-bottom: $space-3;
+}
+
+.calloutText {
+  @include typ.body-md;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+// ── Pull quote ─────────────────────────────────────────────────────────────────
+
+.pullQuote {
+  border-left: 3px solid var(--color-accent-gold);
+  padding: $space-4 $space-6;
+  margin: $space-8 0;
+}
+
+.pullQuoteText {
+  @include typ.heading-xs;
+  color: var(--color-accent-gold);
+  font-style: italic;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+// ── CTA ────────────────────────────────────────────────────────────────────────
+
+.ctaBlock {
+  margin-top: $space-8;
+  padding-top: $space-8;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-3 $space-6;
+  border: 1px solid var(--color-accent-gold);
+  border-radius: $radius-pill;
+  background: rgba(212, 168, 94, 0.08);
+  color: var(--color-accent-gold);
+  text-decoration: none;
+  @include typ.label-lg;
+  font-size: 13px;
+  transition: background $duration-mid $ease-cinematic,
+              box-shadow $duration-mid $ease-cinematic;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.16);
+    box-shadow: $shadow-glow-gold;
+  }
+}

@@ -49,8 +49,8 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   transition: background $duration-ui $ease-snap,
-              border-color $duration-ui $ease-snap,
-              box-shadow $duration-ui $ease-snap;
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap;
   cursor: pointer;
 
   &:hover {
@@ -97,7 +97,7 @@
   display: flex;
   flex-direction: column;
   gap: $space-2;
-  max-width: 220px;
+  max-width: 256px;
 }
 
 .legendToggle {
@@ -115,8 +115,8 @@
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: background $duration-ui $ease-snap,
-              color $duration-ui $ease-snap,
-              border-color $duration-ui $ease-snap;
+    color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
 
   &:hover {
     color: $color-accent-gold;
@@ -132,6 +132,15 @@
   border-radius: $radius-lg;
   padding: $space-4;
   animation: fadeSlideUp 250ms $ease-cinematic;
+  // Prevent the legend from overflowing the viewport on short screens
+  max-height: 72vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: $color-border-subtle transparent;
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: $color-border-subtle; border-radius: 2px; }
+  &::-webkit-scrollbar-track { background: transparent; }
 }
 
 .legendTitle {
@@ -152,23 +161,42 @@
 
 .legendItem {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: $space-2;
 }
 
 .legendSwatch {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
+  margin-top: 2px; // align with first text line
   border-radius: $radius-sm;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.legendTextGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .legendLabel {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.legendDesc {
+  font-family: var(--font-mono);
+  font-size: 9px;
   color: var(--color-text-secondary);
+  opacity: 0.7;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
 }
 
 .resetButton {
@@ -219,7 +247,7 @@
   font-size: 12px;
   line-height: 1.4;
 
-  & + & {
+  &+& {
     border-top: 1px solid rgba(30, 42, 56, 0.4);
   }
 }
@@ -246,10 +274,12 @@
 .timelineContainer {
   position: absolute;
   bottom: $space-2;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 1000px;
+  // Left edge clears the legend panel: 16px margin + 256px max-width + 8px gap
+  left: 280px;
+  // Right edge clears MapLibre nav controls (~36px) + comfortable margin
+  right: 56px;
+  width: auto;
+  max-width: none;
   background: rgba(14, 21, 33, 0.88);
   backdrop-filter: blur(4px);
   border: 1px solid $color-border-subtle;
@@ -260,6 +290,23 @@
   flex-direction: column;
   gap: $space-2;
   box-shadow: $shadow-md;
+  // Animate alongside the filter sidebar sliding in/out
+  transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              left  0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.withSidebar {
+    // 320px sidebar width + 16px gap
+    right: 336px;
+  }
+
+  @media (max-width: 768px) {
+    left: $space-4;
+    right: $space-4;
+
+    &.withSidebar {
+      right: $space-4;
+    }
+  }
 }
 
 .histogram {
@@ -284,7 +331,7 @@
 
 .bar.active {
   background: $color-accent-gold;
-  
+
   &:hover {
     background: lighten($color-accent-gold, 10%);
   }
@@ -354,6 +401,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -361,8 +409,481 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Filter toggle button                                               */
+/* ------------------------------------------------------------------ */
+
+.filterToggle {
+  position: absolute;
+  top: $space-4;
+  right: $space-4;
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  width: 36px;
+  height: 36px;
+  background: rgba(14, 21, 33, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: background $duration-ui $ease-snap,
+    color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap;
+
+  &:hover {
+    color: $color-accent-gold;
+    border-color: $color-accent-gold;
+    background: rgba(14, 21, 33, 0.95);
+  }
+
+  &.active {
+    color: $color-accent-gold;
+    border-color: $color-accent-gold;
+    background: rgba(212, 168, 94, 0.1);
+    box-shadow: 0 0 12px rgba(212, 168, 94, 0.15);
+  }
+}
+
+.filterToggleBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: $color-accent-gold;
+  color: $color-bg-base;
+  border-radius: $radius-pill;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Filter sidebar                                                     */
+/* ------------------------------------------------------------------ */
+
+.filterSidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  z-index: $z-panel;
+  background: rgba(14, 21, 33, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid $color-border-subtle;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform $duration-mid $ease-cinematic;
+  overflow: visible; // Allow toggleHandle to hang outside on the left
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+/* Vertical tab toggle handle attached to left border */
+.toggleHandle {
+  position: absolute;
+  top: 50%;
+  left: -28px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 70px;
+  background: rgba(14, 21, 33, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid $color-border-subtle;
+  border-right: none;
+  border-radius: $radius-md 0 0 $radius-md;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    color: $color-accent-gold;
+    border-color: $color-accent-gold;
+    box-shadow: -6px 0 16px rgba(212, 168, 94, 0.12);
+  }
+}
+
+.filterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-4;
+  border-bottom: 1px solid $color-border-subtle;
+  flex-shrink: 0;
+  background: rgba(14, 21, 33, 0.4);
+}
+
+.filterHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.filterHeaderTitle {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $color-accent-gold;
+}
+
+.filterBadge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: $color-accent-gold;
+  color: $color-bg-base;
+  border-radius: $radius-pill;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 8px rgba(212, 168, 94, 0.3);
+}
+
+.filterClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    border-color: $color-border-subtle;
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.filterBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-2 0;
+
+  // Thin scrollbar styling
+  scrollbar-width: thin;
+  scrollbar-color: $color-border-subtle transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $color-border-subtle;
+    border-radius: 2px;
+  }
+}
+
+.filterSection {
+  padding: $space-4;
+  border-bottom: 1px solid rgba(30, 42, 56, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 0;
+  transition: color $duration-ui $ease-snap;
+
+  &:hover {
+    .filterSectionTitle {
+      color: var(--color-text-primary);
+    }
+
+    .sectionChevron {
+      color: $color-accent-gold;
+    }
+  }
+}
+
+.sectionTitleContainer {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.filterSectionTitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  transition: color $duration-ui $ease-snap;
+}
+
+.sectionChevron {
+  color: var(--color-text-secondary);
+  transition: transform $duration-ui $ease-snap, color $duration-ui $ease-snap;
+
+  &.expanded {
+    transform: rotate(180deg);
+    color: $color-accent-gold;
+  }
+}
+
+.sectionClearBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: $radius-sm;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    color: $color-accent-gold;
+    background: rgba(212, 168, 94, 0.08);
+  }
+}
+
+.activeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $color-accent-gold;
+  box-shadow: 0 0 8px $color-accent-gold;
+}
+
+.sectionContent {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  animation: fadeIn 150ms ease-out;
+}
+
+/* Search input styling */
+.searchInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  width: 100%;
+  padding: $space-2 $space-8 $space-2 $space-3;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-md;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  outline: none;
+  transition: all $duration-ui $ease-snap;
+
+  &:focus {
+    background: rgba(212, 168, 94, 0.03);
+    border-color: $color-accent-gold;
+    box-shadow: 0 0 8px rgba(212, 168, 94, 0.1);
+  }
+
+  &::placeholder {
+    color: rgba(109, 125, 148, 0.5);
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  right: $space-3;
+  color: rgba(109, 125, 148, 0.4);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Filter chips (type, district)                                      */
+/* ------------------------------------------------------------------ */
+
+.chipGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap,
+    color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: rgba(212, 168, 94, 0.4);
+    color: var(--color-text-primary);
+    background: rgba(212, 168, 94, 0.05);
+  }
+
+  &.selected {
+    background: rgba(212, 168, 94, 0.12);
+    border-color: $color-accent-gold;
+    color: $color-accent-gold;
+    box-shadow: 0 0 8px rgba(212, 168, 94, 0.08);
+  }
+}
+
+.showMoreBtn {
+  background: transparent;
+  border: none;
+  color: $color-accent-sky;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  padding: $space-1 0;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  transition: color $duration-ui $ease-snap;
+  align-self: flex-start;
+
+  &:hover {
+    color: lighten($color-accent-sky, 10%);
+    text-decoration: underline;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Filter dropdowns (arch style, company)                             */
+/* ------------------------------------------------------------------ */
+
+.filterSelect {
+  width: 100%;
+  padding: $space-2 $space-3;
+  padding-right: $space-6;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-md;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  // SVG chevron arrow
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236d7d94' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $space-3 center;
+  transition: border-color $duration-ui $ease-snap,
+    background-color $duration-ui $ease-snap;
+
+  &:hover {
+    border-color: rgba(212, 168, 94, 0.4);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-accent-gold;
+    background-color: rgba(212, 168, 94, 0.06);
+  }
+
+  option {
+    background: $color-bg-surface;
+    color: var(--color-text-primary);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Filter footer (reset button)                                       */
+/* ------------------------------------------------------------------ */
+
+.filterFooter {
+  flex-shrink: 0;
+  padding: $space-4;
+  border-top: 1px solid $color-border-subtle;
+  background: rgba(14, 21, 33, 0.4);
+}
+
+.filterReset {
+  width: 100%;
+  padding: $space-2 $space-3;
+  background: rgba(212, 168, 94, 0.08);
+  border: 1px solid rgba(212, 168, 94, 0.25);
+  border-radius: $radius-sm;
+  color: $color-accent-gold;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.15);
+    border-color: $color-accent-gold;
+  }
 }
 
 /* ------------------------------------------------------------------ */

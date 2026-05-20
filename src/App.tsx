@@ -8,6 +8,7 @@ import HowItWorks from './components/HowItWorks/HowItWorks';
 import Team from './components/Team/Team';
 import Footer from './components/Footer/Footer';
 import MapPage from './pages/MapPage/MapPage';
+import StoryPage from './pages/StoryPage/StoryPage';
 
 function HomePage() {
   return (
@@ -32,6 +33,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/map" element={<MapPage />} />
+        <Route path="/stories/soviet-grid" element={<StoryPage />} />
       </Routes>
     </BrowserRouter>
   );
