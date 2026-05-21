@@ -239,6 +239,19 @@
   animation: fadeIn 120ms ease-out;
 }
 
+.tooltipName {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+  margin-bottom: $space-1;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .tooltipRow {
   display: flex;
   justify-content: space-between;
@@ -246,10 +259,6 @@
   padding: 2px 0;
   font-size: 12px;
   line-height: 1.4;
-
-  &+& {
-    border-top: 1px solid rgba(30, 42, 56, 0.4);
-  }
 }
 
 .tooltipKey {
@@ -265,6 +274,26 @@
   color: var(--color-text-primary);
   text-align: right;
   word-break: break-word;
+}
+
+.tooltipHint {
+  margin-top: $space-2;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  opacity: 0.5;
+  border-top: 1px solid rgba(30, 42, 56, 0.5);
+  padding-top: $space-1;
+}
+
+.tooltipHintOnly {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  opacity: 0.7;
 }
 
 /* ------------------------------------------------------------------ */
@@ -299,12 +328,21 @@
     right: 336px;
   }
 
+  // When legend is collapsed only the 32px toggle button remains (left: 16px + 32px = 48px)
+  &.legendCollapsed {
+    left: 56px;
+  }
+
   @media (max-width: 768px) {
     left: $space-4;
     right: $space-4;
 
     &.withSidebar {
       right: $space-4;
+    }
+
+    &.legendCollapsed {
+      left: $space-4;
     }
   }
 }

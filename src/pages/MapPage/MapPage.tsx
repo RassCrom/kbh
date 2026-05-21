@@ -132,7 +132,7 @@ export default function MapPage() {
       container: containerRef.current,
       style: darkDramaticStyle,
       center: [71.4306, 51.1282],
-      zoom: 13,
+      zoom: 12,
       minZoom: 10,
       maxZoom: 19,
     });
@@ -157,7 +157,7 @@ export default function MapPage() {
             10, 1,
             12, 0.7,
             14, 0.85,
-            15.5, .5,
+            17, .5,
           ],
         },
       });
@@ -204,12 +204,11 @@ export default function MapPage() {
         paint: {
           'fill-color': '#d4a85e',
           'fill-opacity': [
-            'interpolate', ['linear'], ['zoom'],
-            15.5, 0.35,
-            16, 0,
+            'case', ['boolean', ['feature-state', 'hover'], false],
+            ['interpolate', ['linear'], ['zoom'], 15.5, 0.35, 16, 0],
+            0,
           ],
         },
-        filter: ['==', ['id'], ''],
       });
 
       map.addLayer({
@@ -226,9 +225,10 @@ export default function MapPage() {
             16, ['to-number', ['coalesce', ['get', 'b_height'], 10], 10]
           ],
           'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 0.5,
+          'fill-extrusion-opacity': [
+            'case', ['boolean', ['feature-state', 'hover'], false], 0.5, 0,
+          ],
         },
-        filter: ['==', ['id'], ''],
       });
 
       map.addLayer({
@@ -243,19 +243,30 @@ export default function MapPage() {
 
       let hoveredId: string | number | null = null;
 
+      const clearHover = () => {
+        if (hoveredId !== null) {
+          map.setFeatureState(
+            { source: 'all-buildings', sourceLayer: 'buildings', id: hoveredId },
+            { hover: false },
+          );
+          hoveredId = null;
+        }
+      };
+
       const handleMouseMove = (e: any) => {
         if (!e.features?.length) return;
         map.getCanvas().style.cursor = 'pointer';
         const feat = e.features[0];
         const id = feat.id;
-        if (hoveredId !== null && hoveredId !== id) {
-          if (map.getLayer('buildings-hover')) map.setFilter('buildings-hover', ['==', ['id'], '']);
-          if (map.getLayer('buildings-3d-hover')) map.setFilter('buildings-3d-hover', ['==', ['id'], '']);
-        }
-        hoveredId = id ?? null;
-        if (id !== undefined) {
-          if (map.getLayer('buildings-hover')) map.setFilter('buildings-hover', ['==', ['id'], id]);
-          if (map.getLayer('buildings-3d-hover')) map.setFilter('buildings-3d-hover', ['==', ['id'], id]);
+        if (id !== hoveredId) {
+          clearHover();
+          if (id !== undefined) {
+            map.setFeatureState(
+              { source: 'all-buildings', sourceLayer: 'buildings', id },
+              { hover: true },
+            );
+            hoveredId = id;
+          }
         }
         setHoverInfo({
           x: e.point.x,
@@ -266,11 +277,7 @@ export default function MapPage() {
 
       const handleMouseLeave = () => {
         map.getCanvas().style.cursor = '';
-        if (hoveredId !== null) {
-          if (map.getLayer('buildings-hover')) map.setFilter('buildings-hover', ['==', ['id'], '']);
-          if (map.getLayer('buildings-3d-hover')) map.setFilter('buildings-3d-hover', ['==', ['id'], '']);
-        }
-        hoveredId = null;
+        clearHover();
         setHoverInfo(null);
       };
 
@@ -372,7 +379,6 @@ export default function MapPage() {
       };
 
       map.on('idle', updateHistogram);
-      map.on('moveend', updateHistogram);
       updateHistogram();
     });
 
@@ -401,12 +407,6 @@ export default function MapPage() {
     if (map.getLayer('buildings-fill')) map.setFilter('buildings-fill', filterExpr);
     if (map.getLayer('buildings-outline')) map.setFilter('buildings-outline', filterExpr);
     if (map.getLayer('buildings-3d')) map.setFilter('buildings-3d', filterExpr);
-    if (map.getLayer('buildings-hover')) {
-      map.setFilter('buildings-hover', ['all', filterExpr, ['==', ['id'], '']] as maplibregl.FilterSpecification);
-    }
-    if (map.getLayer('buildings-3d-hover')) {
-      map.setFilter('buildings-3d-hover', ['all', filterExpr, ['==', ['id'], '']] as maplibregl.FilterSpecification);
-    }
 
     // Fly to fit selected districts
     if (selectedDistricts.length > 0) {
@@ -563,19 +563,33 @@ export default function MapPage() {
       </div>
 
       {/* Hover tooltip — hidden while a building is selected */}
-      {hoverInfo && !selectedBuilding && (
-        <div
-          className={s.tooltip}
-          style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}
-        >
-          {Object.entries(hoverInfo.properties).map(([key, val]) => (
-            <div key={key} className={s.tooltipRow}>
-              <span className={s.tooltipKey}>{key}</span>
-              <span className={s.tooltipVal}>{String(val ?? '—')}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      {hoverInfo && !selectedBuilding && (() => {
+        const p = hoverInfo.properties;
+        const name = p.name ? String(p.name) : null;
+        const year = p.year_int ?? p.year_str;
+        const hasData = name || year;
+        return (
+          <div
+            className={s.tooltip}
+            style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}
+          >
+            {hasData ? (
+              <>
+                {name && <div className={s.tooltipName}>{name}</div>}
+                {year  && (
+                  <div className={s.tooltipRow}>
+                    <span className={s.tooltipKey}>Year</span>
+                    <span className={s.tooltipVal}>{String(year)}</span>
+                  </div>
+                )}
+                <div className={s.tooltipHint}>Click for more info</div>
+              </>
+            ) : (
+              <div className={s.tooltipHintOnly}>Click to see building info</div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Building detail panel */}
       <BuildingPanel
@@ -592,6 +606,7 @@ export default function MapPage() {
         data={yearCounts}
         sidebarOpen={sidebarOpen}
         buildingOpen={!!selectedBuilding}
+        legendOpen={legendOpen}
         isPlaying={isPlaying}
         playSpeed={playSpeed}
         onTogglePlay={handleTogglePlay}

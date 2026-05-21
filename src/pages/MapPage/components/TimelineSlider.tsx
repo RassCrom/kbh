@@ -10,6 +10,7 @@ interface Props {
   data: Record<number, number>;
   sidebarOpen: boolean;
   buildingOpen: boolean;
+  legendOpen: boolean;
   isPlaying: boolean;
   playSpeed: 1 | 2 | 4;
   onTogglePlay: () => void;
@@ -21,7 +22,7 @@ const SPEEDS: (1 | 2 | 4)[] = [1, 2, 4];
 
 export function TimelineSlider({
   min, max, value, onChange, data,
-  sidebarOpen, buildingOpen,
+  sidebarOpen, buildingOpen, legendOpen,
   isPlaying, playSpeed, onTogglePlay, onSpeedChange, onPlayReset,
 }: Props) {
   const bins = useMemo(() => {
@@ -49,7 +50,7 @@ export function TimelineSlider({
   const panelOpen = sidebarOpen || buildingOpen;
 
   return (
-    <div className={`${s.timelineContainer} ${panelOpen ? s.withSidebar : ''}`}>
+    <div className={`${s.timelineContainer} ${panelOpen ? s.withSidebar : ''} ${!legendOpen ? s.legendCollapsed : ''}`}>
       {/* Histogram */}
       <div className={s.histogram}>
         {bins.bins.map((b) => (

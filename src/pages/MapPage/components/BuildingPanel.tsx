@@ -143,7 +143,7 @@ export function BuildingPanel({ properties, onClose }: Props) {
               </div>
               <div className={s.field}>
                 <span className={s.fieldLabel}>Wall</span>
-                <span className={s.fieldValue}>{val(p.wall)}</span>
+                <span className={s.fieldValue}>{val(p.wall_m)}</span>
               </div>
             </div>
           </div>
