@@ -15,6 +15,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; // dynamic viewport — collapses mobile browser chrome
   overflow: hidden;
   background: $color-bg-base;
 }
@@ -67,6 +68,10 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: $z-toolbar;
+
+  @media (max-width: 767px) {
+    display: none; // viz toggle takes the centre slot on mobile
+  }
   display: flex;
   align-items: center;
   gap: $space-2;
@@ -135,6 +140,11 @@
   // Prevent the legend from overflowing the viewport on short screens
   max-height: 72vh;
   overflow-y: auto;
+
+  @media (max-width: 767px) {
+    // Legend body opens upward; limit height so it clears the timeline
+    max-height: 45vh;
+  }
   scrollbar-width: thin;
   scrollbar-color: $color-border-subtle transparent;
 
@@ -333,18 +343,69 @@
     left: 56px;
   }
 
-  @media (max-width: 768px) {
-    left: $space-4;
+  @media (max-width: 767px) {
+    // Always clear the legend toggle button (left: 16px + 32px wide + 8px gap = 56px)
+    left: 56px;
     right: $space-4;
 
     &.withSidebar {
-      right: $space-4;
+      right: $space-4; // bottom sheet doesn't push the timeline
     }
 
     &.legendCollapsed {
-      left: $space-4;
+      left: 56px;
     }
   }
+}
+
+/* ── Collapsible wrapper for histogram + slider + labels ── */
+
+.timelineCollapsible {
+  overflow: hidden;
+  // large enough to contain histogram (5rem) + slider (24px) + labels (20px) + gaps
+  max-height: 140px;
+  opacity: 1;
+  transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity    0.2s  ease;
+}
+
+.timelineCollapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.playRowCollapsed {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.timelineCollapseBtn {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap;
+
+  &:hover {
+    color: $color-accent-gold;
+  }
+}
+
+.timelineCollapseIcon {
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timelineCollapseIconUp {
+  transform: rotate(180deg);
 }
 
 .histogram {
@@ -566,6 +627,138 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Viz mode toggle (Buildings / Hexagons)                            */
+/* ------------------------------------------------------------------ */
+
+.vizToggleGroup {
+  position: absolute;
+  top: $space-4;
+  // sits right-of the back button (back btn is left:16px, width ~80px)
+  left: 108px;
+  z-index: $z-toolbar;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+
+  @media (max-width: 767px) {
+    left: 50%;
+    transform: translateX(-50%);
+    // keep top: $space-4 to share the top bar row with Back + Filter buttons
+  }
+}
+
+.vizToggleRow {
+  display: flex;
+  align-items: center;
+  background: rgba(14, 21, 33, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-pill;
+  padding: 3px;
+  gap: 2px;
+}
+
+.vizBtn {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.vizBtnActive {
+    color: $color-accent-gold;
+    background: rgba(212, 168, 94, 0.12);
+    border-color: rgba(212, 168, 94, 0.35);
+  }
+}
+
+.vizMetricRow {
+  display: flex;
+  align-items: center;
+  background: rgba(14, 21, 33, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-pill;
+  padding: 2px;
+  gap: 2px;
+  animation: fadeSlideUp 160ms $ease-cinematic;
+}
+
+.vizMetricBtn {
+  flex: 1;
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.vizMetricActive {
+    color: $color-accent-gold;
+    background: rgba(212, 168, 94, 0.12);
+    border-color: rgba(212, 168, 94, 0.3);
+  }
+}
+
+.vizLoadingRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: 4px $space-3;
+  background: rgba(14, 21, 33, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid $color-border-subtle;
+  border-radius: $radius-pill;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  animation: fadeSlideUp 160ms $ease-cinematic;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.vizSpinner {
+  animation: spin 0.9s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Filter toggle button                                               */
 /* ------------------------------------------------------------------ */
 
@@ -649,10 +842,47 @@
   &.open {
     transform: translateX(0);
   }
+
+  @media (max-width: 767px) {
+    // Bottom sheet on mobile
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: 88vh;
+    max-height: 88dvh;
+    border-left: none;
+    border-top: 1px solid $color-border-subtle;
+    border-radius: $radius-lg $radius-lg 0 0;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.6);
+    transform: translateY(100%);
+    overflow: hidden; // hide toggle handle
+
+    &::before {
+      content: '';
+      flex-shrink: 0;
+      display: block;
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 10px auto 0;
+      align-self: center;
+    }
+
+    &.open {
+      transform: translateY(0);
+    }
+  }
 }
 
 /* Vertical tab toggle handle attached to left border */
+/* Hidden on mobile where sidebar becomes a bottom sheet */
 .toggleHandle {
+  @media (max-width: 767px) {
+    display: none;
+  }
   position: absolute;
   top: 50%;
   left: -28px;

@@ -12,6 +12,12 @@ import { darkDramaticStyle } from './darkDramaticStyle';
 import { TimelineSlider } from './components/TimelineSlider';
 import { FilterSidebar } from './components/FilterSidebar';
 import { BuildingPanel } from './components/BuildingPanel';
+import { HexControls } from './components/HexControls';
+import {
+  loadCentroidsGz, buildHexBins,
+  buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr,
+  type HexMetric,
+} from './hexUtils';
 
 export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -40,6 +46,12 @@ export default function MapPage() {
 
   // Building detail panel state
   const [selectedBuilding, setSelectedBuilding] = useState<Record<string, unknown> | null>(null);
+
+  // Hexagon visualization state
+  const [vizMode, setVizMode] = useState<'buildings' | 'hexagons'>('buildings');
+  const [hexMetric, setHexMetric] = useState<HexMetric>('count');
+  const [hexLoading, setHexLoading] = useState(false);
+  const hexLoadedRef = useRef(false);
 
   // Time-lapse state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -92,9 +104,8 @@ export default function MapPage() {
   }, []);
 
   useEffect(() => {
-    if (window.innerWidth > 1024) {
-      setSidebarOpen(true);
-    }
+    if (window.innerWidth > 1024) setSidebarOpen(true);
+    if (window.innerWidth < 768)  setLegendOpen(false);
   }, []);
 
   const activeCount =
@@ -142,7 +153,7 @@ export default function MapPage() {
     map.on('load', () => {
       map.addSource('all-buildings', {
         type: 'vector',
-        url: 'pmtiles:///buildings-ast-v4.pmtiles',
+        url: 'pmtiles:///buildings-ast-v42.pmtiles',
       });
 
       map.addLayer({
@@ -196,21 +207,24 @@ export default function MapPage() {
         },
       });
 
+      // 2-D hover fill — maxzoom keeps it below 15.5 where 3-D takes over;
+      // flat opacity avoids the "zoom inside case" restriction.
       map.addLayer({
         id: 'buildings-hover',
         type: 'fill',
         source: 'all-buildings',
         'source-layer': 'buildings',
+        maxzoom: 15.5,
         paint: {
           'fill-color': '#d4a85e',
           'fill-opacity': [
-            'case', ['boolean', ['feature-state', 'hover'], false],
-            ['interpolate', ['linear'], ['zoom'], 15.5, 0.35, 16, 0],
-            0,
+            'case', ['boolean', ['feature-state', 'hover'], false], 0.45, 0,
           ],
         },
       });
 
+      // 3-D hover — fill-extrusion-opacity doesn't support data expressions;
+      // encode hover via color alpha: hovered = gold, non-hovered = transparent.
       map.addLayer({
         id: 'buildings-3d-hover',
         type: 'fill-extrusion',
@@ -218,16 +232,18 @@ export default function MapPage() {
         'source-layer': 'buildings',
         minzoom: 15.5,
         paint: {
-          'fill-extrusion-color': '#d4a85e',
+          'fill-extrusion-color': [
+            'case', ['boolean', ['feature-state', 'hover'], false],
+            'rgba(212,168,94,1)',
+            'rgba(0,0,0,0)',
+          ],
           'fill-extrusion-height': [
             'interpolate', ['linear'], ['zoom'],
             15.5, 0,
             16, ['to-number', ['coalesce', ['get', 'b_height'], 10], 10]
           ],
           'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': [
-            'case', ['boolean', ['feature-state', 'hover'], false], 0.5, 0,
-          ],
+          'fill-extrusion-opacity': 0.55,
         },
       });
 
@@ -238,6 +254,36 @@ export default function MapPage() {
         'source-layer': 'buildings',
         paint: {
           'fill-color': 'transparent',
+        },
+      });
+
+      // ── Hexagon source + layers (hidden by default) ──────────────────
+      map.addSource('hex-bins', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+
+      map.addLayer({
+        id: 'hex-layer',
+        type: 'fill-extrusion',
+        source: 'hex-bins',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-color': buildCountColorExpr(),
+          'fill-extrusion-height': buildHexHeightExpr(),
+          'fill-extrusion-base': 0,
+          'fill-extrusion-opacity': 0.82,
+        },
+      });
+
+      map.addLayer({
+        id: 'hex-outline',
+        type: 'line',
+        source: 'hex-bins',
+        layout: { visibility: 'none' },
+        paint: {
+          'line-color': 'rgba(255,255,255,0.06)',
+          'line-width': 0.5,
         },
       });
 
@@ -285,6 +331,22 @@ export default function MapPage() {
       map.on('mousemove', 'buildings-3d', handleMouseMove);
       map.on('mouseleave', 'buildings-fill', handleMouseLeave);
       map.on('mouseleave', 'buildings-3d', handleMouseLeave);
+
+      // Hex hover
+      map.on('mousemove', 'hex-layer', (e) => {
+        if (!e.features?.length) return;
+        map.getCanvas().style.cursor = 'crosshair';
+        const feat = e.features[0];
+        setHoverInfo({
+          x: e.point.x,
+          y: e.point.y,
+          properties: feat.properties as Record<string, unknown>,
+        });
+      });
+      map.on('mouseleave', 'hex-layer', () => {
+        map.getCanvas().style.cursor = '';
+        setHoverInfo(null);
+      });
 
       // Building click — open detail panel, close filter sidebar
       map.on('click', (e) => {
@@ -460,6 +522,46 @@ export default function MapPage() {
     }
   }, [hoveredEra]);
 
+  // ── Viz mode toggle — show/hide building vs hex layers ─────────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+
+    const buildingVis: maplibregl.VisibilitySpecification = vizMode === 'buildings' ? 'visible' : 'none';
+    const hexVis: maplibregl.VisibilitySpecification     = vizMode === 'hexagons'  ? 'visible' : 'none';
+
+    const buildingLayers = ['buildings-fill', 'buildings-outline', 'buildings-3d',
+                            'buildings-hover', 'buildings-3d-hover', 'buildings-hidden'];
+    const hexLayers      = ['hex-layer', 'hex-outline'];
+
+    buildingLayers.forEach(id => { if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', buildingVis); });
+    hexLayers.forEach(id => { if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', hexVis); });
+
+    // Lazy-load hexagon data on first switch to hexagons mode
+    if (vizMode === 'hexagons' && !hexLoadedRef.current) {
+      hexLoadedRef.current = true;
+      setHexLoading(true);
+      loadCentroidsGz('/data/centroids-b-ast-v412.geojson')
+        .then(points => {
+          const geojson = buildHexBins(points);
+          if (map.getSource('hex-bins')) {
+            (map.getSource('hex-bins') as maplibregl.GeoJSONSource).setData(geojson);
+          }
+        })
+        .catch(err => console.error('Hexagon load failed:', err))
+        .finally(() => setHexLoading(false));
+    }
+  }, [vizMode]);
+
+  // ── Hex metric switch — update colour paint property ───────────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle() || !map.getLayer('hex-layer')) return;
+
+    const colorExpr = hexMetric === 'count' ? buildCountColorExpr() : buildYearAvgColorExpr();
+    map.setPaintProperty('hex-layer', 'fill-extrusion-color', colorExpr);
+  }, [hexMetric]);
+
   return (
     <div className={s.mapPage}>
       <div ref={containerRef} className={s.mapContainer} />
@@ -469,6 +571,15 @@ export default function MapPage() {
         <ArrowLeft size={20} />
         <span>Back</span>
       </Link>
+
+      {/* Viz mode toggle */}
+      <HexControls
+        vizMode={vizMode}
+        onVizModeChange={setVizMode}
+        hexMetric={hexMetric}
+        onHexMetricChange={setHexMetric}
+        hexLoading={hexLoading}
+      />
 
       {/* Page title chip */}
       <div className={s.titleChip}>
@@ -565,18 +676,46 @@ export default function MapPage() {
       {/* Hover tooltip — hidden while a building is selected */}
       {hoverInfo && !selectedBuilding && (() => {
         const p = hoverInfo.properties;
+        const isHex = p.count !== undefined;
+
+        // ── Hex tooltip ──────────────────────────────────────────────────
+        if (isHex) {
+          const count    = Number(p.count);
+          const avgYear  = Number(p.avgYear);
+          const avgH     = Number(p.avgHeight);
+          return (
+            <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}>
+              <div className={s.tooltipName}>Hexagon</div>
+              <div className={s.tooltipRow}>
+                <span className={s.tooltipKey}>Buildings</span>
+                <span className={s.tooltipVal}>{count.toLocaleString()}</span>
+              </div>
+              {avgYear > 0 && (
+                <div className={s.tooltipRow}>
+                  <span className={s.tooltipKey}>Avg year</span>
+                  <span className={s.tooltipVal}>{avgYear}</span>
+                </div>
+              )}
+              {avgH > 0 && (
+                <div className={s.tooltipRow}>
+                  <span className={s.tooltipKey}>Avg height</span>
+                  <span className={s.tooltipVal}>{avgH} m</span>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        // ── Building tooltip ──────────────────────────────────────────────
         const name = p.name ? String(p.name) : null;
         const year = p.year_int ?? p.year_str;
         const hasData = name || year;
         return (
-          <div
-            className={s.tooltip}
-            style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}
-          >
+          <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}>
             {hasData ? (
               <>
                 {name && <div className={s.tooltipName}>{name}</div>}
-                {year  && (
+                {year && (
                   <div className={s.tooltipRow}>
                     <span className={s.tooltipKey}>Year</span>
                     <span className={s.tooltipVal}>{String(year)}</span>

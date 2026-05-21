@@ -3,14 +3,14 @@ import { Building, Calendar, Database, BookOpen } from 'lucide-react';
 import s from './Stats.module.scss';
 
 const STATS = [
-  { icon: Building, value: 13000, suffix: '+', label: 'Buildings Mapped', id: 'stat-buildings' },
-  { icon: Calendar, value: 9, suffix: '', label: 'Historical Eras', id: 'stat-eras' },
-  { icon: Database, value: 6, suffix: '', label: 'Data Sources', id: 'stat-sources' },
-  { icon: BookOpen, value: 0, suffix: '', label: 'Stories Published', id: 'stat-stories' },
+  { icon: Building, value: 15000, suffix: '+', label: 'Buildings Mapped', id: 'stat-buildings' },
+  { icon: Calendar, value: 10, suffix: '', label: 'Historical Eras', id: 'stat-eras' },
+  { icon: Database, value: 5, suffix: '', label: 'Data Sources', id: 'stat-sources' },
+  { icon: BookOpen, value: 2, suffix: '', label: 'Stories Published', id: 'stat-stories' },
 ];
 
 function animateValue(el: HTMLElement, end: number, suffix: string) {
-  const duration = 2000;
+  const duration = 1500;
   const start = 0;
   const startTime = performance.now();
 
