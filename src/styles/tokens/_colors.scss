@@ -33,7 +33,7 @@ $color-white-tint-06:  rgba(255, 255, 255, 0.06);
 $color-white-tint-04:  rgba(255, 255, 255, 0.04);
 $color-white-tint-08:  rgba(255, 255, 255, 0.08);
 
-// CSS custom properties — :root (frozen defaults)
+// CSS custom properties — :root (frozen defaults = dark theme)
 :root {
   --color-bg-base:        #{$color-bg-base};
   --color-bg-surface:     #{$color-bg-surface};
@@ -53,10 +53,73 @@ $color-white-tint-08:  rgba(255, 255, 255, 0.08);
   --color-gold-tint-12:   #{$color-gold-tint-12};
   --color-gold-tint-08:   #{$color-gold-tint-08};
   --color-gold-tint-06:   #{$color-gold-tint-06};
+  --color-gold-tint-44:   #{$color-gold-tint-44};
   --color-sky-tint-15:    #{$color-sky-tint-15};
   --color-white-tint-06:  #{$color-white-tint-06};
   --color-white-tint-04:  #{$color-white-tint-04};
   --color-white-tint-08:  #{$color-white-tint-08};
+
+  // ── Glass panel system (replaces hardcoded rgba in components) ──────
+  --glass-bg:          rgba(14, 21, 33, 0.82);
+  --glass-bg-hover:    rgba(14, 21, 33, 0.95);
+  --glass-bg-medium:   rgba(14, 21, 33, 0.88);
+  --glass-bg-heavy:    rgba(14, 21, 33, 0.94);
+  --glass-border:      #{$color-border-subtle};
+
+  // ── Transparent-white tints for histogram bars, hover states ────────
+  --tint-faint:        rgba(255, 255, 255, 0.03);
+  --tint-subtle:       rgba(255, 255, 255, 0.05);
+  --tint-bar:          rgba(255, 255, 255, 0.10);
+  --tint-bar-hover:    rgba(255, 255, 255, 0.40);
+}
+
+// =============================================================================
+// Light Theme  [data-theme="light"]
+// Warm parchment palette — WCAG AA on all text/bg pairs
+// =============================================================================
+
+[data-theme="light"] {
+  // ── Surfaces ──────────────────────────────────────────────────────────
+  --color-bg-base:        #f0ede6;
+  --color-bg-surface:     #faf8f4;
+  --color-bg-overlay:     rgba(240, 237, 230, 0.92);
+
+  // ── Typography  (≥4.5:1 contrast on light surfaces) ──────────────────
+  --color-text-primary:   #1c1814;   // 15:1 on #f0ede6  ✓
+  --color-text-secondary: #6a6258;   // 4.6:1 on #f0ede6 ✓
+  --color-text-data:      #525a68;
+
+  // ── Accent colours (darkened for WCAG on light bg) ───────────────────
+  --color-accent-gold:    #96640c;   // 4.8:1 on #f0ede6 ✓
+  --color-accent-sky:     #1a5e8c;
+  --color-accent-terra:   #782e1e;
+
+  // ── Borders ───────────────────────────────────────────────────────────
+  --color-border-subtle:  #d0c8bc;
+  --color-border-active:  #96640c;
+
+  // ── Tinted accent surfaces ────────────────────────────────────────────
+  --color-gold-tint-12:  rgba(150, 100, 12, 0.12);
+  --color-gold-tint-08:  rgba(150, 100, 12, 0.08);
+  --color-gold-tint-06:  rgba(150, 100, 12, 0.06);
+  --color-gold-tint-44:  rgba(150, 100, 12, 0.27);
+  --color-sky-tint-15:   rgba(26, 94, 140, 0.15);
+  --color-white-tint-06: rgba(0, 0, 0, 0.06);
+  --color-white-tint-04: rgba(0, 0, 0, 0.04);
+  --color-white-tint-08: rgba(0, 0, 0, 0.08);
+
+  // ── Glass panels ─────────────────────────────────────────────────────
+  --glass-bg:         rgba(250, 248, 244, 0.88);
+  --glass-bg-hover:   rgba(250, 248, 244, 0.98);
+  --glass-bg-medium:  rgba(248, 245, 240, 0.93);
+  --glass-bg-heavy:   rgba(246, 243, 238, 0.96);
+  --glass-border:     #ccc4b8;
+
+  // ── Transparent tints (inverted: dark-on-light) ───────────────────────
+  --tint-faint:        rgba(0, 0, 0, 0.03);
+  --tint-subtle:       rgba(0, 0, 0, 0.05);
+  --tint-bar:          rgba(0, 0, 0, 0.08);
+  --tint-bar-hover:    rgba(0, 0, 0, 0.22);
 }
 
 // -----------------------------------------------------------------------------

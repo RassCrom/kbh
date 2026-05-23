@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Play, Pause, SkipBack, ChevronDown } from 'lucide-react';
 import s from '../MapPage.module.scss';
 
@@ -11,6 +11,8 @@ interface Props {
   sidebarOpen: boolean;
   buildingOpen: boolean;
   legendOpen: boolean;
+  collapsed: boolean;
+  onCollapsedChange: (v: boolean) => void;
   isPlaying: boolean;
   playSpeed: 1 | 2 | 4;
   onTogglePlay: () => void;
@@ -23,6 +25,7 @@ const SPEEDS: (1 | 2 | 4)[] = [1, 2, 4];
 export function TimelineSlider({
   min, max, value, onChange, data,
   sidebarOpen, buildingOpen, legendOpen,
+  collapsed, onCollapsedChange,
   isPlaying, playSpeed, onTogglePlay, onSpeedChange, onPlayReset,
 }: Props) {
   const bins = useMemo(() => {
@@ -47,7 +50,6 @@ export function TimelineSlider({
   const tickMarks: number[] = [];
   for (let y = Math.ceil(min / 10) * 10; y <= max; y += step) tickMarks.push(y);
 
-  const [collapsed, setCollapsed] = useState(false);
   const panelOpen = sidebarOpen || buildingOpen;
 
   return (
@@ -124,7 +126,7 @@ export function TimelineSlider({
         {/* Collapse / expand toggle */}
         <button
           className={s.timelineCollapseBtn}
-          onClick={() => setCollapsed(v => !v)}
+          onClick={() => onCollapsedChange(!collapsed)}
           aria-label={collapsed ? 'Expand timeline' : 'Collapse timeline'}
           title={collapsed ? 'Expand' : 'Collapse'}
         >

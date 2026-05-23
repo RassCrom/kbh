@@ -38,10 +38,10 @@
   align-items: center;
   gap: $space-2;
   padding: $space-2 $space-4 $space-2 $space-3;
-  background: rgba(14, 21, 33, 0.82);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   color: var(--color-text-primary);
   text-decoration: none;
@@ -55,7 +55,7 @@
   cursor: pointer;
 
   &:hover {
-    background: rgba(14, 21, 33, 0.95);
+    background: var(--glass-bg-hover);
     border-color: $color-accent-gold;
     box-shadow: 0 0 16px rgba(212, 168, 94, 0.15);
     color: $color-accent-gold;
@@ -76,10 +76,10 @@
   align-items: center;
   gap: $space-2;
   padding: $space-2 $space-4;
-  background: rgba(14, 21, 33, 0.82);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   color: $color-accent-gold;
   font-family: var(--font-heading);
@@ -112,10 +112,10 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: rgba(14, 21, 33, 0.82);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -130,10 +130,10 @@
 }
 
 .legendBody {
-  background: rgba(14, 21, 33, 0.88);
+  background: var(--glass-bg-medium);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-lg;
   padding: $space-4;
   animation: fadeSlideUp 250ms $ease-cinematic;
@@ -146,7 +146,7 @@
     max-height: 45vh;
   }
   scrollbar-width: thin;
-  scrollbar-color: $color-border-subtle transparent;
+  scrollbar-color: var(--glass-border) transparent;
 
   &::-webkit-scrollbar { width: 3px; }
   &::-webkit-scrollbar-thumb { background: $color-border-subtle; border-radius: 2px; }
@@ -213,8 +213,8 @@
   margin-top: $space-3;
   width: 100%;
   padding: $space-2;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--tint-subtle);
+  border: 1px solid var(--tint-bar);
   border-radius: $radius-sm;
   color: var(--color-text-secondary);
   font-family: var(--font-mono);
@@ -238,10 +238,10 @@
 .tooltip {
   position: absolute;
   z-index: $z-tooltip;
-  background: rgba(14, 21, 33, 0.92);
+  background: var(--glass-bg-heavy);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   padding: $space-3 $space-4;
   pointer-events: none;
@@ -319,9 +319,9 @@
   right: 56px;
   width: auto;
   max-width: none;
-  background: rgba(14, 21, 33, 0.88);
+  background: var(--glass-bg-medium);
   backdrop-filter: blur(4px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-lg;
   padding: $space-4 $space-6;
   z-index: $z-panel;
@@ -417,14 +417,14 @@
 
 .bar {
   flex-grow: 1;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--tint-bar);
   transition: background 0.2s, height 0.2s;
   border-radius: 1px 1px 0 0;
   min-width: 2px;
   cursor: pointer;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--tint-bar-hover);
   }
 }
 
@@ -447,7 +447,7 @@
   position: absolute;
   width: 100%;
   height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--tint-bar);
   border-radius: 2px;
 }
 
@@ -512,7 +512,7 @@
   width: 28px;
   height: 28px;
   background: transparent;
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-sm;
   color: $color-text-secondary;
   cursor: pointer;
@@ -568,8 +568,8 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid $color-border-subtle;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
   border-radius: $radius-sm;
   padding: 3px;
   flex-shrink: 0;
@@ -650,10 +650,10 @@
 .vizToggleRow {
   display: flex;
   align-items: center;
-  background: rgba(14, 21, 33, 0.82);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   padding: 3px;
   gap: 2px;
@@ -680,7 +680,7 @@
 
   &:hover {
     color: var(--color-text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--tint-subtle);
   }
 
   &.vizBtnActive {
@@ -693,10 +693,10 @@
 .vizMetricRow {
   display: flex;
   align-items: center;
-  background: rgba(14, 21, 33, 0.82);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   padding: 2px;
   gap: 2px;
@@ -723,7 +723,7 @@
 
   &:hover {
     color: var(--color-text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--tint-subtle);
   }
 
   &.vizMetricActive {
@@ -738,10 +738,10 @@
   align-items: center;
   gap: $space-2;
   padding: 4px $space-3;
-  background: rgba(14, 21, 33, 0.82);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   font-family: var(--font-mono);
   font-size: 10px;
@@ -759,6 +759,45 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Theme toggle button (Sun / Moon)                                  */
+/* ------------------------------------------------------------------ */
+
+.themeToggle {
+  position: absolute;
+  top: $space-4;
+  right: 60px; // 16px outer margin + 36px filterToggle + 8px gap
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background   $duration-ui $ease-snap,
+    color        $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow   $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-gold);
+    border-color: var(--color-accent-gold);
+    background: var(--glass-bg-hover);
+    box-shadow: 0 0 14px rgba(0, 0, 0, 0.12);
+  }
+
+  @media (max-width: 767px) {
+    right: 60px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Filter toggle button                                               */
 /* ------------------------------------------------------------------ */
 
@@ -773,23 +812,22 @@
   gap: $space-2;
   width: 36px;
   height: 36px;
-  background: rgba(14, 21, 33, 0.82);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   color: var(--color-text-secondary);
   cursor: pointer;
-  position: relative;
   transition: background $duration-ui $ease-snap,
     color $duration-ui $ease-snap,
     border-color $duration-ui $ease-snap,
     box-shadow $duration-ui $ease-snap;
 
   &:hover {
-    color: $color-accent-gold;
-    border-color: $color-accent-gold;
-    background: rgba(14, 21, 33, 0.95);
+    color: var(--color-accent-gold);
+    border-color: var(--color-accent-gold);
+    background: var(--glass-bg-hover);
   }
 
   &.active {
@@ -828,10 +866,10 @@
   bottom: 0;
   width: 320px;
   z-index: $z-panel;
-  background: rgba(14, 21, 33, 0.88);
+  background: var(--glass-bg-medium);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-left: 1px solid $color-border-subtle;
+  border-left: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
@@ -853,7 +891,7 @@
     max-height: 88vh;
     max-height: 88dvh;
     border-left: none;
-    border-top: 1px solid $color-border-subtle;
+    border-top: 1px solid var(--glass-border);
     border-radius: $radius-lg $radius-lg 0 0;
     box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.6);
     transform: translateY(100%);
@@ -889,10 +927,10 @@
   transform: translateY(-50%);
   width: 28px;
   height: 70px;
-  background: rgba(14, 21, 33, 0.88);
+  background: var(--glass-bg-medium);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid $color-border-subtle;
+  border: 1px solid var(--glass-border);
   border-right: none;
   border-radius: $radius-md 0 0 $radius-md;
   color: var(--color-text-secondary);
@@ -911,14 +949,60 @@
   }
 }
 
+.handleBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: $color-accent-gold;
+  color: $color-bg-base;
+  border-radius: $radius-pill;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 0 8px rgba(212, 168, 94, 0.35);
+}
+
 .filterHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: $space-4;
-  border-bottom: 1px solid $color-border-subtle;
+  border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0;
   background: rgba(14, 21, 33, 0.4);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.sidebarThemeToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-gold);
+    border-color: var(--color-accent-gold);
+    background: rgba(212, 168, 94, 0.08);
+  }
 }
 
 .filterHeaderLeft {
@@ -980,7 +1064,7 @@
 
   // Thin scrollbar styling
   scrollbar-width: thin;
-  scrollbar-color: $color-border-subtle transparent;
+  scrollbar-color: var(--glass-border) transparent;
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -1098,8 +1182,8 @@
 .searchInput {
   width: 100%;
   padding: $space-2 $space-8 $space-2 $space-3;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid $color-border-subtle;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   color: var(--color-text-primary);
   font-family: var(--font-mono);
@@ -1139,8 +1223,8 @@
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid $color-border-subtle;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   color: var(--color-text-secondary);
   font-family: var(--font-mono);
@@ -1197,8 +1281,8 @@
   width: 100%;
   padding: $space-2 $space-3;
   padding-right: $space-6;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid $color-border-subtle;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   color: var(--color-text-primary);
   font-family: var(--font-mono);
@@ -1215,7 +1299,7 @@
 
   &:hover {
     border-color: rgba(212, 168, 94, 0.4);
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--tint-subtle);
   }
 
   &:focus {
@@ -1237,7 +1321,7 @@
 .filterFooter {
   flex-shrink: 0;
   padding: $space-4;
-  border-top: 1px solid $color-border-subtle;
+  border-top: 1px solid var(--glass-border);
   background: rgba(14, 21, 33, 0.4);
 }
 
@@ -1335,7 +1419,7 @@
   gap: $space-4;
 
   scrollbar-width: thin;
-  scrollbar-color: $color-border-subtle transparent;
+  scrollbar-color: var(--glass-border) transparent;
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
@@ -1510,14 +1594,357 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Layers tab body                                                    */
+/* ------------------------------------------------------------------ */
+
+.layersBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--glass-border) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $color-border-subtle; border-radius: 2px; }
+}
+
+.layersIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: $space-2;
+  border-bottom: 1px solid rgba(30, 42, 56, 0.5);
+}
+
+.layersIntroLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-primary);
+}
+
+.layersIntroMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.vizOptionList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.vizOption {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(30, 42, 56, 0.7);
+  border-radius: $radius-md;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition:
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(212, 168, 94, 0.22);
+  }
+
+  &.vizOptionActive {
+    background: rgba(212, 168, 94, 0.05);
+    border-color: rgba(212, 168, 94, 0.38);
+    box-shadow: 0 0 18px rgba(212, 168, 94, 0.07);
+  }
+}
+
+.vizOptionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.vizOptionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.vizOptionIcon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+
+  .vizOptionActive & {
+    color: $color-accent-gold;
+  }
+}
+
+.vizOptionName {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-primary);
+}
+
+.vizOptionBadge {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: $color-accent-gold;
+  background: rgba(212, 168, 94, 0.12);
+  border: 1px solid rgba(212, 168, 94, 0.32);
+  padding: 2px 7px;
+  border-radius: $radius-pill;
+  flex-shrink: 0;
+}
+
+// Teal badge for elevation
+.vizOptionBadgeElevation {
+  @extend .vizOptionBadge;
+  color: #27ae60;
+  background: rgba(39, 174, 96, 0.1);
+  border-color: rgba(39, 174, 96, 0.3);
+}
+
+// Orange badge for LST
+.vizOptionBadgeLst {
+  @extend .vizOptionBadge;
+  color: #fdae61;
+  background: rgba(253, 174, 97, 0.1);
+  border-color: rgba(253, 174, 97, 0.3);
+}
+
+// Purple badge for building type/use
+.vizOptionBadgeType {
+  @extend .vizOptionBadge;
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+.vizOptionDesc {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// Discrete swatches (year mode)
+.vizGradientDiscrete {
+  display: flex;
+  height: 8px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  gap: 1px;
+}
+
+.vizGradientSwatch {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+}
+
+// Continuous gradient bar (elevation / LST)
+.vizGradientContinuous {
+  height: 8px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.vizGradientLabels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+  opacity: 0.75;
+}
+
+// Dot indicator on Layers tab when non-default mode is active
+.tabDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: $color-accent-gold;
+  flex-shrink: 0;
+  box-shadow: 0 0 5px rgba(212, 168, 94, 0.6);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Legend gradient (elevation / LST modes)                           */
+/* ------------------------------------------------------------------ */
+
+.legendGradientWrap {
+  display: flex;
+  gap: $space-3;
+  align-items: stretch;
+  margin: $space-2 0;
+}
+
+.legendGradientBar {
+  width: 14px;
+  flex-shrink: 0;
+  border-radius: $radius-sm;
+  min-height: 140px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.legendGradientTicks {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.legendGradientSource {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.05em;
+  opacity: 0.5;
+  text-transform: uppercase;
+  margin-top: $space-2;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Bivariate UHI Grid Legend                                         */
+/* ------------------------------------------------------------------ */
+
+.uhiGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  gap: $space-2;
+  margin: $space-3 0 $space-1;
+  align-items: center;
+  justify-items: center;
+  width: fit-content;
+}
+
+.uhiYLabel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 120px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding-right: $space-1;
+  text-align: right;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.uhiCells {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 120px;
+  height: 120px;
+}
+
+.uhiRow {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  height: 38px;
+}
+
+.uhiCell {
+  flex: 1;
+  height: 100%;
+  border-radius: $radius-xs;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.5);
+    z-index: 5;
+  }
+
+  &.active {
+    opacity: 1 !important;
+    transform: scale(1.1);
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px var(--color-accent-gold), 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+  }
+
+  &.dimmed {
+    opacity: 0.25;
+  }
+}
+
+.uhiXLabel {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  width: 120px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding-top: $space-1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.uhiAxes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: $space-3;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  MapLibre control overrides                                         */
 /* ------------------------------------------------------------------ */
 
 :global {
   .maplibregl-ctrl-group {
-    background: rgba(14, 21, 33, 0.82) !important;
+    background: var(--glass-bg) !important;
     backdrop-filter: blur(16px);
-    border: 1px solid $color-border-subtle !important;
+    border: 1px solid var(--glass-border) !important;
     border-radius: $radius-md !important;
     box-shadow: $shadow-md !important;
 

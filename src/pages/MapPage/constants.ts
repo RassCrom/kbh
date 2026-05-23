@@ -78,13 +78,24 @@ export const DISTRICT_BOUNDS: Record<string, [number, number, number, number]> =
 };
 
 export const DISTRICT_OPTIONS: { label: string; value: string }[] = [
-  { label: 'Nura', value: 'Nura' },
-  { label: 'Yesil', value: 'Yesil' },
-  { label: 'Almaty', value: 'Almaty' },
+  { label: 'Nura', value: 'N' },
+  { label: 'Yesil', value: 'Y' },
+  { label: 'Almaty', value: 'A' },
   { label: 'Saryarka', value: 'Sa' },
   { label: 'Baikonur', value: 'B' },
-  { label: 'Saraishik', value: 'Saraishik' },
+  { label: 'Saraishik', value: 'Sk' },
 ];
+
+// Total building counts per district — computed from centroids-b-ast-v412.geojson
+// using each district's bounding box. Static; does not change with map viewport.
+export const DISTRICT_TOTAL_COUNTS: Record<string, number> = {
+  'Nura':      37263,
+  'Yesil':     28597,
+  'Sa':        26051,
+  'Almaty':    20443,
+  'Saraishik': 16608,
+  'B':         14609,
+};
 
 export const TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: 'Residential', value: 'rc' },

@@ -8,12 +8,23 @@
 @use '../../styles/mixins/animation' as anim;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Hero — full-bleed parallax image, centered editorial content
+// Reduced-motion: kill all animations globally within hero
+// ─────────────────────────────────────────────────────────────────────────────
+
+@media (prefers-reduced-motion: reduce) {
+  .hero * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Root shell
 // ─────────────────────────────────────────────────────────────────────────────
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr auto;
@@ -48,37 +59,62 @@
 
 .image {
   position: absolute;
-  inset: -10%;          // oversized so parallax shift never shows edges
+  inset: -10%;
   background-size: cover;
-  background-position: center;
+  background-position: center top;
   transform: scale(1.08);
   transition: transform 0.05s linear;
-  filter: grayscale(20%) brightness(0.45) contrast(1.1);
+  // Slightly brighter than before — right column shows more of the image
+  filter: grayscale(12%) brightness(0.52) contrast(1.08) saturate(0.85);
   will-change: transform;
 }
 
-// Layered overlay: gradient to darken the image for text legibility,
-// with a subtle warm vignette bottom to ground the content
+// Three-layer overlay:
+//  1. Left-to-right split — left 45% darker for text legibility, right opens up
+//  2. Top-to-bottom — deep dark at bottom for timeline strip
+//  3. Radial vignette — frames the composition
 .imageOverlay {
   position: absolute;
   inset: 0;
   background:
-    // Top: preserve some image visibility
-    linear-gradient(180deg,
-      rgba(14, 21, 33, 0.45) 0%,
-      rgba(14, 21, 33, 0.15) 30%,
-      rgba(14, 21, 33, 0.15) 55%,
-      rgba(14, 21, 33, 0.85) 100%
+    linear-gradient(
+      90deg,
+      rgba(14, 21, 33, 0.62) 0%,
+      rgba(14, 21, 33, 0.62) 42%,
+      rgba(14, 21, 33, 0.22) 64%,
+      rgba(14, 21, 33, 0.42) 100%
     ),
-    // Radial vignette: darker edges, lighter center
-    radial-gradient(ellipse at 50% 40%,
-      transparent 30%,
-      rgba(14, 21, 33, 0.5) 100%
+    linear-gradient(
+      180deg,
+      rgba(14, 21, 33, 0.55) 0%,
+      rgba(14, 21, 33, 0.08) 32%,
+      rgba(14, 21, 33, 0.18) 58%,
+      rgba(14, 21, 33, 0.92) 100%
+    ),
+    radial-gradient(
+      ellipse at 55% 38%,
+      transparent 22%,
+      rgba(14, 21, 33, 0.42) 100%
     );
+
+  // Subtle scanline texture — archival / cartographic feel
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.018) 3px,
+      rgba(0, 0, 0, 0.018) 4px
+    );
+    pointer-events: none;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Left column — content (right side is decorative / visible image area)
+// Left column — editorial content
 // ─────────────────────────────────────────────────────────────────────────────
 
 .leftCol {
@@ -88,13 +124,13 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 140px $space-8 $space-16 72px;
-  gap: $space-6;
+  padding: 130px $space-8 $space-16 72px;
+  gap: $space-4;
 
-  // Blueprint dot-grid background — very subtle, layered on top of image
+  // Mouse-tracked blueprint dot-grid
   background-image: radial-gradient(
     circle,
-    rgba(77, 138, 173, 0.10) 1px,
+    rgba(77, 138, 173, 0.09) 1px,
     transparent 1px
   );
   background-size: 28px 28px;
@@ -102,8 +138,12 @@
     calc(50% + var(--mx) * 4px)
     calc(50% + var(--my) * 4px);
 
+  @include bp-down('lg') {
+    padding: 130px $space-6 $space-12 $space-8;
+  }
+
   @include bp-down('md') {
-    padding: 120px $space-6 $space-12 $space-6;
+    padding: 110px $space-6 $space-8 $space-6;
     align-items: center;
     text-align: center;
     grid-column: 1 / -1;
@@ -111,28 +151,26 @@
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Editorial decorations
+// Decorative chrome: vertical accent line + chapter number
 // ─────────────────────────────────────────────────────────────────────────────
 
 .accentLine {
   position: absolute;
-  top: 15%;
-  bottom: 15%;
+  top: 14%;
+  bottom: 14%;
   left: 0;
   width: 2px;
   background: linear-gradient(
     180deg,
     transparent 0%,
-    $color-accent-gold 15%,
-    $color-accent-gold 85%,
+    $color-accent-gold 12%,
+    $color-accent-gold 88%,
     transparent 100%
   );
-  opacity: 0.6;
-  animation: accentLineFill 1.2s $ease-cinematic 0.2s both;
+  opacity: 0.55;
+  animation: accentLineFill 1.4s $ease-cinematic 0.1s both;
 
-  @include bp-down('md') {
-    display: none;
-  }
+  @include bp-down('md') { display: none; }
 }
 
 @keyframes accentLineFill {
@@ -144,139 +182,483 @@
   position: absolute;
   top: $space-16;
   left: $space-6;
-  font-family: 'DM Mono', 'Courier New', monospace;
+  font-family: 'DM Mono', monospace;
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: $color-accent-gold;
-  opacity: 0.45;
+  opacity: 0.4;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   user-select: none;
 
-  @include bp-down('md') {
-    display: none;
-  }
+  @include bp-down('md') { display: none; }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Content elements
+// Badge — coordinate pill with live pulse
 // ─────────────────────────────────────────────────────────────────────────────
 
-.tag {
-  @include typ.section-tag;
+.badge {
   display: inline-flex;
   align-items: center;
-  gap: $space-2;
-  padding: $space-1 $space-4;
-  border: 1px solid rgba(212, 168, 94, 0.25);
+  gap: 6px;
+  padding: 5px 12px 5px 8px;
+  border: 1px solid rgba(77, 138, 173, 0.22);
   border-radius: $radius-pill;
-  background: rgba(212, 168, 94, 0.07);
+  background: rgba(77, 138, 173, 0.07);
   width: fit-content;
-  @include anim.cinematic-enter(0.1s);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  color: $color-text-data;
+  @include anim.cinematic-enter(0.05s);
 
-  @include bp-down('md') {
-    align-self: center;
+  @include bp-down('md') { align-self: center; }
+}
+
+// Pulsing live dot
+.badgePulse {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $color-accent-sky;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: $color-accent-sky;
+    opacity: 0;
+    animation: pulseBadge 2.4s ease-out 1.2s infinite;
   }
 }
+
+@keyframes pulseBadge {
+  0%   { opacity: 0.55; transform: scale(1); }
+  100% { opacity: 0;    transform: scale(2.8); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Display heading
+// ─────────────────────────────────────────────────────────────────────────────
 
 .title {
   @include typ.heading-xl;
   color: var(--color-text-primary);
-  @include anim.cinematic-enter(0.2s);
+  // Fluid scale: 96px at desktop, scales down gracefully
+  font-size: clamp(52px, 6.8vw, 96px);
+  @include anim.cinematic-enter(0.15s);
 
   @include bp-down('md') {
-    font-size: 52px;
+    font-size: clamp(44px, 11vw, 66px);
     text-align: center;
-  }
-
-  @include bp-down('sm') {
-    font-size: 38px;
   }
 }
 
 .titleAccent {
   color: var(--color-accent-gold);
+  font-style: italic;
   display: block;
+  // Subtle letterpress text-shadow for depth
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(212, 168, 94, 0.18);
 }
 
-.decorRule {
-  width: 64px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    $color-accent-gold 0%,
-    rgba(77, 138, 173, 0.4) 55%,
-    transparent 100%
-  );
-  flex-shrink: 0;
-  @include anim.cinematic-enter(0.3s);
+// ─────────────────────────────────────────────────────────────────────────────
+// Era strip — thin horizontal color band previewing map color coding
+// ─────────────────────────────────────────────────────────────────────────────
+
+.eraStrip {
+  display: flex;
+  height: 3px;
+  border-radius: 2px;
+  overflow: hidden;
+  gap: 1px;
+  max-width: 420px;
+  @include anim.cinematic-enter(0.22s);
 
   @include bp-down('md') {
     align-self: center;
+    max-width: 280px;
   }
 }
+
+.eraSegment {
+  flex: 1;
+  border-radius: 1px;
+  opacity: 0.82;
+  transition: opacity $duration-ui $ease-snap,
+              flex    $duration-mid $ease-cinematic;
+
+  .eraStrip:hover & {
+    opacity: 0.45;
+  }
+  .eraStrip:hover &:hover {
+    opacity: 1;
+    flex: 2;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Subtitle
+// ─────────────────────────────────────────────────────────────────────────────
 
 .subtitle {
   @include typ.body-lg;
   color: var(--color-text-secondary);
-  max-width: 480px;
-  @include anim.cinematic-enter(0.35s);
+  max-width: 460px;
+  line-height: 1.7;
+  @include anim.cinematic-enter(0.28s);
 
-  @include bp-down('sm') {
-    font-size: 15px;
+  @include bp-down('md') {
+    font-size: 16px;
+    max-width: 520px;
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CTAs
+// ─────────────────────────────────────────────────────────────────────────────
+
 .ctas {
   display: flex;
-  gap: $space-4;
-  margin-top: $space-2;
-  @include anim.cinematic-enter(0.45s);
+  gap: $space-3;
+  margin-top: $space-1;
+  @include anim.cinematic-enter(0.36s);
 
   @include bp-down('sm') {
     flex-direction: column;
     width: 100%;
+    max-width: 320px;
+    align-self: center;
   }
 }
 
 .ctaPrimary {
   @include typ.label-lg;
-  padding: 14px 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: 15px 28px;
   border: none;
   border-radius: $radius-md;
-  background: linear-gradient(135deg, $color-accent-gold, #b8922e);
+  background: linear-gradient(135deg, $color-accent-gold 0%, #b8922e 100%);
   color: $color-bg-base;
   cursor: pointer;
   text-decoration: none;
-  transition: transform $duration-mid $ease-cinematic,
-              box-shadow $duration-mid $ease-cinematic;
+  transition:
+    transform   $duration-mid $ease-cinematic,
+    box-shadow  $duration-mid $ease-cinematic,
+    gap         $duration-ui  $ease-snap;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: $shadow-glow-gold-btn;
     color: $color-bg-base;
+    gap: $space-3;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 3px;
+  }
+}
+
+.ctaArrow {
+  transition: transform $duration-ui $ease-snap;
+  .ctaPrimary:hover & {
+    transform: translateX(2px);
   }
 }
 
 .ctaSecondary {
   @include typ.label-lg;
-  padding: 14px 32px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: inline-flex;
+  align-items: center;
+  padding: 15px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: $radius-md;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--color-text-primary);
   cursor: pointer;
   text-decoration: none;
-  transition: border-color $duration-ui $ease-snap,
-              background $duration-ui $ease-snap;
+  transition:
+    border-color $duration-ui $ease-snap,
+    background   $duration-ui $ease-snap,
+    color        $duration-ui $ease-snap;
 
   &:hover {
-    border-color: var(--color-accent-gold);
-    background: rgba(212, 168, 94, 0.08);
+    border-color: rgba(212, 168, 94, 0.5);
+    background: rgba(212, 168, 94, 0.07);
     color: var(--color-text-primary);
   }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 3px;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Right column — data card + decorative backdrop
+// ─────────────────────────────────────────────────────────────────────────────
+
+.rightCol {
+  grid-area: right;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 64px 80px 24px;
+
+  @include bp-down('md') {
+    display: none; // collapses on mobile; left column spans full width
+  }
+}
+
+// Blueprint dot-grid behind the card
+.rightGridDecor {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(77, 138, 173, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(77, 138, 173, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+  // Fade to transparent at edges so it doesn't clash with image
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 78%);
+  pointer-events: none;
+  animation: fadeInSlow 1s $ease-cinematic 0.5s both;
+}
+
+@keyframes fadeInSlow {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Data card — glassmorphic panel
+// ─────────────────────────────────────────────────────────────────────────────
+
+.dataCard {
+  position: relative;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: rgba(14, 21, 33, 0.68);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(212, 168, 94, 0.14);
+  border-radius: $radius-md;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 24px 64px rgba(0, 0, 0, 0.55),
+    0 0 32px rgba(212, 168, 94, 0.06);
+
+  // Slide in from right
+  animation: slideInRight 560ms $ease-cinematic 0.28s both;
+
+  // Corner bracket ornaments (top-left, bottom-right)
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid $color-accent-gold;
+    border-left: 2px solid $color-accent-gold;
+    border-top-left-radius: $radius-md;
+    opacity: 0.7;
+  }
+
+  &::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid $color-accent-gold;
+    border-right: 2px solid $color-accent-gold;
+    border-bottom-right-radius: $radius-md;
+    opacity: 0.7;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Card: top status bar
+// ─────────────────────────────────────────────────────────────────────────────
+
+.cardTopBar {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: 11px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(77, 138, 173, 0.06);
+}
+
+.liveDot {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $color-accent-sky;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: $color-accent-sky;
+    opacity: 0;
+    animation: pulseBadge 2.4s ease-out 1.8s infinite;
+  }
+}
+
+.liveText {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $color-text-data;
+  flex: 1;
+}
+
+.cardRef {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  color: $color-accent-gold;
+  opacity: 0.6;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Card: 2×2 stat grid
+// ─────────────────────────────────────────────────────────────────────────────
+
+.statGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 4px 0;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 18px 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  // Remove border on last column and last row
+  &:nth-child(2n) {
+    border-right: none;
+  }
+  &:nth-child(n+3) {
+    border-bottom: none;
+  }
+}
+
+.statValue {
+  font-family: 'DM Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+}
+
+.statLabel {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Card: era gradient bar (bottom section)
+// ─────────────────────────────────────────────────────────────────────────────
+
+.cardEraBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.cardEraTitle {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+// Proportional era gradient — stop positions are (year - 1900) / 124 × 100%
+// Russian Empire → Early Soviet → Stalinist → Khrushchev → Brezhnev →
+// Late Soviet → Early Independence → Capital Founding → Boom → Tokayev
+.cardEraBar {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    #8B2635  0%,     // Russian Empire
+    #D32F2F  13.7%,  // Early Soviet (1917)
+    #C47A24  29%,    // Stalinist    (1936)
+    #5E9E6A  43%,    // Khrushchev   (1953)
+    #4A7BAA  51.6%,  // Brezhnev     (1964)
+    #7B4D9E  68.5%,  // Late Soviet  (1985)
+    #A07840  73.4%,  // Early Indep  (1991)
+    #007A9A  78.2%,  // Cap Founding (1997)
+    #00AFCA  86.3%,  // Cap Boom     (2007)
+    #F5B82E  100%    // Tokayev      (2019+)
+  );
+  box-shadow: 0 0 8px rgba(212, 168, 94, 0.2);
+}
+
+.cardEraYears {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: $color-text-secondary;
+  opacity: 0.7;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -285,45 +667,46 @@
 
 .scrollIndicator {
   position: absolute;
-  bottom: $space-12;
-  left: 50%;
+  bottom: 92px; // $space-12 (48px) + 44px timeline strip height
+  left: 25%;    // centred in the left column
   transform: translateX(-50%);
   z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: $space-2;
-  animation: float 2s ease-in-out infinite;
+  animation: float 2.2s ease-in-out 1.5s infinite;
 
   @include bp-down('md') {
-    bottom: $space-16;
+    left: 50%;
+    bottom: 76px; // $space-8 (32px) + 44px
   }
 }
 
 .scrollMouse {
-  width: 24px;
-  height: 38px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-radius: 12px;
+  width: 22px;
+  height: 34px;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: 11px;
   position: relative;
 
   &::after {
     content: '';
     position: absolute;
-    top: 8px;
+    top: 7px;
     left: 50%;
     transform: translateX(-50%);
-    width: 3px;
-    height: 8px;
-    background: var(--color-accent-gold);
+    width: 2px;
+    height: 7px;
+    background: $color-accent-gold;
     border-radius: 2px;
-    animation: scrollDot 1.5s ease-in-out infinite;
+    animation: scrollDot 1.6s ease-in-out infinite;
   }
 }
 
 .scrollText {
   @include typ.label-sm;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.32);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -335,26 +718,47 @@
   position: relative;
   z-index: 2;
   display: flex;
-  align-items: center;
-  padding: $space-4 $space-8;
-  border-top: 1px solid rgba(30, 42, 56, 0.8);
-  background: rgba(14, 21, 33, 0.75);
-  backdrop-filter: blur(8px);
+  align-items: flex-end;
+  padding: 0 $space-8 $space-3;
+  border-top: 1px solid rgba(30, 42, 56, 0.7);
+  background: rgba(14, 21, 33, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  min-height: 44px;
 
   @include bp-down('md') {
-    padding: $space-3 $space-4;
+    padding: 0 $space-4 $space-3;
   }
+}
 
-  @include bp-down('sm') {
-    padding: $space-2 $space-3;
-  }
+// Thin era-coloured gradient line at top of the strip
+.timelineEraBar {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    #8B2635  0%,
+    #D32F2F  13.7%,
+    #C47A24  29%,
+    #5E9E6A  43%,
+    #4A7BAA  51.6%,
+    #7B4D9E  68.5%,
+    #A07840  73.4%,
+    #007A9A  78.2%,
+    #00AFCA  86.3%,
+    #F5B82E  100%
+  );
+  opacity: 0.65;
 }
 
 .timelineYear {
   flex: 1;
   text-align: center;
   position: relative;
-  font-family: 'DM Mono', 'Courier New', monospace;
+  font-family: 'DM Mono', monospace;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.10em;
@@ -387,10 +791,9 @@
   &:first-child,
   &:last-child {
     color: $color-accent-gold;
-
     &::before {
       background: $color-accent-gold;
-      height: 10px;
+      height: 9px;
     }
   }
 
@@ -411,11 +814,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 @keyframes float {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%       { transform: translateX(-50%) translateY(-8px); }
+  0%, 100% { transform: translateX(-50%) translateY(0);    }
+  50%       { transform: translateX(-50%) translateY(-7px); }
 }
 
 @keyframes scrollDot {
-  0%   { opacity: 1; top: 8px; }
-  100% { opacity: 0; top: 20px; }
+  0%   { opacity: 1; top: 7px;  }
+  100% { opacity: 0; top: 19px; }
 }

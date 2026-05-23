@@ -89,7 +89,7 @@ export function BuildingPanel({ properties, onClose }: Props) {
       </div>
 
       {/* ── Body ───────────────────────────────────────────────── */}
-      {p && (
+      {!!p && (
         <div className={s.body}>
           <div className={s.nameBlock}>
             <span className={s.name}>{displayName}</span>
@@ -148,17 +148,17 @@ export function BuildingPanel({ properties, onClose }: Props) {
             </div>
           </div>
 
-          {(p.arch_style || p.construction_company) && (
+          {!!(p.arch_style || p.construction_company) && (
             <div className={s.section}>
               <span className={s.sectionLabel}>Architecture</span>
               <div className={s.grid}>
-                {p.arch_style && (
+                {!!p.arch_style && (
                   <div className={`${s.field} ${s.fieldFull}`}>
                     <span className={s.fieldLabel}>Style</span>
                     <span className={s.fieldValue}>{val(p.arch_style)}</span>
                   </div>
                 )}
-                {p.construction_company && (
+                {!!p.construction_company && (
                   <div className={`${s.field} ${s.fieldFull}`}>
                     <span className={s.fieldLabel}>Builder</span>
                     <span className={s.fieldValue}>{val(p.construction_company)}</span>
