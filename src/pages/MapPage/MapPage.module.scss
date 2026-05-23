@@ -60,6 +60,17 @@
     box-shadow: 0 0 16px rgba(212, 168, 94, 0.15);
     color: $color-accent-gold;
   }
+
+  @media (max-width: 767px) {
+    padding: $space-2;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+
+    span {
+      display: none;
+    }
+  }
 }
 
 .titleChip {
@@ -103,6 +114,14 @@
   flex-direction: column;
   gap: $space-2;
   max-width: 256px;
+
+  @media (max-width: 767px) {
+    bottom: auto;
+    top: 60px;
+    left: $space-3;
+    max-width: 220px;
+    z-index: $z-panel;
+  }
 }
 
 .legendToggle {
@@ -126,6 +145,11 @@
   &:hover {
     color: $color-accent-gold;
     border-color: $color-accent-gold;
+  }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
   }
 }
 
@@ -249,6 +273,13 @@
   animation: fadeIn 120ms ease-out;
 }
 
+// Touch devices: suppress hover tooltips entirely
+@media (hover: none) and (pointer: coarse) {
+  .tooltip {
+    display: none !important;
+  }
+}
+
 .tooltipName {
   font-family: var(--font-heading);
   font-size: 13px;
@@ -344,16 +375,17 @@
   }
 
   @media (max-width: 767px) {
-    // Always clear the legend toggle button (left: 16px + 32px wide + 8px gap = 56px)
-    left: 56px;
-    right: $space-4;
+    left: $space-3;
+    right: $space-3;
+    bottom: $space-2;
+    padding: $space-3 $space-4;
 
     &.withSidebar {
-      right: $space-4; // bottom sheet doesn't push the timeline
+      right: $space-3;
     }
 
     &.legendCollapsed {
-      left: 56px;
+      left: $space-3;
     }
   }
 }
@@ -481,6 +513,13 @@
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
     border: 2px solid #fff;
   }
+
+  @media (max-width: 767px) {
+    &::-webkit-slider-thumb {
+      width: 22px;
+      height: 22px;
+    }
+  }
 }
 
 .labels {
@@ -525,6 +564,11 @@
     border-color: $color-accent-gold;
     background: $color-gold-tint-06;
   }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .playMain {
@@ -545,6 +589,11 @@
   &:hover {
     background: $color-gold-tint-12;
     box-shadow: 0 0 14px rgba(212, 168, 94, 0.22);
+  }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
   }
 
   &.playing {
@@ -836,6 +885,11 @@
     background: rgba(212, 168, 94, 0.1);
     box-shadow: 0 0 12px rgba(212, 168, 94, 0.15);
   }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .filterToggleBadge {
@@ -888,8 +942,8 @@
     right: 0;
     bottom: 0;
     width: 100%;
-    max-height: 88vh;
-    max-height: 88dvh;
+    max-height: 70vh;
+    max-height: 70dvh;
     border-left: none;
     border-top: 1px solid var(--glass-border);
     border-radius: $radius-lg $radius-lg 0 0;
@@ -912,6 +966,21 @@
     &.open {
       transform: translateY(0);
     }
+  }
+}
+
+.sidebarBackdrop {
+  display: none;
+
+  @media (max-width: 767px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: $z-panel - 1;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    animation: fadeIn 200ms ease-out;
   }
 }
 
@@ -1947,6 +2016,10 @@
     border: 1px solid var(--glass-border) !important;
     border-radius: $radius-md !important;
     box-shadow: $shadow-md !important;
+
+    @media (max-width: 767px) {
+      display: none !important;
+    }
 
     button {
       background: transparent !important;

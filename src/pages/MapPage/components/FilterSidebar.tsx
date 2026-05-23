@@ -1,4 +1,4 @@
-import { useState, useMemo, memo } from 'react';
+import { useState, useMemo, memo, useRef } from 'react';
 import { ChevronDown, ChevronRight, ChevronLeft, X, Search, Sun, Moon, Layers, Thermometer, Mountain, Building2, Flame } from 'lucide-react';
 import s from '../MapPage.module.scss';
 import { TYPE_OPTIONS, DISTRICT_OPTIONS, ERA_CONFIG, DISTRICT_TOTAL_COUNTS } from '../constants';
@@ -299,6 +299,54 @@ export const FilterSidebar = memo(function FilterSidebar({
   decadeLstData,
 }: FilterSidebarProps) {
   const [tab, setTab] = useState<'filters' | 'charts' | 'layers'>('filters');
+  
+  // Touch drag-to-dismiss logic for mobile bottom sheet
+  const touchStartRef = useRef<number | null>(null);
+  const touchCurrentRef = useRef<number | null>(null);
+  const [translateY, setTranslateY] = useState(0);
+  const [activeDragging, setActiveDragging] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.innerWidth >= 768) return;
+    const touch = e.touches[0];
+    touchStartRef.current = touch.clientY;
+    touchCurrentRef.current = touch.clientY;
+    setActiveDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartRef.current === null) return;
+    const touch = e.touches[0];
+    touchCurrentRef.current = touch.clientY;
+    const diff = touch.clientY - touchStartRef.current;
+    
+    // Only allow dragging downwards
+    if (diff > 0) {
+      setTranslateY(diff);
+    } else {
+      setTranslateY(0);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartRef.current === null || touchCurrentRef.current === null) {
+      touchStartRef.current = null;
+      touchCurrentRef.current = null;
+      setActiveDragging(false);
+      return;
+    }
+    const diff = touchCurrentRef.current - touchStartRef.current;
+    touchStartRef.current = null;
+    touchCurrentRef.current = null;
+    setActiveDragging(false);
+
+    // If dragged down > 100px, close sidebar. Otherwise snap back.
+    if (diff > 100) {
+      onClose();
+    }
+    setTranslateY(0);
+  };
+
   const [typesExpanded, setTypesExpanded] = useState(true);
   const [districtsExpanded, setDistrictsExpanded] = useState(true);
   const [archExpanded, setArchExpanded] = useState(true);
@@ -376,7 +424,34 @@ export const FilterSidebar = memo(function FilterSidebar({
   const totalVisible = eraData.total;
 
   return (
-    <aside className={`${s.filterSidebar} ${open ? s.open : ''}`} aria-label="Map filters">
+    <aside
+      className={`${s.filterSidebar} ${open ? s.open : ''}`}
+      aria-label="Map filters"
+      style={
+        open && window.innerWidth < 768
+          ? {
+              transform: `translateY(${translateY}px)`,
+              transition: activeDragging ? 'none' : 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            }
+          : undefined
+      }
+    >
+      {/* Invisible overlay for the very top drag handle area on mobile */}
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '24px',
+          cursor: 'grab',
+          zIndex: 10,
+        }}
+      />
+
       {/* Edge tab toggle */}
       <button
         className={s.toggleHandle}
@@ -390,7 +465,12 @@ export const FilterSidebar = memo(function FilterSidebar({
       </button>
 
       {/* ── Header with tab switcher ───────────────────────────────────────── */}
-      <div className={s.filterHeader}>
+      <div
+        className={s.filterHeader}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className={s.tabRow}>
           <button
             className={`${s.tabBtn} ${tab === 'filters' ? s.tabActive : ''}`}

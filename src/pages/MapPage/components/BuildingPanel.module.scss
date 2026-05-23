@@ -36,8 +36,8 @@ $z-building-panel: 150;
     left: 0;
     right: 0;
     width: 100%;
-    height: 80vh;
-    height: 80dvh;
+    height: 55vh;
+    height: 55dvh;
     border-left: none;
     border-top: 1px solid var(--glass-border);
     border-radius: 16px 16px 0 0;
@@ -124,6 +124,11 @@ $z-building-panel: 150;
     color: $color-text-primary;
     border-color: $color-border-subtle;
     background: rgba(255, 255, 255, 0.04);
+  }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
   }
 }
 

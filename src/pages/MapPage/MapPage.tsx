@@ -5,6 +5,7 @@ import { Protocol } from 'pmtiles';
 import { ArrowLeft, Layers, Info, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
+import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
 
 import { ERA_CONFIG, DISTRICT_BOUNDS } from './constants';
 import { buildYearColorExpr, buildElevationColorExpr, buildLstColorExpr, buildTypeColorExpr, buildUhiColorExpr, TYPE_LEGEND, UHI_MATRIX, UHI_AGE_BINS, UHI_LST_BINS, buildCombinedFilter, type ColorMode, type DecadeLstPoint, ELEVATION_STEPS, LST_STEPS } from './mapHelpers';
@@ -47,6 +48,7 @@ const TYPE_LABELS: Record<string, string> = {
 export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const isMobile = useIsMobile();
   const [legendOpen, setLegendOpen] = useState(true);
   const [hoverInfo, setHoverInfo] = useState<{
     x: number;
@@ -175,7 +177,10 @@ export default function MapPage() {
 
   useEffect(() => {
     if (window.innerWidth > 1024) setSidebarOpen(true);
-    if (window.innerWidth < 768) setLegendOpen(false);
+    if (window.innerWidth < 768) {
+      setLegendOpen(false);
+      setTimelineCollapsed(true);  // save vertical space on mobile
+    }
   }, []);
 
   const activeCount = useMemo(
@@ -581,7 +586,7 @@ export default function MapPage() {
         setHoverInfo(null);
       });
 
-      // Building click — open detail panel, close filter sidebar
+      // Building click / tap — open detail panel, close filter sidebar
       map.on('click', (e) => {
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['buildings-fill', 'buildings-3d'],
@@ -589,6 +594,11 @@ export default function MapPage() {
         if (features.length) {
           setSelectedBuilding(features[0].properties as Record<string, unknown>);
           setSidebarOpen(false);
+          // On mobile, also collapse the legend and timeline to maximise map
+          if (window.innerWidth < 768) {
+            setLegendOpen(false);
+            setTimelineCollapsed(true);
+          }
         } else {
           setSelectedBuilding(null);
         }
@@ -839,6 +849,15 @@ export default function MapPage() {
   return (
     <div className={s.mapPage}>
       <div ref={containerRef} className={s.mapContainer} />
+
+      {/* Mobile backdrop — shown behind open sidebar for tap-to-close */}
+      {isMobile && sidebarOpen && (
+        <div
+          className={s.sidebarBackdrop}
+          onClick={handleSidebarClose}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Back button */}
       <Link to="/" className={s.backBtn} aria-label="Back to Home">
@@ -1139,8 +1158,8 @@ export default function MapPage() {
         )}
       </div>
 
-      {/* Hover tooltip — hidden while a building is selected */}
-      {hoverInfo && !selectedBuilding && (() => {
+      {/* Hover tooltip — hidden while a building is selected, suppressed on touch */}
+      {hoverInfo && !selectedBuilding && !IS_TOUCH_DEVICE && (() => {
         const p = hoverInfo.properties;
 
         if (p.isKabanbayModel) {
