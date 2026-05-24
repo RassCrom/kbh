@@ -117,11 +117,11 @@ export function buildYearAvgColorExpr(): maplibregl.ExpressionSpecification {
   ] as unknown as maplibregl.ExpressionSpecification;
 }
 
-/** Extrusion height — 10× real average height, minimum 5 m so zero-data hexagons still read */
+/** Extrusion height — 15× real average height, minimum 10 m so zero-data hexagons still read */
 export function buildHexHeightExpr(): maplibregl.ExpressionSpecification {
   return [
     'max',
-    ['*', ['get', 'avgHeight'], 10],
-    5,
+    ['*', ['get', 'avgHeight'], 15],
+    10,
   ] as unknown as maplibregl.ExpressionSpecification;
 }

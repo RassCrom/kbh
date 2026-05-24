@@ -1,5 +1,5 @@
 import { useState, useMemo, memo, useRef } from 'react';
-import { ChevronDown, ChevronRight, ChevronLeft, X, Search, Sun, Moon, Layers, Thermometer, Mountain, Building2, Flame } from 'lucide-react';
+import { ChevronDown, ChevronRight, ChevronLeft, X, Search, Sun, Moon, Layers, Thermometer, Mountain, Building2, Flame, Info } from 'lucide-react';
 import s from '../MapPage.module.scss';
 import { TYPE_OPTIONS, DISTRICT_OPTIONS, ERA_CONFIG, DISTRICT_TOTAL_COUNTS } from '../constants';
 import { type MapTheme } from '../mapTheme';
@@ -299,6 +299,11 @@ export const FilterSidebar = memo(function FilterSidebar({
   decadeLstData,
 }: FilterSidebarProps) {
   const [tab, setTab] = useState<'filters' | 'charts' | 'layers'>('filters');
+  const [expandedInfo, setExpandedInfo] = useState<Record<string, boolean>>({});
+  const toggleInfo = (layer: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedInfo(prev => ({ ...prev, [layer]: !prev[layer] }));
+  };
   
   // Touch drag-to-dismiss logic for mobile bottom sheet
   const touchStartRef = useRef<number | null>(null);
@@ -731,15 +736,31 @@ export const FilterSidebar = memo(function FilterSidebar({
           <div className={s.vizOptionList}>
 
             {/* Year Built */}
-            <button
+            <div
               className={`${s.vizOption} ${colorMode === 'year' ? s.vizOptionActive : ''}`}
               onClick={() => onColorModeChange('year')}
-              type="button"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onColorModeChange('year');
+                }
+              }}
             >
               <div className={s.vizOptionHeader}>
                 <div className={s.vizOptionTitleRow}>
                   <Layers size={13} className={s.vizOptionIcon} />
                   <span className={s.vizOptionName}>Year Built</span>
+                  <button
+                    type="button"
+                    className={`${s.infoBtn} ${expandedInfo['year'] ? s.infoBtnActive : ''}`}
+                    onClick={(e) => toggleInfo('year', e)}
+                    title="Show methodology and details"
+                    aria-label="Toggle year built methodology"
+                  >
+                    <Info size={11} />
+                  </button>
                 </div>
                 {colorMode === 'year' && <span className={s.vizOptionBadge}>Active</span>}
               </div>
@@ -758,18 +779,44 @@ export const FilterSidebar = memo(function FilterSidebar({
                 <span>Pre-1917</span>
                 <span>2019+</span>
               </div>
-            </button>
+              {expandedInfo['year'] && (
+                <div className={s.vizInfoBlock} onClick={(e) => e.stopPropagation()}>
+                  <p className={s.vizInfoText}>
+                    <strong>Description:</strong> Visualizes building age and construction periods from 1900 to the present day, tracking physical growth across political eras.
+                  </p>
+                  <p className={s.vizInfoText}>
+                    <strong>Methodology:</strong> Aggregated from administrative archives, historical maps, and satellite remote sensing. Classified into key urban historical eras.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Elevation */}
-            <button
+            <div
               className={`${s.vizOption} ${colorMode === 'elevation' ? s.vizOptionActive : ''}`}
               onClick={() => onColorModeChange('elevation')}
-              type="button"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onColorModeChange('elevation');
+                }
+              }}
             >
               <div className={s.vizOptionHeader}>
                 <div className={s.vizOptionTitleRow}>
                   <Mountain size={13} className={s.vizOptionIcon} />
                   <span className={s.vizOptionName}>Elevation</span>
+                  <button
+                    type="button"
+                    className={`${s.infoBtn} ${expandedInfo['elevation'] ? s.infoBtnActive : ''}`}
+                    onClick={(e) => toggleInfo('elevation', e)}
+                    title="Show methodology and details"
+                    aria-label="Toggle elevation methodology"
+                  >
+                    <Info size={11} />
+                  </button>
                 </div>
                 {colorMode === 'elevation' && <span className={s.vizOptionBadgeElevation}>Active</span>}
               </div>
@@ -788,18 +835,44 @@ export const FilterSidebar = memo(function FilterSidebar({
                 <span>335 m</span>
                 <span>417 m</span>
               </div>
-            </button>
+              {expandedInfo['elevation'] && (
+                <div className={s.vizInfoBlock} onClick={(e) => e.stopPropagation()}>
+                  <p className={s.vizInfoText}>
+                    <strong>Description:</strong> Maps ground surface elevation beneath building footprints, revealing micro-topography and natural floodplain contours of the Ishim River.
+                  </p>
+                  <p className={s.vizInfoText}>
+                    <strong>Methodology:</strong> Derived using high-resolution FABDEM Digital Terrain Model (DTM), computing the mean elevation value (`dem_mean`) in meters asl.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Summer Heat (LST) */}
-            <button
+            <div
               className={`${s.vizOption} ${colorMode === 'lst' ? s.vizOptionActive : ''}`}
               onClick={() => onColorModeChange('lst')}
-              type="button"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onColorModeChange('lst');
+                }
+              }}
             >
               <div className={s.vizOptionHeader}>
                 <div className={s.vizOptionTitleRow}>
                   <Thermometer size={13} className={s.vizOptionIcon} />
                   <span className={s.vizOptionName}>Summer Heat (LST)</span>
+                  <button
+                    type="button"
+                    className={`${s.infoBtn} ${expandedInfo['lst'] ? s.infoBtnActive : ''}`}
+                    onClick={(e) => toggleInfo('lst', e)}
+                    title="Show methodology and details"
+                    aria-label="Toggle LST methodology"
+                  >
+                    <Info size={11} />
+                  </button>
                 </div>
                 {colorMode === 'lst' && <span className={s.vizOptionBadgeLst}>Active</span>}
               </div>
@@ -818,18 +891,44 @@ export const FilterSidebar = memo(function FilterSidebar({
                 <span>33 °C</span>
                 <span>48 °C</span>
               </div>
-            </button>
+              {expandedInfo['lst'] && (
+                <div className={s.vizInfoBlock} onClick={(e) => e.stopPropagation()}>
+                  <p className={s.vizInfoText}>
+                    <strong>Description:</strong> Highlights peak summer thermal variations, mapping heat concentration, urban heat islands, and cooler vegetated zones.
+                  </p>
+                  <p className={s.vizInfoText}>
+                    <strong>Methodology:</strong> Calculated using multi-temporal thermal bands of Landsat-8 and Sentinel-2 (2015-2025), showing average surface temperature (`lst_1mean`) in °C.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Building Use */}
-            <button
+            <div
               className={`${s.vizOption} ${colorMode === 'type' ? s.vizOptionActive : ''}`}
               onClick={() => onColorModeChange('type')}
-              type="button"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onColorModeChange('type');
+                }
+              }}
             >
               <div className={s.vizOptionHeader}>
                 <div className={s.vizOptionTitleRow}>
                   <Building2 size={13} className={s.vizOptionIcon} />
                   <span className={s.vizOptionName}>Building Use</span>
+                  <button
+                    type="button"
+                    className={`${s.infoBtn} ${expandedInfo['type'] ? s.infoBtnActive : ''}`}
+                    onClick={(e) => toggleInfo('type', e)}
+                    title="Show methodology and details"
+                    aria-label="Toggle building use methodology"
+                  >
+                    <Info size={11} />
+                  </button>
                 </div>
                 {colorMode === 'type' && <span className={s.vizOptionBadgeType}>Active</span>}
               </div>
@@ -848,18 +947,44 @@ export const FilterSidebar = memo(function FilterSidebar({
                 <span>Residential</span>
                 <span>Infrastructure</span>
               </div>
-            </button>
+              {expandedInfo['type'] && (
+                <div className={s.vizInfoBlock} onClick={(e) => e.stopPropagation()}>
+                  <p className={s.vizInfoText}>
+                    <strong>Description:</strong> Illustrates the primary structural and zoning functions of buildings across commercial, residential, administrative, and civic categories.
+                  </p>
+                  <p className={s.vizInfoText}>
+                    <strong>Methodology:</strong> Classified from OpenStreetMap tag hierarchies cross-referenced with local city registers and land-use records.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Urban Heat Island (bivariate) */}
-            <button
+            <div
               className={`${s.vizOption} ${colorMode === 'uhi' ? s.vizOptionActive : ''}`}
               onClick={() => onColorModeChange('uhi')}
-              type="button"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onColorModeChange('uhi');
+                }
+              }}
             >
               <div className={s.vizOptionHeader}>
                 <div className={s.vizOptionTitleRow}>
                   <Flame size={13} className={s.vizOptionIcon} />
                   <span className={s.vizOptionName}>Heat × Age (UHI)</span>
+                  <button
+                    type="button"
+                    className={`${s.infoBtn} ${expandedInfo['uhi'] ? s.infoBtnActive : ''}`}
+                    onClick={(e) => toggleInfo('uhi', e)}
+                    title="Show methodology and details"
+                    aria-label="Toggle UHI methodology"
+                  >
+                    <Info size={11} />
+                  </button>
                 </div>
                 {colorMode === 'uhi' && <span className={s.vizOptionBadgeUhi}>Active</span>}
               </div>
@@ -876,7 +1001,17 @@ export const FilterSidebar = memo(function FilterSidebar({
                 <span>Hot + Old</span>
                 <span>Cool + New</span>
               </div>
-            </button>
+              {expandedInfo['uhi'] && (
+                <div className={s.vizInfoBlock} onClick={(e) => e.stopPropagation()}>
+                  <p className={s.vizInfoText}>
+                    <strong>Description:</strong> Displays bivariate correlation of structural building age combined with LST summer thermal stress, locating areas susceptible to UHI effects.
+                  </p>
+                  <p className={s.vizInfoText}>
+                    <strong>Methodology:</strong> Standardized 3×3 matrix pairing age eras (pre-1991, 1991-2010, 2011+) with summer land surface temperature categories.
+                  </p>
+                </div>
+              )}
+            </div>
 
           </div>
         </div>

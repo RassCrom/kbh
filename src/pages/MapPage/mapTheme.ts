@@ -48,10 +48,10 @@ const THEME_LAYERS: Array<[string, string, unknown, unknown]> = [
   ['rail',           'line-color', '#b4aca4', '#2d2545'],
 
   // Basemap buildings
-  ['building-basemap',         'fill-color',    '#ddd8d0', '#1a1a28'],
+  ['building-basemap',         'fill-color',    '#c4beb2', '#1a1a28'],
   ['building-basemap',         'fill-opacity',  ['interpolate', ['linear'], ['zoom'], 13, 0.3, 15, 0.6],
                                                 ['interpolate', ['linear'], ['zoom'], 13, 0.2, 15, 0.55]],
-  ['building-basemap-outline', 'line-color',    '#ccc8c0', '#252538'],
+  ['building-basemap-outline', 'line-color',    '#ada496', '#252538'],
   ['building-basemap-outline', 'line-opacity',  0.6, 0.5],
 
   // Boundaries

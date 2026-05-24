@@ -110,19 +110,6 @@ export function TimelineSlider({
           {isPlaying ? value[1] : `${value[0]} – ${value[1]}`}
         </span>
 
-        <div className={s.speedGroup} role="group" aria-label="Playback speed">
-          {SPEEDS.map((sp) => (
-            <button
-              key={sp}
-              className={`${s.speedBtn} ${playSpeed === sp ? s.speedActive : ''}`}
-              onClick={() => onSpeedChange(sp)}
-              aria-pressed={playSpeed === sp}
-            >
-              {sp}×
-            </button>
-          ))}
-        </div>
-
         {/* Collapse / expand toggle */}
         <button
           className={s.timelineCollapseBtn}

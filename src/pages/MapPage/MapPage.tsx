@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Protocol } from 'pmtiles';
-import { ArrowLeft, Layers, Info, X } from 'lucide-react';
+import { ArrowLeft, Layers, Info, X, SlidersHorizontal, Sun, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
 import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
@@ -84,6 +84,13 @@ export default function MapPage() {
 
   // Hexagon visualization state
   const [vizMode, setVizMode] = useState<'buildings' | 'hexagons'>('buildings');
+
+  const handleColorModeChange = (mode: ColorMode) => {
+    setColorMode(mode);
+    if (vizMode === 'hexagons') {
+      setVizMode('buildings');
+    }
+  };
   const [hexMetric, setHexMetric] = useState<HexMetric>('count');
   const [hexLoading, setHexLoading] = useState(false);
   const hexLoadedRef = useRef(false);
@@ -154,7 +161,7 @@ export default function MapPage() {
     else map.once('load', apply);
   }, [mapTheme]);
 
-  // Apply building color expression when colorMode changes
+  // Apply building color expression when colorMode or mapTheme changes
   useEffect(() => {
     setSelectedUhiCells([]);
     const map = mapRef.current;
@@ -173,7 +180,7 @@ export default function MapPage() {
     };
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
-  }, [colorMode]);
+  }, [colorMode, mapTheme]);
 
   useEffect(() => {
     if (window.innerWidth > 1024) setSidebarOpen(true);
@@ -309,9 +316,9 @@ export default function MapPage() {
           'line-color': 'rgba(37, 29, 13, 0.3)',
           'line-width': [
             'interpolate', ['linear'], ['zoom'],
-            13, 0.3,
-            14, 1,
-            15.5, 0,
+            11, 0.3,
+            12, 1,
+            13, 0,
           ],
         },
       });
@@ -321,13 +328,13 @@ export default function MapPage() {
         type: 'fill-extrusion',
         source: 'all-buildings',
         'source-layer': 'buildings',
-        minzoom: 15.5,
+        minzoom: 13,
         paint: {
           'fill-extrusion-color': buildYearColorExpr(),
           'fill-extrusion-height': [
             'interpolate', ['linear'], ['zoom'],
-            15.5, 0,
-            16, ['to-number', ['coalesce', ['get', 'b_height'], 10], 10]
+            13, 0,
+            13.5, ['to-number', ['coalesce', ['get', 'b_height'], 10], 10]
           ],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.85,
@@ -340,7 +347,7 @@ export default function MapPage() {
         type: 'fill',
         source: 'all-buildings',
         'source-layer': 'buildings',
-        maxzoom: 15.5,
+        maxzoom: 13,
         paint: {
           'fill-color': '#d4a85e',
           'fill-opacity': [
@@ -355,7 +362,7 @@ export default function MapPage() {
         type: 'fill-extrusion',
         source: 'all-buildings',
         'source-layer': 'buildings',
-        minzoom: 15.5,
+        minzoom: 13,
         paint: {
           'fill-extrusion-color': [
             'case', ['boolean', ['feature-state', 'hover'], false],
@@ -364,8 +371,8 @@ export default function MapPage() {
           ],
           'fill-extrusion-height': [
             'interpolate', ['linear'], ['zoom'],
-            15.5, 0,
-            16, ['to-number', ['coalesce', ['get', 'b_height'], 10], 10]
+            13, 0,
+            13.5, ['to-number', ['coalesce', ['get', 'b_height'], 10], 10]
           ],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.55,
@@ -877,8 +884,20 @@ export default function MapPage() {
       {/* Page title chip */}
       <div className={s.titleChip}>
         <Layers size={16} />
-        <span>Astana · all District</span>
+        <span>Astana</span>
       </div>
+
+      {/* Filter toggle (top-right, hidden when sidebar is open) */}
+      {!sidebarOpen && (
+        <button
+          className={s.filterToggle}
+          onClick={handleSidebarToggle}
+          aria-label="Open filters"
+        >
+          <SlidersHorizontal size={18} />
+          {activeCount > 0 && <span className={s.filterToggleBadge}>{activeCount}</span>}
+        </button>
+      )}
 
       {/* Filter sidebar */}
       <FilterSidebar
@@ -905,7 +924,7 @@ export default function MapPage() {
         mapTheme={mapTheme}
         onThemeToggle={handleThemeToggle}
         colorMode={colorMode}
-        onColorModeChange={setColorMode}
+        onColorModeChange={handleColorModeChange}
       />
 
       {/* Legend panel */}

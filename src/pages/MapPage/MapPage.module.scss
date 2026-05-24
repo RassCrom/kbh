@@ -79,12 +79,12 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
 
   @media (max-width: 767px) {
     display: none; // viz toggle takes the centre slot on mobile
   }
-  display: flex;
-  align-items: center;
   gap: $space-2;
   padding: $space-2 $space-4;
   background: var(--glass-bg);
@@ -118,7 +118,7 @@
   @media (max-width: 767px) {
     bottom: auto;
     top: 60px;
-    left: $space-3;
+    left: $space-4; // align with back button (also left: $space-4)
     max-width: 220px;
     z-index: $z-panel;
   }
@@ -377,7 +377,7 @@
   @media (max-width: 767px) {
     left: $space-3;
     right: $space-3;
-    bottom: $space-2;
+    bottom: calc(#{$space-2} + env(safe-area-inset-bottom, 0px));
     padding: $space-3 $space-4;
 
     &.withSidebar {
@@ -842,7 +842,7 @@
   }
 
   @media (max-width: 767px) {
-    right: 60px;
+    display: none; // theme toggle is accessible inside the filter sidebar header
   }
 }
 
@@ -921,6 +921,11 @@
   width: 320px;
   z-index: $z-panel;
   background: var(--glass-bg-medium);
+
+  // When open, rise above the building detail panel (z-index 150)
+  &.open {
+    z-index: 160;
+  }
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-left: 1px solid var(--glass-border);
@@ -966,6 +971,11 @@
     &.open {
       transform: translateY(0);
     }
+
+    // Pad footer above home indicator on iPhone X+
+    .filterFooter {
+      padding-bottom: calc(#{$space-4} + env(safe-area-inset-bottom, 0px));
+    }
   }
 }
 
@@ -976,7 +986,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    z-index: $z-panel - 1;
+    z-index: 159; // just below the open filter sidebar (160), above building panel (150)
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
@@ -1043,7 +1053,7 @@
   padding: $space-4;
   border-bottom: 1px solid var(--glass-border);
   flex-shrink: 0;
-  background: rgba(14, 21, 33, 0.4);
+  background: var(--tint-subtle);
 }
 
 .headerActions {
@@ -1391,7 +1401,7 @@
   flex-shrink: 0;
   padding: $space-4;
   border-top: 1px solid var(--glass-border);
-  background: rgba(14, 21, 33, 0.4);
+  background: var(--tint-subtle);
 }
 
 .filterReset {
@@ -1579,6 +1589,15 @@
   display: flex;
   align-items: center;
   gap: $space-2;
+  cursor: pointer;
+  transition: opacity $duration-ui ease;
+
+  &:hover {
+    opacity: 0.85;
+    .hBarLabel, .hBarCount {
+      color: var(--color-text-primary);
+    }
+  }
 }
 
 .hBarLabel {
@@ -1590,6 +1609,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color $duration-ui ease;
 }
 
 .hBarTrack {
@@ -1613,6 +1633,7 @@
   width: 36px;
   text-align: right;
   flex-shrink: 0;
+  transition: color $duration-ui ease;
 }
 
 /* Vertical decade bars */
@@ -1644,13 +1665,24 @@
   width: 100%;
   display: flex;
   align-items: flex-end;
+  cursor: pointer;
+
+  &:hover {
+    .decadeBar {
+      filter: brightness(1.2) saturate(1.1);
+      transform: scaleY(1.03);
+    }
+  }
 }
 
 .decadeBar {
   width: 100%;
   border-radius: 2px 2px 0 0;
   min-height: 0;
-  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: bottom;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.2s ease,
+              transform 0.2s ease;
 }
 
 .decadeLabel {
@@ -1764,7 +1796,7 @@
 
 .vizOptionName {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1773,7 +1805,7 @@
 
 .vizOptionBadge {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
@@ -1809,9 +1841,17 @@
   border-color: rgba(139, 92, 246, 0.35);
 }
 
+// Red-orange badge for UHI bivariate
+.vizOptionBadgeUhi {
+  @extend .vizOptionBadge;
+  color: #C8705A;
+  background: rgba(200, 112, 90, 0.12);
+  border-color: rgba(200, 112, 90, 0.35);
+}
+
 .vizOptionDesc {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--color-text-secondary);
   letter-spacing: 0.02em;
   margin: 0;
@@ -1844,7 +1884,7 @@
   display: flex;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   color: var(--color-text-secondary);
   letter-spacing: 0.03em;
   opacity: 0.75;
@@ -1884,7 +1924,7 @@
   flex-direction: column;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   color: var(--color-text-secondary);
   letter-spacing: 0.04em;
   opacity: 0.8;
@@ -1892,7 +1932,7 @@
 
 .legendGradientSource {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   color: var(--color-text-secondary);
   letter-spacing: 0.05em;
   opacity: 0.5;
@@ -1921,7 +1961,7 @@
   justify-content: space-between;
   height: 120px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--color-text-secondary);
   padding-right: $space-1;
@@ -1979,7 +2019,7 @@
   justify-content: space-between;
   width: 120px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--color-text-secondary);
   padding-top: $space-1;
@@ -2037,7 +2077,7 @@
   }
 
   .maplibregl-ctrl-attrib {
-    background: rgba(14, 21, 33, 0.7) !important;
+    background: var(--glass-bg-medium) !important;
     color: var(--color-text-secondary) !important;
     font-size: 10px !important;
     border-radius: $radius-sm !important;
@@ -2045,5 +2085,57 @@
     a {
       color: var(--color-accent-sky) !important;
     }
+  }
+}
+
+/* Info button and methodology blocks inside Layers tab */
+.infoBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--tint-subtle);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  margin-left: $space-2;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    background: var(--color-gold-tint-12);
+    border-color: var(--color-accent-gold);
+    color: var(--color-accent-gold);
+  }
+
+  &.infoBtnActive {
+    background: var(--color-gold-tint-12);
+    border-color: var(--color-accent-gold);
+    color: var(--color-accent-gold);
+  }
+}
+
+.vizInfoBlock {
+  margin-top: $space-2;
+  padding: $space-3;
+  background: var(--tint-faint);
+  border-left: 2px solid var(--color-accent-gold);
+  border-radius: $radius-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  cursor: default;
+}
+
+.vizInfoText {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  margin: 0;
+
+  strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
   }
 }
