@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import s from './Hero.module.scss';
 
 export default function Hero() {
@@ -60,9 +61,9 @@ export default function Hero() {
         </p>
 
         <div className={s.ctas}>
-          <a href="/map" className={s.ctaPrimary} id="cta-explore">
+          <Link to="/map" className={s.ctaPrimary} id="cta-explore">
             Explore the Map
-          </a>
+          </Link>
         </div>
       </div>
 
