@@ -103,7 +103,7 @@ export default function MapPage() {
 
   // Time-lapse state
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playSpeed, setPlaySpeed] = useState<1 | 2 | 4>(1);
+  const [playSpeed] = useState<1 | 2 | 4>(1);
   const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sliderMaxRef = useRef(sliderMax);
   const playSpeedRef = useRef(playSpeed);
