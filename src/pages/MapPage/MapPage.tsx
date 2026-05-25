@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Protocol } from 'pmtiles';
-import { ArrowLeft, Layers, Info, X, SlidersHorizontal, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, Layers, Info, X, SlidersHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
 import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
@@ -1301,9 +1301,7 @@ export default function MapPage() {
         collapsed={timelineCollapsed}
         onCollapsedChange={setTimelineCollapsed}
         isPlaying={isPlaying}
-        playSpeed={playSpeed}
         onTogglePlay={handleTogglePlay}
-        onSpeedChange={setPlaySpeed}
         onPlayReset={handlePlayReset}
       />
     </div>

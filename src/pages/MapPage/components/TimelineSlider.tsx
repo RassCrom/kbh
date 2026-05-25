@@ -14,19 +14,15 @@ interface Props {
   collapsed: boolean;
   onCollapsedChange: (v: boolean) => void;
   isPlaying: boolean;
-  playSpeed: 1 | 2 | 4;
   onTogglePlay: () => void;
-  onSpeedChange: (speed: 1 | 2 | 4) => void;
   onPlayReset: () => void;
 }
-
-const SPEEDS: (1 | 2 | 4)[] = [1, 2, 4];
 
 export function TimelineSlider({
   min, max, value, onChange, data,
   sidebarOpen, buildingOpen, legendOpen,
   collapsed, onCollapsedChange,
-  isPlaying, playSpeed, onTogglePlay, onSpeedChange, onPlayReset,
+  isPlaying, onTogglePlay, onPlayReset,
 }: Props) {
   const bins = useMemo(() => {
     let maxCount = 0;
