@@ -166,10 +166,10 @@ export default function MapPage() {
     const apply = () => {
       const colorExpr =
         colorMode === 'elevation' ? buildElevationColorExpr() :
-        colorMode === 'lst'       ? buildLstColorExpr() :
-        colorMode === 'type'      ? buildTypeColorExpr() :
-        colorMode === 'uhi'       ? buildUhiColorExpr() :
-                                    buildYearColorExpr();
+          colorMode === 'lst' ? buildLstColorExpr() :
+            colorMode === 'type' ? buildTypeColorExpr() :
+              colorMode === 'uhi' ? buildUhiColorExpr() :
+                buildYearColorExpr();
       if (map.getLayer('buildings-fill'))
         map.setPaintProperty('buildings-fill', 'fill-color', colorExpr);
       if (map.getLayer('buildings-3d'))
@@ -255,11 +255,11 @@ export default function MapPage() {
   }, []);
 
   // Stable sidebar/theme callbacks — prevent FilterSidebar re-renders on unrelated MapPage state changes
-  const handleSidebarClose   = useCallback(() => setSidebarOpen(false), []);
-  const handleSidebarToggle  = useCallback(() => setSidebarOpen((v) => !v), []);
-  const handleClearTypes     = useCallback(() => setSelectedTypes([]), []);
+  const handleSidebarClose = useCallback(() => setSidebarOpen(false), []);
+  const handleSidebarToggle = useCallback(() => setSidebarOpen((v) => !v), []);
+  const handleClearTypes = useCallback(() => setSelectedTypes([]), []);
   const handleClearDistricts = useCallback(() => setSelectedDistricts([]), []);
-  const handleThemeToggle    = useCallback(
+  const handleThemeToggle = useCallback(
     () => setMapTheme((t) => (t === 'dark' ? 'light' : 'dark')),
     [],
   );
@@ -463,6 +463,24 @@ export default function MapPage() {
       map.on('mouseleave', 'buildings-3d', handleMouseLeave);
 
       // Hex hover
+      const handleHexMouseMove = (e: any) => {
+        if (!e.features?.length) return;
+        map.getCanvas().style.cursor = 'crosshair';
+        const feat = e.features[0];
+        setHoverInfo({
+          x: e.point.x,
+          y: e.point.y,
+          properties: feat.properties as Record<string, unknown>,
+        });
+      };
+
+      const handleHexMouseLeave = () => {
+        map.getCanvas().style.cursor = '';
+        setHoverInfo(null);
+      };
+
+      map.on('mousemove', 'hex-layer', handleHexMouseMove);
+      map.on('mouseleave', 'hex-layer', handleHexMouseLeave);
 
       // Building click / tap — open detail panel, close filter sidebar
       map.on('click', (e) => {
@@ -1077,25 +1095,93 @@ export default function MapPage() {
           const count = Number(p.count);
           const avgYear = Number(p.avgYear);
           const avgH = Number(p.avgHeight);
+
+          // Map avgYear to an era label + accent color
+          const getEraInfo = (yr: number): { label: string; color: string } => {
+            if (yr <= 0) return { label: 'Unknown', color: '#555' };
+            if (yr < 1917) return { label: 'Pre-Soviet', color: '#8B2635' };
+            if (yr < 1936) return { label: 'Early Soviet', color: '#D32F2F' };
+            if (yr < 1953) return { label: 'Stalinist', color: '#C47A24' };
+            if (yr < 1964) return { label: 'Khrushchev', color: '#5E9E6A' };
+            if (yr < 1985) return { label: 'Brezhnev', color: '#4A7BAA' };
+            if (yr < 1991) return { label: 'Late Soviet', color: '#7B4D9E' };
+            if (yr < 1997) return { label: 'Post-Soviet', color: '#A07840' };
+            if (yr < 2007) return { label: 'Early Astana', color: '#007A9A' };
+            if (yr < 2019) return { label: 'Boom Era', color: '#00AFCA' };
+            return { label: 'Contemporary', color: '#F5B82E' };
+          };
+
+          // Density indicator: clamp count to a 0–100% bar (200 = full)
+          const densityPct = Math.min(100, (count / 200) * 100);
+          const densityLabel = count < 10 ? 'Sparse' : count < 50 ? 'Moderate' : count < 120 ? 'Dense' : 'Very Dense';
+
+          const era = getEraInfo(avgYear);
+
           return (
-            <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}>
-              <div className={s.tooltipName}>Hexagon</div>
-              <div className={s.tooltipRow}>
-                <span className={s.tooltipKey}>Buildings</span>
-                <span className={s.tooltipVal}>{count.toLocaleString()}</span>
+            <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14, minWidth: 200 }}>
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                <span style={{
+                  display: 'inline-block', width: 8, height: 8,
+                  borderRadius: '50%', background: era.color,
+                  boxShadow: `0 0 6px ${era.color}`,
+                  flexShrink: 0,
+                }} />
+                <span className={s.tooltipName} style={{ margin: 0 }}>Urban Cell</span>
               </div>
+
+              {/* Building count + density bar */}
+              <div className={s.tooltipRow} style={{ flexDirection: 'column', gap: 4, alignItems: 'stretch' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span className={s.tooltipKey}>Buildings</span>
+                  <span className={s.tooltipVal} style={{ color: '#d4a85e', fontWeight: 700 }}>
+                    {count.toLocaleString()}
+                    <span style={{ fontSize: 9, fontWeight: 400, color: 'var(--color-text-secondary)', marginLeft: 4 }}>
+                      {densityLabel}
+                    </span>
+                  </span>
+                </div>
+                {/* Mini density bar */}
+                <div style={{
+                  height: 3, borderRadius: 2,
+                  background: 'rgba(255,255,255,0.08)',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{
+                    height: '100%', width: `${densityPct}%`,
+                    borderRadius: 2,
+                    background: `linear-gradient(90deg, #1a5c7a, #d4a85e ${densityPct}%)`,
+                    transition: 'width 0.3s ease',
+                  }} />
+                </div>
+              </div>
+
+              {/* Average construction year + era */}
               {avgYear > 0 && (
-                <div className={s.tooltipRow}>
-                  <span className={s.tooltipKey}>Avg year</span>
-                  <span className={s.tooltipVal}>{avgYear}</span>
+                <div className={s.tooltipRow} style={{ marginTop: 6 }}>
+                  <span className={s.tooltipKey}>Avg Built</span>
+                  <span className={s.tooltipVal}>
+                    {avgYear}
+                    <span style={{
+                      marginLeft: 6, fontSize: 9, fontWeight: 600,
+                      color: era.color, letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                    }}>
+                      {era.label}
+                    </span>
+                  </span>
                 </div>
               )}
+
+              {/* Average height */}
               {avgH > 0 && (
                 <div className={s.tooltipRow}>
-                  <span className={s.tooltipKey}>Avg height</span>
+                  <span className={s.tooltipKey}>Avg Height</span>
                   <span className={s.tooltipVal}>{avgH} m</span>
                 </div>
               )}
+
+              <div className={s.tooltipHint} style={{ marginTop: 8 }}>Hover to explore</div>
             </div>
           );
         }
