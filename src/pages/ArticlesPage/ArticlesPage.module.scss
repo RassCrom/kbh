@@ -1,0 +1,373 @@
+@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/radius' as *;
+@use '../../styles/tokens/shadows' as *;
+@use '../../styles/tokens/transitions' as *;
+@use '../../styles/mixins/typography' as typ;
+@use '../../styles/mixins/responsive' as *;
+
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+  padding-bottom: $space-24;
+}
+
+// ── Back button ────────────────────────────────────────────────────────────────
+
+.backBtn {
+  position: fixed;
+  top: $space-6;
+  left: $space-6;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-pill;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  @include typ.label-sm;
+  transition: border-color $duration-mid $ease-cinematic,
+              box-shadow $duration-mid $ease-cinematic;
+
+  &:hover {
+    border-color: var(--color-accent-gold);
+    box-shadow: $shadow-glow-gold;
+  }
+
+  @include bp-down('md') {
+    position: absolute;
+    top: $space-4;
+    left: $space-4;
+  }
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────────
+
+.header {
+  background: var(--color-bg-surface);
+  background-image: url(/story-one-bg-photo.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding: $space-24 $space-8 $space-16;
+  text-align: center;
+  position: relative;
+
+  &::after {
+    content: '';
+    background-color: rgba(0, 0, 0, 0.75);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  @include bp-down('md') {
+    padding: $space-16 $space-6 $space-12;
+  }
+}
+
+.headerInner {
+  max-width: 760px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+.tagline {
+  @include typ.section-tag;
+  display: inline-block;
+  margin-bottom: $space-4;
+}
+
+.title {
+  @include typ.heading-lg;
+  color: var(--color-text-primary);
+  margin-bottom: $space-4;
+
+  @include bp-down('md') {
+    font-size: 36px;
+    margin-top: $space-8;
+  }
+}
+
+.subtitle {
+  @include typ.body-lg;
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+// ── Main Content Area ──────────────────────────────────────────────────────────
+
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $space-12 $space-8;
+
+  @include bp-down('md') {
+    padding: $space-8 $space-4;
+  }
+}
+
+// ── Toolbar (Search & Filter) ──────────────────────────────────────────────────
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+  margin-bottom: $space-12;
+  padding-bottom: $space-6;
+  border-bottom: 1px solid var(--color-border-subtle);
+
+  @include bp('md') {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.searchIcon {
+  position: absolute;
+  left: $space-4;
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px $space-4 12px $space-8;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-md;
+  color: var(--color-text-primary);
+  @include typ.body-md;
+  outline: none;
+  transition: all $duration-mid $ease-cinematic;
+
+  &:focus {
+    border-color: var(--color-accent-gold);
+    box-shadow: $shadow-glow-gold;
+  }
+
+  &::placeholder {
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+  }
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+}
+
+.filterChip {
+  padding: 6px $space-4;
+  background: transparent;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  @include typ.label-sm;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-accent-gold);
+    background: rgba(212, 168, 94, 0.05);
+  }
+
+  &.activeChip {
+    color: var(--color-accent-gold);
+    border-color: var(--color-accent-gold);
+    background: rgba(212, 168, 94, 0.12);
+    box-shadow: $shadow-glow-gold;
+  }
+}
+
+// ── Card Grid ──────────────────────────────────────────────────────────────────
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-8;
+
+  @include bp('sm') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include bp('lg') {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  transition: all $duration-mid $ease-cinematic;
+
+  &:hover {
+    border-color: var(--color-accent-gold);
+    transform: translateY(-4px);
+    box-shadow: $shadow-glow-gold;
+
+    .cardImage {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.cardImage {
+  height: 200px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+  transition: transform $duration-mid $ease-cinematic;
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
+}
+
+.cardEra {
+  position: absolute;
+  top: $space-4;
+  left: $space-4;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 3px $space-3;
+  border-radius: $radius-pill;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: var(--color-accent-gold);
+  border: 1px solid rgba(212, 168, 94, 0.4);
+  @include typ.label-sm;
+  font-size: 10px;
+  z-index: 2;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  padding: $space-6;
+  flex-grow: 1;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  margin-bottom: $space-3;
+}
+
+.cardDate, .cardRead {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-1;
+  color: var(--color-text-secondary);
+  @include typ.data-sm;
+  opacity: 0.8;
+}
+
+.cardTitle {
+  @include typ.heading-xs;
+  color: var(--color-text-primary);
+  margin-bottom: $space-3;
+  line-height: 1.4;
+  min-height: 48px;
+}
+
+.cardExcerpt {
+  @include typ.body-sm;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: $space-6;
+  flex-grow: 1;
+}
+
+.cardFooter {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: $space-4;
+  display: flex;
+  align-items: center;
+}
+
+.readBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  color: var(--color-accent-gold);
+  text-decoration: none;
+  @include typ.label-sm;
+  transition: gap $duration-ui $ease-snap;
+
+  &:hover {
+    gap: $space-3;
+  }
+}
+
+.comingSoon {
+  color: var(--color-text-secondary);
+  @include typ.label-sm;
+  opacity: 0.5;
+  font-style: italic;
+}
+
+// ── Empty State ────────────────────────────────────────────────────────────────
+
+.emptyState {
+  text-align: center;
+  padding: $space-16 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-4;
+
+  p {
+    @include typ.body-md;
+    color: var(--color-text-secondary);
+  }
+}
+
+.resetBtn {
+  padding: $space-2 $space-6;
+  background: rgba(212, 168, 94, 0.08);
+  border: 1px solid var(--color-accent-gold);
+  border-radius: $radius-pill;
+  color: var(--color-accent-gold);
+  cursor: pointer;
+  @include typ.label-sm;
+  transition: all $duration-mid $ease-cinematic;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.16);
+    box-shadow: $shadow-glow-gold;
+  }
+}

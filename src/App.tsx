@@ -11,6 +11,7 @@ import Footer from './components/Footer/Footer';
 import MapPage from './pages/MapPage/MapPage';
 import StoryPage from './pages/StoryPage/StoryPage';
 import BayterekStory from './pages/StoryPage/BayterekStory';
+import ArticlesPage from './pages/ArticlesPage/ArticlesPage';
 
 function HomePage() {
   return (
@@ -36,6 +37,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/map" element={<MapPage />} />
+        <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/stories/soviet-grid" element={<StoryPage />} />
         <Route path="/stories/bayterek" element={<BayterekStory />} />
       </Routes>

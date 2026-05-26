@@ -308,7 +308,8 @@ export const darkDramaticStyle: StyleSpecification = {
       minzoom: 13,
       paint: {
         'fill-color': '#1a1a28',
-        'fill-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.2, 15, 0.55],
+        'fill-opacity': 0,
+        // 'fill-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.2, 15, 0.55],
         'fill-antialias': true,
       },
     },
@@ -318,7 +319,7 @@ export const darkDramaticStyle: StyleSpecification = {
       source: 'openmaptiles',
       'source-layer': 'building',
       minzoom: 14,
-      paint: { 'line-color': '#252538', 'line-width': 0.4, 'line-opacity': 0.5 },
+      paint: { 'line-color': '#252538', 'line-width': 0.4, 'line-opacity': 0.2 },
     },
 
     // ── Boundaries ──────────────────────────────────────────────────────────

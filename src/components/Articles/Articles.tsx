@@ -27,15 +27,6 @@ const ARTICLES = [
       'The Bayterek tower became the city\'s icon overnight. This deep-dive explores how Nazarbayev\'s vision materialized through Japanese engineering and Kazakh mythology.',
     readTime: '12 min',
   },
-  {
-    id: 'article-expo',
-    era: '2017+',
-    title: 'After Expo 2017: What Happened to the Future?',
-    date: 'Dec 2025',
-    excerpt:
-      'The Expo district promised a sustainable future. Five years later, we map what thrives, what stands empty, and what the data reveals about post-event urbanism.',
-    readTime: '10 min',
-  },
 ];
 
 export default function Articles() {
@@ -66,9 +57,9 @@ export default function Articles() {
         <span className={s.tag}>03 · Scrollytelling</span>
         <div className={s.header}>
           <h2 className={s.heading}>Stories from the Steppe</h2>
-          <a href="#" className={s.viewAll}>
+          <Link to="/articles" className={s.viewAll}>
             All Articles <ChevronRight size={16} />
-          </a>
+          </Link>
         </div>
 
         <div className={s.grid}>

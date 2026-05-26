@@ -14,10 +14,7 @@ import { TimelineSlider } from './components/TimelineSlider';
 import { FilterSidebar } from './components/FilterSidebar';
 import { BuildingPanel } from './components/BuildingPanel';
 import { HexControls } from './components/HexControls';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
-  loadCentroidsGz, buildHexBins,
   buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr,
   type HexMetric,
 } from './hexUtils';
@@ -405,6 +402,7 @@ export default function MapPage() {
           'fill-extrusion-height': buildHexHeightExpr(),
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.82,
+          'fill-extrusion-height-transition': { duration: 800, delay: 0 },
         },
       });
 
@@ -418,119 +416,6 @@ export default function MapPage() {
           'line-width': 0.5,
         },
       });
-
-      // Kabanbay Batyr 3D model — placed on Kabanbay Batyr Avenue in central Astana
-      const KABANBAY_COORDS: [number, number] = [71.4069, 51.1284];
-      const kMercator = maplibregl.MercatorCoordinate.fromLngLat(KABANBAY_COORDS, 0);
-      const kXform = {
-        tx: kMercator.x,
-        ty: kMercator.y,
-        scale: kMercator.meterInMercatorCoordinateUnits(),
-        tz: kMercator.z ?? 0,
-      };
-
-      let kScene: THREE.Scene | null = null;
-      let kCamera: THREE.Camera | null = null;
-      let kRenderer: THREE.WebGLRenderer | null = null;
-      // Pre-allocated matrices: kL4 is constant (world transform), kM4 is scratch
-      let kL4: THREE.Matrix4 | null = null;
-      let kM4: THREE.Matrix4 | null = null;
-
-      const kabanbayLayer = {
-        id: 'kabanbay-model',
-        type: 'custom' as const,
-        renderingMode: '3d' as const,
-        onAdd(m: maplibregl.Map, gl: WebGL2RenderingContext) {
-          kCamera = new THREE.Camera();
-          kScene = new THREE.Scene();
-
-          // Ambient and directional lighting
-          kScene.add(new THREE.AmbientLight(0xffffff, 5));
-          const addSun = (x: number, y: number, z: number, intensity: number) => {
-            const l = new THREE.DirectionalLight(0xffffff, intensity);
-            l.position.set(x, y, z);
-            kScene!.add(l);
-          };
-          addSun(1, 1, 2, 4);
-          addSun(-1, 1, 2, 3);
-          addSun(0, -1, 2, 3);
-          addSun(0, 0, -1, 2);
-
-          new GLTFLoader().load(
-            '/kabanbay.glb',
-            (gltf) => {
-              // Center the model locally
-              const box = new THREE.Box3().setFromObject(gltf.scene);
-              const center = box.getCenter(new THREE.Vector3());
-              gltf.scene.position.sub(center);
-
-              // Normalize materials
-              gltf.scene.traverse((obj) => {
-                obj.frustumCulled = false;
-                if ((obj as THREE.Mesh).isMesh) {
-                  const mesh = obj as THREE.Mesh;
-                  const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-                  mats.forEach((mat) => {
-                    if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhysicalMaterial) {
-                      mat.roughness = 0.4;
-                      mat.metalness = 0.1;
-                      mat.needsUpdate = true;
-                    }
-                  });
-                }
-              });
-              gltf.scene.scale.set(100, 100, 100);
-              kScene!.add(gltf.scene);
-            },
-            undefined,
-            (err) => console.error('[Kabanbay] GLB load error:', err),
-          );
-
-
-
-          kRenderer = new THREE.WebGLRenderer({ canvas: m.getCanvas(), context: gl, antialias: true });
-          kRenderer.autoClear = false;
-          kRenderer.toneMapping = THREE.NoToneMapping;
-          kRenderer.outputColorSpace = THREE.SRGBColorSpace;
-
-          // Pre-compute constant world transform once — avoids 3× Matrix4 + 1× Vector3 alloc per frame
-          const _rotX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
-          kL4 = new THREE.Matrix4()
-            .makeTranslation(kXform.tx, kXform.ty, kXform.tz)
-            .scale(new THREE.Vector3(kXform.scale, -kXform.scale, kXform.scale))
-            .multiply(_rotX);
-          kM4 = new THREE.Matrix4(); // reused projection scratch buffer
-        },
-        render(_gl: WebGL2RenderingContext, matrix: number[]) {
-          if (!kScene || !kCamera || !kRenderer || !kL4 || !kM4) return;
-          const { width, height } = map.getCanvas();
-          // kM4 = MapLibre MVP matrix; multiply by constant world transform in-place
-          kCamera.projectionMatrix = kM4.fromArray(matrix).multiply(kL4);
-          kRenderer.resetState();
-          kRenderer.setViewport(0, 0, width, height);
-          kRenderer.render(kScene, kCamera);
-          map.triggerRepaint();
-        },
-      };
-      map.addLayer(kabanbayLayer as unknown as maplibregl.CustomLayerInterface);
-
-      // Hit-target element for tooltips
-      const kabanbayEl = document.createElement('div');
-      kabanbayEl.style.cssText = 'width:60px;height:80px;cursor:pointer;';
-      new maplibregl.Marker({ element: kabanbayEl, anchor: 'bottom' })
-        .setLngLat(KABANBAY_COORDS)
-        .addTo(map);
-
-      kabanbayEl.addEventListener('mousemove', (e: MouseEvent) => {
-        const rect = map.getCanvas().getBoundingClientRect();
-        setHoverInfo({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-          properties: { isKabanbayModel: true, name: 'Kabanbay Batyr' },
-        });
-      });
-      kabanbayEl.addEventListener('mouseleave', () => setHoverInfo(null));
-
 
       let hoveredId: string | number | null = null;
 
@@ -578,20 +463,6 @@ export default function MapPage() {
       map.on('mouseleave', 'buildings-3d', handleMouseLeave);
 
       // Hex hover
-      map.on('mousemove', 'hex-layer', (e) => {
-        if (!e.features?.length) return;
-        map.getCanvas().style.cursor = 'crosshair';
-        const feat = e.features[0];
-        setHoverInfo({
-          x: e.point.x,
-          y: e.point.y,
-          properties: feat.properties as Record<string, unknown>,
-        });
-      });
-      map.on('mouseleave', 'hex-layer', () => {
-        map.getCanvas().style.cursor = '';
-        setHoverInfo(null);
-      });
 
       // Building click / tap — open detail panel, close filter sidebar
       map.on('click', (e) => {
@@ -832,11 +703,29 @@ export default function MapPage() {
     if (vizMode === 'hexagons' && !hexLoadedRef.current) {
       hexLoadedRef.current = true;
       setHexLoading(true);
-      loadCentroidsGz('/data/centroids-b-ast-v412.geojson')
-        .then(points => {
-          const geojson = buildHexBins(points);
+      fetch('/hexagon-ast-v441.geojson')
+        .then(res => {
+          if (!res.ok) throw new Error(`Failed to fetch precomputed hexagons: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          const mappedFeatures = (data.features || []).map((f: any) => {
+            const p = f.properties || {};
+            return {
+              ...f,
+              properties: {
+                count: Number(p.NUMPOINTS ?? 0),
+                avgYear: typeof p.year_mean === 'number' ? Math.round(p.year_mean) : 0,
+                avgHeight: typeof p.height_mean_2 === 'number' ? Math.round(p.height_mean_2) : 10,
+              }
+            };
+          });
+          const geojson = {
+            type: 'FeatureCollection',
+            features: mappedFeatures
+          };
           if (map.getSource('hex-bins')) {
-            (map.getSource('hex-bins') as maplibregl.GeoJSONSource).setData(geojson);
+            (map.getSource('hex-bins') as maplibregl.GeoJSONSource).setData(geojson as any);
           }
         })
         .catch(err => console.error('Hexagon load failed:', err))
@@ -1180,15 +1069,6 @@ export default function MapPage() {
       {/* Hover tooltip — hidden while a building is selected, suppressed on touch */}
       {hoverInfo && !selectedBuilding && !IS_TOUCH_DEVICE && (() => {
         const p = hoverInfo.properties;
-
-        if (p.isKabanbayModel) {
-          return (
-            <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}>
-              <div className={s.tooltipName}>{String(p.name)}</div>
-              <div className={s.tooltipHint}>Kabanbay Batyr Monument · 3D model</div>
-            </div>
-          );
-        }
 
         const isHex = p.count !== undefined;
 

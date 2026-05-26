@@ -1,83 +1,9 @@
-import { latLngToCell, cellToBoundary } from 'h3-js';
-
-// Resolution 9 → avg edge length ~174 m  (fits the 150-250 m target)
-export const HEX_RESOLUTION = 9;
-
 export type HexMetric = 'count' | 'year';
 
 export interface HexProperties {
   count: number;
   avgYear: number;
   avgHeight: number;
-}
-
-interface CentroidPoint {
-  lng: number;
-  lat: number;
-  year: number;
-  height: number;
-}
-
-// ── Load centroids GeoJSON ────────────────────────────────────────────────────
-
-export async function loadCentroidsGz(url: string): Promise<CentroidPoint[]> {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.status}`);
-
-  const json = await response.json() as {
-    features: Array<{
-      geometry: { coordinates: [number, number] } | null;
-      properties: { year?: number | null; b_height?: string | number | null };
-    }>;
-  };
-
-  return json.features
-    .filter(f => f.geometry?.coordinates != null)   // skip the 1 null-geometry feature
-    .map(f => ({
-      lng: f.geometry!.coordinates[0],
-      lat: f.geometry!.coordinates[1],
-      year: typeof f.properties.year === 'number' ? f.properties.year : 0,
-      height: parseFloat(String(f.properties.b_height ?? '0')) || 0,
-    }));
-}
-
-// ── Bin centroids into H3 hexagons ───────────────────────────────────────────
-
-export function buildHexBins(points: CentroidPoint[]): GeoJSON.FeatureCollection<GeoJSON.Polygon, HexProperties> {
-  const bins = new Map<string, { years: number[]; heights: number[]; count: number }>();
-
-  for (const pt of points) {
-    const cell = latLngToCell(pt.lat, pt.lng, HEX_RESOLUTION);
-    if (!bins.has(cell)) bins.set(cell, { years: [], heights: [], count: 0 });
-    const bin = bins.get(cell)!;
-    bin.count++;
-    if (pt.year >= 1900 && pt.year <= 2100) bin.years.push(pt.year);
-    if (pt.height > 0 && pt.height < 500) bin.heights.push(pt.height);
-  }
-
-  const features: GeoJSON.Feature<GeoJSON.Polygon, HexProperties>[] = [];
-
-  for (const [cell, bin] of bins) {
-    // cellToBoundary returns [lat, lng] pairs — flip to [lng, lat] for GeoJSON
-    const boundary = cellToBoundary(cell);
-    const ring: [number, number][] = boundary.map(([lat, lng]) => [lng, lat]);
-    ring.push(ring[0]); // close the ring
-
-    const avgYear = bin.years.length > 0
-      ? Math.round(bin.years.reduce((s, y) => s + y, 0) / bin.years.length)
-      : 0;
-    const avgHeight = bin.heights.length > 0
-      ? Math.round(bin.heights.reduce((s, h) => s + h, 0) / bin.heights.length)
-      : 10;
-
-    features.push({
-      type: 'Feature',
-      geometry: { type: 'Polygon', coordinates: [ring] },
-      properties: { count: bin.count, avgYear, avgHeight },
-    });
-  }
-
-  return { type: 'FeatureCollection', features };
 }
 
 // ── MapLibre paint expressions ───────────────────────────────────────────────
