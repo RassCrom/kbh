@@ -15,7 +15,7 @@ $z-building-panel: 150;
   right: 0;
   bottom: 0;
   width: 300px;
-  z-index: $z-building-panel;
+  z-index: $z-building-panel+50;
   display: flex;
   flex-direction: column;
   background: var(--glass-bg-heavy);

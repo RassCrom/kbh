@@ -1,46 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Protocol } from 'pmtiles';
-import { ArrowLeft, Layers, Info, X, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft, Layers, SlidersHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
-import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
+import { useIsMobile } from './useIsMobile';
 
 import { ERA_CONFIG, DISTRICT_BOUNDS } from './constants';
-import { buildYearColorExpr, buildElevationColorExpr, buildLstColorExpr, buildTypeColorExpr, buildUhiColorExpr, TYPE_LEGEND, UHI_MATRIX, UHI_AGE_BINS, UHI_LST_BINS, buildCombinedFilter, type ColorMode, type DecadeLstPoint, ELEVATION_STEPS, LST_STEPS } from './mapHelpers';
+import { buildYearColorExpr, buildElevationColorExpr, buildLstColorExpr, buildTypeColorExpr, buildUhiColorExpr, buildCombinedFilter, type ColorMode, type DecadeLstPoint } from './mapHelpers';
 import { darkDramaticStyle } from './darkDramaticStyle';
 import { TimelineSlider } from './components/TimelineSlider';
 import { FilterSidebar } from './components/FilterSidebar';
 import { BuildingPanel } from './components/BuildingPanel';
 import { HexControls } from './components/HexControls';
-import {
-  buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr,
-  type HexMetric,
-} from './hexUtils';
+import { buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr, type HexMetric } from './hexUtils';
 import { applyMapTheme, type MapTheme } from './mapTheme';
 
-const TYPE_LABELS: Record<string, string> = {
-  rc: 'Residential Complex',
-  bc: 'Business Center',
-  ec: 'Entertainment Center',
-  sc: 'Shopping Center',
-  sf: 'Sport Facility',
-  mosque: 'Mosque',
-  church: 'Church',
-  healthcare: 'Healthcare Facility',
-  hospital: 'Hospital',
-  clinic: 'Clinic',
-  utility: 'Utility Infrastructure',
-  'cultural site': 'Cultural Site',
-  admin: 'Administrative Building',
-  airport: 'Airport',
-  'train station': 'Train Station',
-  school: 'School',
-  kdgd: 'Kindergarten',
-  uni: 'University',
-  house: 'Private House',
-};
+// Custom Hooks
+import { useTimeLapse } from './hooks/useTimeLapse';
+import { useMapFilters } from './hooks/useMapFilters';
+
+// Subcomponents
+import { LegendPanel } from './components/LegendPanel';
+import { HoverTooltip } from './components/HoverTooltip';
+
 
 export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,8 +37,34 @@ export default function MapPage() {
     properties: Record<string, unknown>;
   } | null>(null);
 
-  const [sliderMax, setSliderMax] = useState<number>(2029);
-  const [yearRange, setYearRange] = useState<[number, number]>([1900, 2029]);
+  // Custom Hooks for separated state management
+  const {
+    sliderMax,
+    setSliderMax,
+    yearRange,
+    setYearRange,
+    isPlaying,
+    handleTogglePlay,
+    handlePlayReset,
+  } = useTimeLapse(1900, 2029);
+
+  const {
+    selectedTypes,
+    setSelectedTypes,
+    selectedDistricts,
+    setSelectedDistricts,
+    selectedArchStyle,
+    setSelectedArchStyle,
+    selectedCompany,
+    setSelectedCompany,
+    selectedUhiCells,
+    setSelectedUhiCells,
+    handleTypeToggle,
+    handleDistrictToggle,
+    handleReset,
+    activeCount,
+  } = useMapFilters();
+
   const [yearCounts, setYearCounts] = useState<Record<number, number>>({});
   const [typeCounts, setTypeCounts] = useState<Record<string, number>>({});
   const [decadeLstData, setDecadeLstData] = useState<DecadeLstPoint[]>([]);
@@ -62,10 +72,6 @@ export default function MapPage() {
 
   // Filter sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
-  const [selectedArchStyle, setSelectedArchStyle] = useState<string>('');
-  const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [archStyleOptions, setArchStyleOptions] = useState<string[]>([]);
   const [companyOptions, setCompanyOptions] = useState<string[]>([]);
 
@@ -77,10 +83,6 @@ export default function MapPage() {
 
   // Building color visualization mode
   const [colorMode, setColorMode] = useState<ColorMode>('year');
-  const [selectedUhiCells, setSelectedUhiCells] = useState<string[]>([]);
-
-  // Hexagon visualization state
-  const [vizMode, setVizMode] = useState<'buildings' | 'hexagons'>('buildings');
 
   const handleColorModeChange = (mode: ColorMode) => {
     setColorMode(mode);
@@ -88,65 +90,24 @@ export default function MapPage() {
       setVizMode('buildings');
     }
   };
+
+  // Hexagon visualization state
+  const [vizMode, setVizMode] = useState<'buildings' | 'hexagons'>('buildings');
   const [hexMetric, setHexMetric] = useState<HexMetric>('count');
-  const [hexLoading, setHexLoading] = useState(false);
-  const hexLoadedRef = useRef(false);
+
+  // Refs for closure capturing & viewport boundaries caching to prevent redundant calculations
+  const vizModeRef = useRef(vizMode);
+  useEffect(() => {
+    vizModeRef.current = vizMode;
+  }, [vizMode]);
+
+  const lastBoundsStrRef = useRef<string>('');
 
   // Timeline collapsed state (lifted up so MapPage can control it)
   const [timelineCollapsed, setTimelineCollapsed] = useState(false);
 
   // Snapshot of UI open-states before entering hexagon mode — restored on exit
   const preHexStateRef = useRef<{ legend: boolean; sidebar: boolean; timeline: boolean } | null>(null);
-
-  // Time-lapse state
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playSpeed] = useState<1 | 2 | 4>(1);
-  const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sliderMaxRef = useRef(sliderMax);
-  const playSpeedRef = useRef(playSpeed);
-
-  useEffect(() => { sliderMaxRef.current = sliderMax; }, [sliderMax]);
-  useEffect(() => { playSpeedRef.current = playSpeed; }, [playSpeed]);
-
-  // Start / restart interval whenever isPlaying or playSpeed changes
-  useEffect(() => {
-    if (!isPlaying) {
-      if (playIntervalRef.current) {
-        clearInterval(playIntervalRef.current);
-        playIntervalRef.current = null;
-      }
-      return;
-    }
-    playIntervalRef.current = setInterval(() => {
-      setYearRange(prev => {
-        const next = prev[1] + playSpeedRef.current;
-        if (next >= sliderMaxRef.current) {
-          clearInterval(playIntervalRef.current!);
-          playIntervalRef.current = null;
-          setIsPlaying(false);
-          return [prev[0], sliderMaxRef.current];
-        }
-        return [prev[0], next];
-      });
-    }, 80);
-    return () => {
-      if (playIntervalRef.current) clearInterval(playIntervalRef.current);
-    };
-  }, [isPlaying, playSpeed]);
-
-  const handleTogglePlay = useCallback(() => {
-    if (isPlaying) {
-      setIsPlaying(false);
-    } else {
-      setYearRange([1900, 1900]);
-      setIsPlaying(true);
-    }
-  }, [isPlaying]);
-
-  const handlePlayReset = useCallback(() => {
-    setIsPlaying(false);
-    setYearRange([1900, sliderMaxRef.current]);
-  }, []);
 
   // Apply dark/light theme to <html> data-theme + basemap paint properties
   useEffect(() => {
@@ -187,78 +148,11 @@ export default function MapPage() {
     }
   }, []);
 
-  const activeCount = useMemo(
-    () =>
-      selectedTypes.length +
-      selectedDistricts.length +
-      (selectedArchStyle ? 1 : 0) +
-      (selectedCompany ? 1 : 0),
-    [selectedTypes, selectedDistricts, selectedArchStyle, selectedCompany],
-  );
-
-  const handleTypeToggle = useCallback((val: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val]
-    );
-  }, []);
-
-  const handleDistrictToggle = useCallback((val: string) => {
-    setSelectedDistricts((prev) =>
-      prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val]
-    );
-  }, []);
-
-  const handleTypeLegendClick = useCallback((groupLabel: string) => {
-    let vals: string[] = [];
-    switch (groupLabel) {
-      case 'Residential': vals = ['rc', 'house']; break;
-      case 'Commercial & Leisure': vals = ['bc', 'sc', 'ec']; break;
-      case 'Education & Research': vals = ['school', 'kdgd', 'uni']; break;
-      case 'Religious Landmarks': vals = ['mosque', 'church']; break;
-      case 'Culture & Sport': vals = ['cultural site', 'sf']; break;
-      case 'Healthcare': vals = ['healthcare', 'hospital', 'clinic']; break;
-      case 'Infrastructure & Admin': vals = ['admin', 'utility', 'airport', 'train station']; break;
-      default: return;
-    }
-    setSelectedTypes((prev) => {
-      const allSelected = vals.every((v) => prev.includes(v));
-      if (allSelected) {
-        return prev.filter((v) => !vals.includes(v));
-      } else {
-        return [...new Set([...prev, ...vals])];
-      }
-    });
-  }, []);
-
-  const isTypeGroupActive = useCallback((groupLabel: string) => {
-    if (selectedTypes.length === 0) return true;
-    let vals: string[] = [];
-    switch (groupLabel) {
-      case 'Residential': vals = ['rc', 'house']; break;
-      case 'Commercial & Leisure': vals = ['bc', 'sc', 'ec']; break;
-      case 'Education & Research': vals = ['school', 'kdgd', 'uni']; break;
-      case 'Religious Landmarks': vals = ['mosque', 'church']; break;
-      case 'Culture & Sport': vals = ['cultural site', 'sf']; break;
-      case 'Healthcare': vals = ['healthcare', 'hospital', 'clinic']; break;
-      case 'Infrastructure & Admin': vals = ['admin', 'utility', 'airport', 'train station']; break;
-      default: return false;
-    }
-    return vals.some((v) => selectedTypes.includes(v));
-  }, [selectedTypes]);
-
-  const handleReset = useCallback(() => {
-    setSelectedTypes([]);
-    setSelectedDistricts([]);
-    setSelectedArchStyle('');
-    setSelectedCompany('');
-    setSelectedUhiCells([]);
-  }, []);
-
   // Stable sidebar/theme callbacks — prevent FilterSidebar re-renders on unrelated MapPage state changes
   const handleSidebarClose = useCallback(() => setSidebarOpen(false), []);
   const handleSidebarToggle = useCallback(() => setSidebarOpen((v) => !v), []);
-  const handleClearTypes = useCallback(() => setSelectedTypes([]), []);
-  const handleClearDistricts = useCallback(() => setSelectedDistricts([]), []);
+  const handleClearTypes = useCallback(() => setSelectedTypes([]), [setSelectedTypes]);
+  const handleClearDistricts = useCallback(() => setSelectedDistricts([]), [setSelectedDistricts]);
   const handleThemeToggle = useCallback(
     () => setMapTheme((t) => (t === 'dark' ? 'light' : 'dark')),
     [],
@@ -276,7 +170,7 @@ export default function MapPage() {
       center: [71.4306, 51.1282],
       zoom: 12,
       minZoom: 10,
-      maxZoom: 19,
+      maxZoom: 23,
     });
 
     map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
@@ -386,23 +280,23 @@ export default function MapPage() {
         },
       });
 
-      // Hexagon source + layers
       map.addSource('hex-bins', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
+        type: 'vector',
+        url: 'pmtiles:///hexagon-ast-v441.pmtiles',
       });
 
       map.addLayer({
         id: 'hex-layer',
         type: 'fill-extrusion',
         source: 'hex-bins',
+        'source-layer': 'hex-bins',
         layout: { visibility: 'none' },
         paint: {
           'fill-extrusion-color': buildCountColorExpr(),
           'fill-extrusion-height': buildHexHeightExpr(),
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.82,
-          'fill-extrusion-height-transition': { duration: 800, delay: 0 },
+          'fill-extrusion-height-transition': { duration: 1000, delay: 0 },
         },
       });
 
@@ -410,6 +304,7 @@ export default function MapPage() {
         id: 'hex-outline',
         type: 'line',
         source: 'hex-bins',
+        'source-layer': 'hex-bins',
         layout: { visibility: 'none' },
         paint: {
           'line-color': 'rgba(255,255,255,0.06)',
@@ -507,9 +402,25 @@ export default function MapPage() {
       let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
       const updateHistogram = () => {
+        // Hexagons mode check - building layers are hidden, skip calculations completely
+        if (vizModeRef.current === 'hexagons') {
+          return;
+        }
+
         if (debounceTimer) clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-          const features = map.queryRenderedFeatures(undefined, { layers: ['buildings-hidden'] });
+          const m = mapRef.current;
+          if (!m) return;
+
+          // Viewport bounds check to skip redundant updates on identical bounds
+          const bounds = m.getBounds();
+          const boundsStr = bounds.toArray().flat().map((n) => n.toFixed(5)).join(',');
+          if (boundsStr === lastBoundsStrRef.current) {
+            return;
+          }
+          lastBoundsStrRef.current = boundsStr;
+
+          const features = m.queryRenderedFeatures(undefined, { layers: ['buildings-hidden'] });
           const counts: Record<number, number> = {};
           const types: Record<string, number> = {};
           const decadeLstRaw: Record<number, number[]> = {};
@@ -716,39 +627,6 @@ export default function MapPage() {
       setSidebarOpen(prev.sidebar);
       setTimelineCollapsed(prev.timeline);
     }
-
-    // Lazy-load hexagon data on first switch to hexagons mode
-    if (vizMode === 'hexagons' && !hexLoadedRef.current) {
-      hexLoadedRef.current = true;
-      setHexLoading(true);
-      fetch('/hexagon-ast-v441.geojson')
-        .then(res => {
-          if (!res.ok) throw new Error(`Failed to fetch precomputed hexagons: ${res.status}`);
-          return res.json();
-        })
-        .then(data => {
-          const mappedFeatures = (data.features || []).map((f: any) => {
-            const p = f.properties || {};
-            return {
-              ...f,
-              properties: {
-                count: Number(p.NUMPOINTS ?? 0),
-                avgYear: typeof p.year_mean === 'number' ? Math.round(p.year_mean) : 0,
-                avgHeight: typeof p.height_mean_2 === 'number' ? Math.round(p.height_mean_2) : 10,
-              }
-            };
-          });
-          const geojson = {
-            type: 'FeatureCollection',
-            features: mappedFeatures
-          };
-          if (map.getSource('hex-bins')) {
-            (map.getSource('hex-bins') as maplibregl.GeoJSONSource).setData(geojson as any);
-          }
-        })
-        .catch(err => console.error('Hexagon load failed:', err))
-        .finally(() => setHexLoading(false));
-    }
   }, [vizMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hex metric switch — update colour paint property ───────────────────────
@@ -785,7 +663,7 @@ export default function MapPage() {
         onVizModeChange={setVizMode}
         hexMetric={hexMetric}
         onHexMetricChange={setHexMetric}
-        hexLoading={hexLoading}
+        hexLoading={false}
       />
 
       {/* Page title chip */}
@@ -835,418 +713,26 @@ export default function MapPage() {
       />
 
       {/* Legend panel */}
-      <div className={`${s.legend} ${legendOpen ? s.open : ''}`}>
-        <button
-          className={s.legendToggle}
-          onClick={() => setLegendOpen((v) => !v)}
-          aria-label={legendOpen ? 'Close legend' : 'Open legend'}
-        >
-          {legendOpen ? <X size={16} /> : <Info size={16} />}
-        </button>
+      <LegendPanel
+        colorMode={colorMode}
+        legendOpen={legendOpen}
+        onLegendOpenChange={setLegendOpen}
+        hoveredEra={hoveredEra}
+        onHoveredEraChange={setHoveredEra}
+        onYearRangeChange={setYearRange}
+        sliderMax={sliderMax}
+        selectedTypes={selectedTypes}
+        onSelectedTypesChange={setSelectedTypes}
+        selectedUhiCells={selectedUhiCells}
+        onSelectedUhiCellsChange={setSelectedUhiCells}
+      />
 
-        {legendOpen && (
-          <div className={s.legendBody}>
-            {colorMode === 'year' && (
-              <>
-                <h3 className={s.legendTitle}>Building Era</h3>
-                <ul className={s.legendList}>
-                  {ERA_CONFIG.map((era) => (
-                    <li
-                      key={era.label}
-                      className={s.legendItem}
-                      onMouseEnter={() => setHoveredEra(era.label)}
-                      onMouseLeave={() => setHoveredEra(null)}
-                      onClick={() => {
-                        if (era.bounds[0] !== -1) {
-                          setYearRange([Math.max(1900, era.bounds[0]), Math.min(sliderMax, era.bounds[1])]);
-                        }
-                      }}
-                      style={{
-                        cursor: era.bounds[0] !== -1 ? 'pointer' : 'default',
-                        opacity: hoveredEra && hoveredEra !== era.label ? 0.35 : 1,
-                        transition: 'opacity 0.2s',
-                      }}
-                    >
-                      <span className={s.legendSwatch} style={{ background: era.color }} />
-                      <div className={s.legendTextGroup}>
-                        <span className={s.legendLabel}>{era.label}</span>
-                        <span className={s.legendDesc}>{era.description}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  className={s.resetButton}
-                  onClick={() => setYearRange([1900, sliderMax])}
-                  aria-label="Reset timeline filter"
-                >
-                  Reset Filters
-                </button>
-              </>
-            )}
-
-            {colorMode === 'elevation' && (
-              <>
-                <h3 className={s.legendTitle}>Elevation (m asl)</h3>
-                <ul className={s.legendList}>
-                  {[...ELEVATION_STEPS].reverse().map((step, i, arr) => {
-                    const nextStep = arr[i - 1];
-                    const label = nextStep
-                      ? `${step.min} – ${nextStep.min - 1} m`
-                      : `≥ ${step.min} m`;
-                    return (
-                      <li key={step.min} className={s.legendItem}>
-                        <span className={s.legendSwatch} style={{ background: step.color }} />
-                        <span className={s.legendLabel}>{label}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <div className={s.legendGradientSource}>DTM FABDEM · dem_mean</div>
-              </>
-            )}
-
-            {colorMode === 'lst' && (
-              <>
-                <h3 className={s.legendTitle}>Summer LST (°C)</h3>
-                <ul className={s.legendList}>
-                  {[...LST_STEPS].reverse().map((step, i, arr) => {
-                    const nextStep = arr[i - 1];
-                    const label = nextStep
-                      ? `${step.min} – ${nextStep.min - 1} °C`
-                      : `≥ ${step.min} °C`;
-                    return (
-                      <li key={step.min} className={s.legendItem}>
-                        <span className={s.legendSwatch} style={{ background: step.color }} />
-                        <span className={s.legendLabel}>{label}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <div className={s.legendGradientSource}>Mean summer · 2015–2025</div>
-              </>
-            )}
-
-            {colorMode === 'type' && (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <h3 className={s.legendTitle} style={{ margin: 0 }}>Building Use</h3>
-                  {selectedTypes.length > 0 && (
-                    <button
-                      onClick={() => setSelectedTypes([])}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--color-accent-gold)',
-                        fontSize: '11px',
-                        cursor: 'pointer',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontFamily: 'var(--font-heading)',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 168, 94, 0.08)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      Reset Filter
-                    </button>
-                  )}
-                </div>
-                <ul className={s.legendList}>
-                  {TYPE_LEGEND.map((item) => {
-                    const active = isTypeGroupActive(item.label);
-                    const dimmed = selectedTypes.length > 0 && !active;
-                    return (
-                      <li
-                        key={item.label}
-                        className={`${s.legendItem} ${dimmed ? s.legendItemDimmed : ''}`}
-                        onClick={() => handleTypeLegendClick(item.label)}
-                        style={{
-                          cursor: 'pointer',
-                          opacity: dimmed ? 0.35 : 1,
-                          transition: 'all 0.2s ease',
-                          transform: active && selectedTypes.length > 0 ? 'translateX(4px)' : 'none',
-                        }}
-                      >
-                        <span
-                          className={s.legendSwatch}
-                          style={{
-                            background: item.color,
-                            boxShadow: active && selectedTypes.length > 0 ? `0 0 8px ${item.color}` : 'none',
-                            border: active && selectedTypes.length > 0 ? '1px solid #fff' : '1px solid rgba(255, 255, 255, 0.08)',
-                          }}
-                        />
-                        <div className={s.legendTextGroup}>
-                          <span
-                            className={s.legendLabel}
-                            style={{
-                              color: active && selectedTypes.length > 0 ? 'var(--color-accent-gold)' : 'var(--color-text-primary)',
-                              fontWeight: active && selectedTypes.length > 0 ? '700' : '600',
-                            }}
-                          >
-                            {item.label}
-                          </span>
-                          <span className={s.legendDesc}>{item.desc}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </>
-            )}
-
-            {colorMode === 'uhi' && (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <h3 className={s.legendTitle} style={{ margin: 0 }}>Urban Heat Island</h3>
-                  {selectedUhiCells.length > 0 && (
-                    <button
-                      onClick={() => setSelectedUhiCells([])}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--color-accent-gold)',
-                        fontSize: '11px',
-                        cursor: 'pointer',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontFamily: 'var(--font-heading)',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        transition: 'background 0.2s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 168, 94, 0.08)'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                    >
-                      Reset Filter
-                    </button>
-                  )}
-                </div>
-                <p className={s.legendDesc} style={{ margin: '0 0 10px', lineHeight: 1.4 }}>
-                  Building age × summer surface temperature. Click cells below to filter map.
-                </p>
-                <div className={s.uhiGrid}>
-                  {/* Y-axis label */}
-                  <div className={s.uhiYLabel}>
-                    <span>Hot</span>
-                    <span>Cool</span>
-                  </div>
-                  {/* 3×3 cells — rows go from hot (top) to cool (bottom) */}
-                  <div className={s.uhiCells}>
-                    {[...UHI_MATRIX].reverse().map((row, ri) => {
-                      const r = 2 - ri;
-                      return (
-                        <div key={ri} className={s.uhiRow}>
-                          {row.map((color, ci) => {
-                            const cellId = `${r}-${ci}`;
-                            const isSelected = selectedUhiCells.includes(cellId);
-                            const isAnySelected = selectedUhiCells.length > 0;
-                            const isDimmed = isAnySelected && !isSelected;
-
-                            return (
-                              <div
-                                key={ci}
-                                className={`${s.uhiCell} ${isSelected ? s.active : ''} ${isDimmed ? s.dimmed : ''}`}
-                                style={{ background: color }}
-                                title={`${UHI_AGE_BINS[ci].label} · ${UHI_LST_BINS[r].label}`}
-                                onClick={() => {
-                                  setSelectedUhiCells((prev) =>
-                                    prev.includes(cellId)
-                                      ? prev.filter((x) => x !== cellId)
-                                      : [...prev, cellId]
-                                  );
-                                }}
-                              />
-                            );
-                          })}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* X-axis label */}
-                  <div className={s.uhiXLabel}>
-                    <span>Old</span>
-                    <span>New</span>
-                  </div>
-                </div>
-                <div className={s.uhiAxes}>
-                  <span>↕ Surface Temp (LST)</span>
-                  <span>↔ Building Age</span>
-                </div>
-                <div className={s.legendGradientSource}>Bivariate · year_int × lst_1mean</div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Hover tooltip — hidden while a building is selected, suppressed on touch */}
-      {hoverInfo && !selectedBuilding && !IS_TOUCH_DEVICE && (() => {
-        const p = hoverInfo.properties;
-
-        const isHex = p.count !== undefined;
-
-        // ── Hex tooltip ──────────────────────────────────────────────────
-        if (isHex) {
-          const count = Number(p.count);
-          const avgYear = Number(p.avgYear);
-          const avgH = Number(p.avgHeight);
-
-          // Map avgYear to an era label + accent color
-          const getEraInfo = (yr: number): { label: string; color: string } => {
-            if (yr <= 0) return { label: 'Unknown', color: '#555' };
-            if (yr < 1917) return { label: 'Pre-Soviet', color: '#8B2635' };
-            if (yr < 1936) return { label: 'Early Soviet', color: '#D32F2F' };
-            if (yr < 1953) return { label: 'Stalinist', color: '#C47A24' };
-            if (yr < 1964) return { label: 'Khrushchev', color: '#5E9E6A' };
-            if (yr < 1985) return { label: 'Brezhnev', color: '#4A7BAA' };
-            if (yr < 1991) return { label: 'Late Soviet', color: '#7B4D9E' };
-            if (yr < 1997) return { label: 'Post-Soviet', color: '#A07840' };
-            if (yr < 2007) return { label: 'Early Astana', color: '#007A9A' };
-            if (yr < 2019) return { label: 'Boom Era', color: '#00AFCA' };
-            return { label: 'Contemporary', color: '#F5B82E' };
-          };
-
-          // Density indicator: clamp count to a 0–100% bar (200 = full)
-          const densityPct = Math.min(100, (count / 200) * 100);
-          const densityLabel = count < 10 ? 'Sparse' : count < 50 ? 'Moderate' : count < 120 ? 'Dense' : 'Very Dense';
-
-          const era = getEraInfo(avgYear);
-
-          return (
-            <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14, minWidth: 200 }}>
-              {/* Header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                <span style={{
-                  display: 'inline-block', width: 8, height: 8,
-                  borderRadius: '50%', background: era.color,
-                  boxShadow: `0 0 6px ${era.color}`,
-                  flexShrink: 0,
-                }} />
-                <span className={s.tooltipName} style={{ margin: 0 }}>Urban Cell</span>
-              </div>
-
-              {/* Building count + density bar */}
-              <div className={s.tooltipRow} style={{ flexDirection: 'column', gap: 4, alignItems: 'stretch' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span className={s.tooltipKey}>Buildings</span>
-                  <span className={s.tooltipVal} style={{ color: '#d4a85e', fontWeight: 700 }}>
-                    {count.toLocaleString()}
-                    <span style={{ fontSize: 9, fontWeight: 400, color: 'var(--color-text-secondary)', marginLeft: 4 }}>
-                      {densityLabel}
-                    </span>
-                  </span>
-                </div>
-                {/* Mini density bar */}
-                <div style={{
-                  height: 3, borderRadius: 2,
-                  background: 'rgba(255,255,255,0.08)',
-                  overflow: 'hidden',
-                }}>
-                  <div style={{
-                    height: '100%', width: `${densityPct}%`,
-                    borderRadius: 2,
-                    background: `linear-gradient(90deg, #1a5c7a, #d4a85e ${densityPct}%)`,
-                    transition: 'width 0.3s ease',
-                  }} />
-                </div>
-              </div>
-
-              {/* Average construction year + era */}
-              {avgYear > 0 && (
-                <div className={s.tooltipRow} style={{ marginTop: 6 }}>
-                  <span className={s.tooltipKey}>Avg Built</span>
-                  <span className={s.tooltipVal}>
-                    {avgYear}
-                    <span style={{
-                      marginLeft: 6, fontSize: 9, fontWeight: 600,
-                      color: era.color, letterSpacing: '0.04em',
-                      textTransform: 'uppercase',
-                    }}>
-                      {era.label}
-                    </span>
-                  </span>
-                </div>
-              )}
-
-              {/* Average height */}
-              {avgH > 0 && (
-                <div className={s.tooltipRow}>
-                  <span className={s.tooltipKey}>Avg Height</span>
-                  <span className={s.tooltipVal}>{avgH} m</span>
-                </div>
-              )}
-
-              <div className={s.tooltipHint} style={{ marginTop: 8 }}>Hover to explore</div>
-            </div>
-          );
-        }
-
-        // ── Building tooltip ──────────────────────────────────────────────
-        const name = p.name ? String(p.name) : null;
-        const year = p.year_int ?? p.year_str;
-        const demVal = p.dem_mean != null ? Number(p.dem_mean).toFixed(1) : null;
-        const lstVal = p.lst_1mean != null ? Number(p.lst_1mean).toFixed(1) : null;
-        const rawType = p.type ? String(p.type) : null;
-        const typeLabel = rawType ? (TYPE_LABELS[rawType] || rawType) : null;
-        const hasData = name || year || demVal || lstVal || typeLabel;
-        return (
-          <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}>
-            {hasData ? (
-              <>
-                {name && <div className={s.tooltipName}>{name}</div>}
-                {year && (
-                  <div className={s.tooltipRow}>
-                    <span className={s.tooltipKey}>Year</span>
-                    <span className={s.tooltipVal}>{String(year)}</span>
-                  </div>
-                )}
-                {colorMode === 'elevation' && demVal && (
-                  <div className={s.tooltipRow}>
-                    <span className={s.tooltipKey}>Elevation</span>
-                    <span className={s.tooltipVal} style={{ color: '#27ae60' }}>{demVal} m</span>
-                  </div>
-                )}
-                {colorMode === 'lst' && lstVal && (
-                  <div className={s.tooltipRow}>
-                    <span className={s.tooltipKey}>Summer LST</span>
-                    <span className={s.tooltipVal} style={{ color: '#fdae61' }}>{lstVal} °C</span>
-                  </div>
-                )}
-                {colorMode === 'type' && typeLabel && (
-                  <div className={s.tooltipRow}>
-                    <span className={s.tooltipKey}>Use</span>
-                    <span className={s.tooltipVal} style={{ color: '#a78bfa' }}>{typeLabel}</span>
-                  </div>
-                )}
-                {colorMode === 'uhi' && (
-                  <>
-                    {year && (
-                      <div className={s.tooltipRow}>
-                        <span className={s.tooltipKey}>Age</span>
-                        <span className={s.tooltipVal} style={{ color: '#64ACBE' }}>{2026 - Number(year)} yr</span>
-                      </div>
-                    )}
-                    {lstVal && (
-                      <div className={s.tooltipRow}>
-                        <span className={s.tooltipKey}>LST</span>
-                        <span className={s.tooltipVal} style={{ color: '#C8705A' }}>{lstVal} °C</span>
-                      </div>
-                    )}
-                  </>
-                )}
-                <div className={s.tooltipHint}>Click for more info</div>
-              </>
-            ) : (
-              <div className={s.tooltipHintOnly}>Click to see building info</div>
-            )}
-          </div>
-        );
-      })()}
+      {/* Hover tooltip */}
+      <HoverTooltip
+        hoverInfo={hoverInfo}
+        selectedBuilding={selectedBuilding}
+        colorMode={colorMode}
+      />
 
       {/* Building detail panel */}
       <BuildingPanel

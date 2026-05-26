@@ -1,9 +1,9 @@
 export type HexMetric = 'count' | 'year';
 
 export interface HexProperties {
-  count: number;
-  avgYear: number;
-  avgHeight: number;
+  NUMPOINTS: number;
+  year_mean: number | null;
+  height_mean_2: number | null;
 }
 
 // ── MapLibre paint expressions ───────────────────────────────────────────────
@@ -11,7 +11,7 @@ export interface HexProperties {
 /** Colour ramp for building count (1 → pale blue-grey, high → gold-amber) */
 export function buildCountColorExpr(): maplibregl.ExpressionSpecification {
   return [
-    'interpolate', ['linear'], ['get', 'count'],
+    'interpolate', ['linear'], ['get', 'NUMPOINTS'],
     1,   '#1e3a4a',
     10,  '#1a5c7a',
     25,  '#1a8aaa',
@@ -25,9 +25,9 @@ export function buildCountColorExpr(): maplibregl.ExpressionSpecification {
 export function buildYearAvgColorExpr(): maplibregl.ExpressionSpecification {
   return [
     'case',
-    ['>', ['get', 'avgYear'], 0],
+    ['>', ['coalesce', ['get', 'year_mean'], 0], 0],
     [
-      'step', ['get', 'avgYear'],
+      'step', ['coalesce', ['get', 'year_mean'], 0],
       '#8B2635',
       1917, '#D32F2F',
       1936, '#C47A24',
@@ -47,7 +47,8 @@ export function buildYearAvgColorExpr(): maplibregl.ExpressionSpecification {
 export function buildHexHeightExpr(): maplibregl.ExpressionSpecification {
   return [
     'max',
-    ['*', ['get', 'avgHeight'], 15],
+    ['*', ['coalesce', ['get', 'height_mean_2'], 0], 15],
     10,
   ] as unknown as maplibregl.ExpressionSpecification;
 }
+

@@ -118,3 +118,14 @@ export const TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: 'University', value: 'uni' },
   { label: 'House', value: 'house' },
 ];
+
+export const TYPE_GROUP_MAPPING: Record<string, string[]> = {
+  'Residential': ['rc', 'house'],
+  'Commercial & Leisure': ['bc', 'sc', 'ec'],
+  'Education & Research': ['school', 'kdgd', 'uni'],
+  'Religious Landmarks': ['mosque', 'church'],
+  'Culture & Sport': ['cultural site', 'sf'],
+  'Healthcare': ['healthcare', 'hospital', 'clinic'],
+  'Infrastructure & Admin': ['admin', 'utility', 'airport', 'train station'],
+};
+
