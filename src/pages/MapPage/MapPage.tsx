@@ -31,7 +31,7 @@ export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const isMobile = useIsMobile();
-  const [legendOpen, setLegendOpen] = useState(true);
+  const [legendOpen, setLegendOpen] = useState(false);
   const [hoverInfo, setHoverInfo] = useState<{
     x: number;
     y: number;
@@ -81,7 +81,7 @@ export default function MapPage() {
 
   // Graffiti layer state
   const [selectedGraffiti, setSelectedGraffiti] = useState<Record<string, unknown> | null>(null);
-  const [graffitiVisible, setGraffitiVisible] = useState(true);
+  const [graffitiVisible, setGraffitiVisible] = useState(false);
 
   // Dark / light map theme
   const [mapTheme, setMapTheme] = useState<MapTheme>('dark');
@@ -146,9 +146,7 @@ export default function MapPage() {
   }, [colorMode, mapTheme]);
 
   useEffect(() => {
-    if (window.innerWidth > 1024) setSidebarOpen(true);
     if (window.innerWidth < 768) {
-      setLegendOpen(false);
       setTimelineCollapsed(true);  // save vertical space on mobile
     }
   }, []);
