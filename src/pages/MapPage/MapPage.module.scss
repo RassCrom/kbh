@@ -2046,6 +2046,66 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Graffiti layer toggle pill                                         */
+/* ------------------------------------------------------------------ */
+
+.graffitiLayerToggle {
+  position: absolute;
+  // sits directly below the vizToggleGroup (top:16px + ~36px button + 4px gap)
+  top: 58px;
+  left: 108px;
+  z-index: $z-toolbar;
+
+  @media (max-width: 767px) {
+    top: 58px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.graffitiToggleRow {
+  display: flex;
+  align-items: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  padding: 3px;
+}
+
+.graffitiToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--tint-subtle);
+  }
+
+  &.graffitiToggleBtnActive {
+    color: #CAFF00;
+    background: rgba(202, 255, 0, 0.1);
+    border-color: rgba(202, 255, 0, 0.35);
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  MapLibre control overrides                                         */
 /* ------------------------------------------------------------------ */
 

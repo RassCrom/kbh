@@ -1,0 +1,141 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 1,
+      "geometry": { "type": "Point", "coordinates": [71.4452, 51.1284] },
+      "properties": {
+        "id": "g001",
+        "title": "Абай портрет",
+        "location": "пр. Нурсултан, 10",
+        "year": 2020,
+        "artist": "Неизвестно",
+        "style": "mural",
+        "size": "large",
+        "status": "active",
+        "photo": "",
+        "thumb": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 2,
+      "geometry": { "type": "Point", "coordinates": [71.4187, 51.1404] },
+      "properties": {
+        "id": "g002",
+        "title": "Степной орнамент",
+        "location": "ул. Сейфуллина, 120",
+        "year": 2021,
+        "artist": "Алибек Дуйсенов",
+        "style": "mural",
+        "size": "large",
+        "status": "active",
+        "photo": "",
+        "thumb": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 3,
+      "geometry": { "type": "Point", "coordinates": [71.4670, 51.1872] },
+      "properties": {
+        "id": "g003",
+        "title": "Советская мозаика",
+        "location": "ул. Республики, 47",
+        "year": null,
+        "artist": "Неизвестно",
+        "style": "stencil",
+        "size": "medium",
+        "status": "faded",
+        "photo": "",
+        "thumb": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 4,
+      "geometry": { "type": "Point", "coordinates": [71.4340, 51.1720] },
+      "properties": {
+        "id": "g004",
+        "title": "Барс",
+        "location": "ул. Бейбітшілік, 32",
+        "year": 2019,
+        "artist": "Данияр С.",
+        "style": "mural",
+        "size": "medium",
+        "status": "active",
+        "photo": "",
+        "thumb": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 5,
+      "geometry": { "type": "Point", "coordinates": [71.3886, 51.1755] },
+      "properties": {
+        "id": "g005",
+        "title": "Тег неизвестного",
+        "location": "ул. Желтоқсан, 18",
+        "year": null,
+        "artist": "Неизвестно",
+        "style": "tag",
+        "size": "small",
+        "status": "faded",
+        "photo": "",
+        "thumb": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 6,
+      "geometry": { "type": "Point", "coordinates": [71.4228, 51.1925] },
+      "properties": {
+        "id": "g006",
+        "title": "Юрта и горизонт",
+        "location": "ул. Сарыарка, 5",
+        "year": 2022,
+        "artist": "Asel Art",
+        "style": "mural",
+        "size": "large",
+        "status": "active",
+        "photo": "",
+        "thumb": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 7,
+      "geometry": { "type": "Point", "coordinates": [71.4560, 51.1620] },
+      "properties": {
+        "id": "g007",
+        "title": "Геометрия города",
+        "location": "ул. Алматы, 67",
+        "year": 2023,
+        "artist": "Неизвестно",
+        "style": "stencil",
+        "size": "small",
+        "status": "active",
+        "photo": "",
+        "thumb": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 8,
+      "geometry": { "type": "Point", "coordinates": [71.4048, 51.1688] },
+      "properties": {
+        "id": "g008",
+        "title": "Трой-ап подземный",
+        "location": "ул. Кенесары, 44",
+        "year": 2018,
+        "artist": "Неизвестно",
+        "style": "throw-up",
+        "size": "medium",
+        "status": "removed",
+        "photo": "",
+        "thumb": ""
+      }
+    }
+  ]
+}

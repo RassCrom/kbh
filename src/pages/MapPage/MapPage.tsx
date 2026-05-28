@@ -13,6 +13,7 @@ import { darkDramaticStyle } from './darkDramaticStyle';
 import { TimelineSlider } from './components/TimelineSlider';
 import { FilterSidebar } from './components/FilterSidebar';
 import { BuildingPanel } from './components/BuildingPanel';
+import { GraffitiPanel } from './components/GraffitiPanel';
 import { HexControls } from './components/HexControls';
 import { buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr, type HexMetric } from './hexUtils';
 import { applyMapTheme, type MapTheme } from './mapTheme';
@@ -77,6 +78,10 @@ export default function MapPage() {
 
   // Building detail panel state
   const [selectedBuilding, setSelectedBuilding] = useState<Record<string, unknown> | null>(null);
+
+  // Graffiti layer state
+  const [selectedGraffiti, setSelectedGraffiti] = useState<Record<string, unknown> | null>(null);
+  const [graffitiVisible, setGraffitiVisible] = useState(true);
 
   // Dark / light map theme
   const [mapTheme, setMapTheme] = useState<MapTheme>('dark');
@@ -312,6 +317,116 @@ export default function MapPage() {
         },
       });
 
+      // ── Graffiti layer ────────────────────────────────────────────
+      const graffitiIconSize = 28;
+      const graffitiCanvas = document.createElement('canvas');
+      graffitiCanvas.width = graffitiIconSize;
+      graffitiCanvas.height = graffitiIconSize;
+      const gCtx = graffitiCanvas.getContext('2d')!;
+      const cx = graffitiIconSize / 2, cy = graffitiIconSize / 2;
+      const r = graffitiIconSize / 2 - 2;
+
+      // Outer glow
+      const grd = gCtx.createRadialGradient(cx, cy, r * 0.2, cx, cy, r + 3);
+      grd.addColorStop(0, 'rgba(202,255,0,0.55)');
+      grd.addColorStop(1, 'rgba(202,255,0,0)');
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, r + 3, 0, Math.PI * 2);
+      gCtx.fillStyle = grd;
+      gCtx.fill();
+
+      // Main circle
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      gCtx.fillStyle = '#CAFF00';
+      gCtx.fill();
+
+      // Dark inner border
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      gCtx.strokeStyle = 'rgba(0,0,0,0.25)';
+      gCtx.lineWidth = 1.5;
+      gCtx.stroke();
+
+      // Center dot
+      gCtx.beginPath();
+      gCtx.arc(cx, cy, graffitiIconSize / 7, 0, Math.PI * 2);
+      gCtx.fillStyle = 'rgba(0,20,0,0.65)';
+      gCtx.fill();
+
+      map.addImage('graffiti-pin', gCtx.getImageData(0, 0, graffitiIconSize, graffitiIconSize));
+
+      map.addSource('graffiti', {
+        type: 'geojson',
+        data: '/graffiti-astana.geojson',
+      });
+
+      map.addLayer({
+        id: 'graffiti-layer',
+        type: 'symbol',
+        source: 'graffiti',
+        layout: {
+          'icon-image': 'graffiti-pin',
+          'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.55, 14, 0.9, 18, 1.1],
+          'icon-allow-overlap': true,
+          'icon-anchor': 'center',
+        },
+        paint: {
+          'icon-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1.0, 0.88],
+        },
+      });
+
+      map.addLayer({
+        id: 'graffiti-label',
+        type: 'symbol',
+        source: 'graffiti',
+        minzoom: 15,
+        layout: {
+          'text-field': ['get', 'title'],
+          'text-size': 11,
+          'text-anchor': 'top',
+          'text-offset': [0, 1.0],
+          'text-allow-overlap': false,
+        },
+        paint: {
+          'text-color': '#CAFF00',
+          'text-halo-color': 'rgba(0,0,0,0.8)',
+          'text-halo-width': 1.5,
+        },
+      });
+
+      // Graffiti hover
+      let hoveredGraffitiId: string | number | null = null;
+
+      map.on('mousemove', 'graffiti-layer', (e) => {
+        if (!e.features?.length) return;
+        map.getCanvas().style.cursor = 'pointer';
+        const feat = e.features[0];
+        if (feat.id !== hoveredGraffitiId) {
+          if (hoveredGraffitiId !== null) {
+            map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: false });
+          }
+          hoveredGraffitiId = feat.id ?? null;
+          if (hoveredGraffitiId !== null) {
+            map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: true });
+          }
+        }
+        setHoverInfo({
+          x: e.point.x,
+          y: e.point.y,
+          properties: { ...(feat.properties as Record<string, unknown>), _source: 'graffiti' },
+        });
+      });
+
+      map.on('mouseleave', 'graffiti-layer', () => {
+        map.getCanvas().style.cursor = '';
+        if (hoveredGraffitiId !== null) {
+          map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: false });
+          hoveredGraffitiId = null;
+        }
+        setHoverInfo(null);
+      });
+
       let hoveredId: string | number | null = null;
 
       const clearHover = () => {
@@ -377,21 +492,32 @@ export default function MapPage() {
       map.on('mousemove', 'hex-layer', handleHexMouseMove);
       map.on('mouseleave', 'hex-layer', handleHexMouseLeave);
 
-      // Building click / tap — open detail panel, close filter sidebar
+      // Click — graffiti pins take priority, then buildings
       map.on('click', (e) => {
+        const graffitiFeatures = map.queryRenderedFeatures(e.point, {
+          layers: ['graffiti-layer'],
+        });
+        if (graffitiFeatures.length) {
+          setSelectedGraffiti(graffitiFeatures[0].properties as Record<string, unknown>);
+          setSelectedBuilding(null);
+          setSidebarOpen(false);
+          return;
+        }
+
         const features = map.queryRenderedFeatures(e.point, {
           layers: ['buildings-fill', 'buildings-3d'],
         });
         if (features.length) {
           setSelectedBuilding(features[0].properties as Record<string, unknown>);
+          setSelectedGraffiti(null);
           setSidebarOpen(false);
-          // On mobile, also collapse the legend and timeline to maximise map
           if (window.innerWidth < 768) {
             setLegendOpen(false);
             setTimelineCollapsed(true);
           }
         } else {
           setSelectedBuilding(null);
+          setSelectedGraffiti(null);
         }
       });
 
@@ -638,6 +764,19 @@ export default function MapPage() {
     map.setPaintProperty('hex-layer', 'fill-extrusion-color', colorExpr);
   }, [hexMetric]);
 
+  // ── Graffiti layer visibility toggle ──────────────────────────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+    const vis: maplibregl.VisibilitySpecification = graffitiVisible ? 'visible' : 'none';
+    const apply = () => {
+      if (map.getLayer('graffiti-layer')) map.setLayoutProperty('graffiti-layer', 'visibility', vis);
+      if (map.getLayer('graffiti-label')) map.setLayoutProperty('graffiti-label', 'visibility', vis);
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once('load', apply);
+  }, [graffitiVisible]);
+
   return (
     <div className={s.mapPage}>
       <div ref={containerRef} className={s.mapContainer} />
@@ -665,6 +804,20 @@ export default function MapPage() {
         onHexMetricChange={setHexMetric}
         hexLoading={false}
       />
+
+      {/* Graffiti layer toggle */}
+      <div className={s.graffitiLayerToggle}>
+        <div className={s.graffitiToggleRow}>
+          <button
+            className={`${s.graffitiToggleBtn} ${graffitiVisible ? s.graffitiToggleBtnActive : ''}`}
+            onClick={() => setGraffitiVisible((v) => !v)}
+            title="Show / hide street graffiti points"
+          >
+            <span style={{ fontSize: 12 }}>🎨</span>
+            <span>Graffiti</span>
+          </button>
+        </div>
+      </div>
 
       {/* Page title chip */}
       <div className={s.titleChip}>
@@ -738,6 +891,12 @@ export default function MapPage() {
       <BuildingPanel
         properties={selectedBuilding}
         onClose={() => setSelectedBuilding(null)}
+      />
+
+      {/* Graffiti detail panel */}
+      <GraffitiPanel
+        properties={selectedGraffiti}
+        onClose={() => setSelectedGraffiti(null)}
       />
 
       {/* Timeline Slider with play controls */}

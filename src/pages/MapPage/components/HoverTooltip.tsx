@@ -49,6 +49,13 @@ interface HoverTooltipProps {
   colorMode: ColorMode;
 }
 
+const GRAFFITI_STYLE_COLORS: Record<string, string> = {
+  mural: '#CAFF00',
+  stencil: '#00EAFF',
+  'throw-up': '#FF6B35',
+  tag: '#FF3CAC',
+};
+
 export function HoverTooltip({
   hoverInfo,
   selectedBuilding,
@@ -57,7 +64,39 @@ export function HoverTooltip({
   if (!hoverInfo || selectedBuilding || IS_TOUCH_DEVICE) return null;
 
   const p = hoverInfo.properties;
-  
+
+  // ── Graffiti point tooltip ─────────────────────────────────────
+  if (p._source === 'graffiti') {
+    const styleKey = String(p.style ?? '');
+    const color = GRAFFITI_STYLE_COLORS[styleKey] ?? '#CAFF00';
+    const title = p.title ? String(p.title) : 'Graffiti';
+    const styleLabel = styleKey.charAt(0).toUpperCase() + styleKey.slice(1) || 'Unknown';
+    return (
+      <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <span style={{
+            display: 'inline-block', width: 8, height: 8,
+            borderRadius: '50%', background: color,
+            boxShadow: `0 0 6px ${color}`,
+            flexShrink: 0,
+          }} />
+          <span className={s.tooltipName} style={{ margin: 0 }}>{title}</span>
+        </div>
+        <div className={s.tooltipRow}>
+          <span className={s.tooltipKey}>Style</span>
+          <span className={s.tooltipVal} style={{ color }}>{styleLabel}</span>
+        </div>
+        {p.location && (
+          <div className={s.tooltipRow}>
+            <span className={s.tooltipKey}>Location</span>
+            <span className={s.tooltipVal}>{String(p.location)}</span>
+          </div>
+        )}
+        <div className={s.tooltipHint}>Click for details</div>
+      </div>
+    );
+  }
+
   // A cell is a hexagon if it contains NUMPOINTS or year_mean or height_mean_2
   const isHex = p.NUMPOINTS !== undefined || p.year_mean !== undefined || p.height_mean_2 !== undefined;
 
