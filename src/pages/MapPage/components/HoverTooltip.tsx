@@ -86,7 +86,7 @@ export function HoverTooltip({
           <span className={s.tooltipKey}>Style</span>
           <span className={s.tooltipVal} style={{ color }}>{styleLabel}</span>
         </div>
-        {p.location && (
+        {!!p.location && (
           <div className={s.tooltipRow}>
             <span className={s.tooltipKey}>Location</span>
             <span className={s.tooltipVal}>{String(p.location)}</span>
@@ -186,32 +186,32 @@ export function HoverTooltip({
   const lstVal = p.lst_1mean != null ? Number(p.lst_1mean).toFixed(1) : null;
   const rawType = p.type ? String(p.type) : null;
   const typeLabel = rawType ? (TYPE_LABELS[rawType] || rawType) : null;
-  const hasData = name || year || demVal || lstVal || typeLabel;
+  const hasData = !!(name || year || demVal || lstVal || typeLabel);
 
   return (
     <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}>
       {hasData ? (
         <>
-          {name && <div className={s.tooltipName}>{name}</div>}
-          {year && (
+          {!!name && <div className={s.tooltipName}>{name}</div>}
+          {!!year && (
             <div className={s.tooltipRow}>
               <span className={s.tooltipKey}>Year</span>
               <span className={s.tooltipVal}>{String(year)}</span>
             </div>
           )}
-          {colorMode === 'elevation' && demVal && (
+          {colorMode === 'elevation' && !!demVal && (
             <div className={s.tooltipRow}>
               <span className={s.tooltipKey}>Elevation</span>
               <span className={s.tooltipVal} style={{ color: '#27ae60' }}>{demVal} m</span>
             </div>
           )}
-          {colorMode === 'lst' && lstVal && (
+          {colorMode === 'lst' && !!lstVal && (
             <div className={s.tooltipRow}>
               <span className={s.tooltipKey}>Summer LST</span>
               <span className={s.tooltipVal} style={{ color: '#fdae61' }}>{lstVal} °C</span>
             </div>
           )}
-          {colorMode === 'type' && typeLabel && (
+          {colorMode === 'type' && !!typeLabel && (
             <div className={s.tooltipRow}>
               <span className={s.tooltipKey}>Use</span>
               <span className={s.tooltipVal} style={{ color: '#a78bfa' }}>{typeLabel}</span>
@@ -219,13 +219,13 @@ export function HoverTooltip({
           )}
           {colorMode === 'uhi' && (
             <>
-              {year && (
+              {!!year && (
                 <div className={s.tooltipRow}>
                   <span className={s.tooltipKey}>Age</span>
                   <span className={s.tooltipVal} style={{ color: '#64ACBE' }}>{2026 - Number(year)} yr</span>
                 </div>
               )}
-              {lstVal && (
+              {!!lstVal && (
                 <div className={s.tooltipRow}>
                   <span className={s.tooltipKey}>LST</span>
                   <span className={s.tooltipVal} style={{ color: '#C8705A' }}>{lstVal} °C</span>

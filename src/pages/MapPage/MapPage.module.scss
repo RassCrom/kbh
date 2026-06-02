@@ -445,15 +445,26 @@
   align-items: flex-end;
   height: 5rem;
   gap: 1px;
+
+  &:hover {
+    .bar {
+      opacity: 0.35;
+      
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
 }
 
 .bar {
   flex-grow: 1;
   background: var(--tint-bar);
-  transition: background 0.2s, height 0.2s;
+  transition: background 0.2s, height 0.2s, opacity 0.2s ease-in-out;
   border-radius: 1px 1px 0 0;
   min-width: 2px;
   cursor: pointer;
+  opacity: 1;
 
   &:hover {
     background: var(--tint-bar-hover);
@@ -2324,4 +2335,317 @@
   border-top: 1px solid var(--glass-border);
   padding-top: $space-2;
   margin-top: $space-1;
+}
+
+// ── Onboarding / Welcome Helper popups ──────────────────────────────────────────
+
+.onboardingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  animation: fadeIn 0.4s ease-out;
+
+  @media (max-width: 767px) {
+    position: fixed;
+    z-index: 10005;
+    background: rgba(8, 14, 20, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow-y: auto;
+    padding: $space-6 $space-4;
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+    pointer-events: auto;
+  }
+}
+
+.onboardingWelcomeCard {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  background: rgba(12, 19, 29, 0.94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(212, 168, 94, 0.35);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border-radius: $radius-lg;
+  padding: $space-4 $space-6;
+  width: 360px;
+  max-width: calc(100% - 32px);
+  z-index: 10001;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-3;
+  animation: helperFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
+
+  @media (max-width: 767px) {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    margin-bottom: $space-2;
+    background: rgba(12, 19, 29, 0.8) !important;
+  }
+}
+
+.onboardingWelcomeTitle {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-accent-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.onboardingWelcomeDesc {
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.onboardingBtn {
+  background: $color-accent-gold;
+  border: 1px solid $color-accent-gold;
+  border-radius: $radius-pill;
+  color: #121a24;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: lighten($color-accent-gold, 10%);
+    box-shadow: 0 0 16px rgba(212, 168, 94, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.helperCard {
+  position: absolute;
+  background: rgba(12, 19, 29, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 168, 94, 0.25);
+  border-radius: $radius-md;
+  padding: $space-3 $space-4;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  width: 280px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  animation: helperFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
+
+  &::before {
+    content: '';
+    position: absolute;
+    border: 6px solid transparent;
+  }
+
+  @media (max-width: 767px) {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    transform: none !important;
+
+    &::before {
+      display: none !important;
+    }
+  }
+}
+
+.helperCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.helperCardTitle {
+  font-family: var(--font-heading);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--color-accent-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.helperCardClose {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.helperCardDesc {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+// Specific placements and pointer arrows
+.helperFilter {
+  top: 64px;
+  right: 16px;
+
+  &::before {
+    bottom: 100%;
+    right: 12px;
+    border-bottom-color: rgba(12, 19, 29, 0.88);
+  }
+}
+
+.helperHex {
+  top: 16px;
+  left: 345px;
+
+  &::before {
+    top: 10px;
+    right: 100%;
+    border-right-color: rgba(12, 19, 29, 0.88);
+  }
+}
+
+.helperGraffiti {
+  top: 58px;
+  left: 260px;
+
+  &::before {
+    top: 8px;
+    right: 100%;
+    border-right-color: rgba(12, 19, 29, 0.88);
+  }
+}
+
+.helperLegend {
+  bottom: 52px;
+  left: 16px;
+
+  &::before {
+    top: 100%;
+    left: 12px;
+    border-top-color: rgba(12, 19, 29, 0.88);
+  }
+}
+
+// Help Trigger Button (to re-open onboarding guide)
+.helpGuideBtn {
+  position: absolute;
+  bottom: $space-4;
+  right: $space-4;
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-gold);
+    border-color: var(--color-accent-gold);
+    background: var(--glass-bg-hover);
+    box-shadow: 0 0 12px rgba(212, 168, 94, 0.25);
+  }
+
+  @media (max-width: 767px) {
+    bottom: $space-4;
+    right: $space-4;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.helperPulseDot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent-gold);
+  border-radius: 50%;
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  box-shadow: 0 0 8px var(--color-accent-gold);
+  animation: pulseDotGlow 2s infinite;
+}
+
+@keyframes pulseDotGlow {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(212, 168, 94, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(212, 168, 94, 0);
+  }
+  100% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(212, 168, 94, 0);
+  }
+}
+
+@keyframes helperFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

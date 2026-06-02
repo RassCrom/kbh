@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Protocol } from 'pmtiles';
-import { ArrowLeft, Layers, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft, Layers, SlidersHorizontal, HelpCircle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
 import { useIsMobile } from './useIsMobile';
@@ -82,6 +82,21 @@ export default function MapPage() {
   // Graffiti layer state
   const [selectedGraffiti, setSelectedGraffiti] = useState<Record<string, unknown> | null>(null);
   const [graffitiVisible, setGraffitiVisible] = useState(false);
+
+  // Onboarding helpers state
+  const [showHelpers, setShowHelpers] = useState(() => {
+    return localStorage.getItem('kbh-map-onboarding-dismissed') !== 'true';
+  });
+
+  const handleDismissHelpers = () => {
+    setShowHelpers(false);
+    localStorage.setItem('kbh-map-onboarding-dismissed', 'true');
+  };
+
+  const handleOpenHelpers = () => {
+    setShowHelpers(true);
+    localStorage.removeItem('kbh-map-onboarding-dismissed');
+  };
 
   // Dark / light map theme
   const [mapTheme, setMapTheme] = useState<MapTheme>('dark');
@@ -364,10 +379,11 @@ export default function MapPage() {
         type: 'symbol',
         source: 'graffiti',
         layout: {
-          'icon-image': 'graffiti-pin',
+          'icon-image': ['coalesce', ['image', ['get', 'photo']], 'graffiti-pin'],
           'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.55, 14, 0.9, 18, 1.1],
           'icon-allow-overlap': true,
           'icon-anchor': 'center',
+          'visibility': 'none',
         },
         paint: {
           'icon-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1.0, 0.88],
@@ -385,6 +401,7 @@ export default function MapPage() {
           'text-anchor': 'top',
           'text-offset': [0, 1.0],
           'text-allow-overlap': false,
+          'visibility': 'none',
         },
         paint: {
           'text-color': '#CAFF00',
@@ -392,6 +409,75 @@ export default function MapPage() {
           'text-halo-width': 1.5,
         },
       });
+
+      // Dynamic graffiti photo markers loading
+      fetch('/graffiti-astana.geojson')
+        .then((res) => res.json())
+        .then((geojson) => {
+          if (!geojson || !geojson.features) return;
+          geojson.features.forEach((feat: any) => {
+            const photoUrl = feat.properties?.photo;
+            if (photoUrl && typeof photoUrl === 'string' && photoUrl.trim() !== '') {
+              const img = new Image();
+              img.crossOrigin = 'Anonymous';
+              img.src = photoUrl;
+              img.onload = () => {
+                const size = 44;
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+
+                const cx = size / 2;
+                const cy = size / 2;
+                const r = size / 2 - 2;
+
+                // Glowing border
+                ctx.shadowColor = 'rgba(202, 255, 0, 0.75)';
+                ctx.shadowBlur = 4;
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.fillStyle = '#CAFF00'; // Lime green marker border
+                ctx.fill();
+
+                // Crop clip
+                ctx.shadowBlur = 0;
+                ctx.beginPath();
+                ctx.arc(cx, cy, r - 2.5, 0, Math.PI * 2);
+                ctx.clip();
+
+                // Draw cropped center of the image
+                const minS = Math.min(img.width, img.height);
+                ctx.drawImage(
+                  img,
+                  (img.width - minS) / 2,
+                  (img.height - minS) / 2,
+                  minS,
+                  minS,
+                  2,
+                  2,
+                  size - 4,
+                  size - 4
+                );
+
+                const imgData = ctx.getImageData(0, 0, size, size);
+                const activeMap = mapRef.current;
+                if (activeMap && activeMap.getStyle()) {
+                  if (!activeMap.hasImage(photoUrl)) {
+                    activeMap.addImage(photoUrl, imgData);
+                    activeMap.triggerRepaint();
+                  }
+                }
+              };
+              img.onerror = () => {
+                // Silently ignore loading failures, falls back gracefully to default pin
+              };
+            }
+          });
+        })
+        .catch((err) => console.error('Error loading graffiti photo markers:', err));
 
       // Graffiti hover
       let hoveredGraffitiId: string | number | null = null;
@@ -913,6 +999,92 @@ export default function MapPage() {
         onTogglePlay={handleTogglePlay}
         onPlayReset={handlePlayReset}
       />
+
+      {/* Onboarding Welcome & Floating Controls Helpers */}
+      {showHelpers && (
+        <div className={s.onboardingOverlay}>
+          {/* Center card */}
+          <div className={s.onboardingWelcomeCard}>
+            <h4 className={s.onboardingWelcomeTitle}>
+              🗺️ Astana Map Guide
+            </h4>
+            <p className={s.onboardingWelcomeDesc}>
+              Discover Astana's architectural evolution and street culture. We've highlighted key possibilities across the screen for you!
+            </p>
+            <button className={s.onboardingBtn} onClick={handleDismissHelpers}>
+              Explore Map
+            </button>
+          </div>
+
+          {/* Helper 1: Filter Panel (anchored next to top-right button) */}
+          <div className={`${s.helperCard} ${s.helperFilter}`}>
+            <span className={s.helperPulseDot} />
+            <div className={s.helperCardHeader}>
+              <span className={s.helperCardTitle}>🔍 Filter Panel</span>
+              <button className={s.helperCardClose} onClick={handleDismissHelpers} aria-label="Close">
+                <X size={12} />
+              </button>
+            </div>
+            <p className={s.helperCardDesc}>
+              Query and filter building footprints by construction era, architectural style, type, or construction company.
+            </p>
+          </div>
+
+          {/* Helper 2: Hexagons Toggle (anchored next to top-left vizBtn) */}
+          <div className={`${s.helperCard} ${s.helperHex}`}>
+            <span className={s.helperPulseDot} />
+            <div className={s.helperCardHeader}>
+              <span className={s.helperCardTitle}>⬡ Hexagons Toggle</span>
+              <button className={s.helperCardClose} onClick={handleDismissHelpers} aria-label="Close">
+                <X size={12} />
+              </button>
+            </div>
+            <p className={s.helperCardDesc}>
+              Switch to Hexagon Grid Mode to explore building density heatmaps and map-wide historical average construction years.
+            </p>
+          </div>
+
+          {/* Helper 3: Graffiti Layer (anchored next to top-left graffiti toggle) */}
+          <div className={`${s.helperCard} ${s.helperGraffiti}`}>
+            <span className={s.helperPulseDot} />
+            <div className={s.helperCardHeader}>
+              <span className={s.helperCardTitle}>🎨 Street Graffiti</span>
+              <button className={s.helperCardClose} onClick={handleDismissHelpers} aria-label="Close">
+                <X size={12} />
+              </button>
+            </div>
+            <p className={s.helperCardDesc}>
+              Toggle the Graffiti layer to browse street murals, stencils, and tags including complete photo archives.
+            </p>
+          </div>
+
+          {/* Helper 4: Map Legend (anchored next to bottom-left legendToggle) */}
+          <div className={`${s.helperCard} ${s.helperLegend}`}>
+            <span className={s.helperPulseDot} />
+            <div className={s.helperCardHeader}>
+              <span className={s.helperCardTitle}>📋 Map Legend</span>
+              <button className={s.helperCardClose} onClick={handleDismissHelpers} aria-label="Close">
+                <X size={12} />
+              </button>
+            </div>
+            <p className={s.helperCardDesc}>
+              Click directly on specific construction eras or building uses in the legend to filter map data dynamically.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Help Trigger button to re-trigger onboarding */}
+      {!showHelpers && (
+        <button
+          className={s.helpGuideBtn}
+          onClick={handleOpenHelpers}
+          title="Show map controls guide"
+          aria-label="Show guide"
+        >
+          <HelpCircle size={15} />
+        </button>
+      )}
     </div>
   );
 }
