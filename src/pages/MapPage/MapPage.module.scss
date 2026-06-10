@@ -15,7 +15,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
-  height: 100dvh; // dynamic viewport — collapses mobile browser chrome
+  height: 100dvh; // dynamic viewport - collapses mobile browser chrome
   overflow: hidden;
   background: $color-bg-base;
 }
@@ -59,6 +59,16 @@
     border-color: $color-accent-gold;
     box-shadow: 0 0 16px rgba(212, 168, 94, 0.15);
     color: $color-accent-gold;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
   }
 
   @media (max-width: 767px) {
@@ -99,6 +109,7 @@
   letter-spacing: 0.03em;
   white-space: nowrap;
   pointer-events: none;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* ------------------------------------------------------------------ */
@@ -140,11 +151,25 @@
   cursor: pointer;
   transition: background $duration-ui $ease-snap,
     color $duration-ui $ease-snap,
-    border-color $duration-ui $ease-snap;
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap,
+    transform $duration-ui $ease-snap;
 
   &:hover {
     color: $color-accent-gold;
     border-color: $color-accent-gold;
+    background: var(--glass-bg-hover);
+    box-shadow: 0 0 12px rgba(212, 168, 94, 0.18);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
   }
 
   @media (max-width: 767px) {
@@ -390,7 +415,7 @@
   }
 }
 
-/* ── Collapsible wrapper for histogram + slider + labels ── */
+/* ---------- Collapsible wrapper for histogram + slider + labels ---------- */
 
 .timelineCollapsible {
   overflow: hidden;
@@ -882,12 +907,19 @@
   transition: background $duration-ui $ease-snap,
     color $duration-ui $ease-snap,
     border-color $duration-ui $ease-snap,
-    box-shadow $duration-ui $ease-snap;
+    box-shadow $duration-ui $ease-snap,
+    transform $duration-ui $ease-snap;
 
   &:hover {
     color: var(--color-accent-gold);
     border-color: var(--color-accent-gold);
     background: var(--glass-bg-hover);
+    box-shadow: 0 0 14px rgba(212, 168, 94, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &.active {
@@ -895,6 +927,11 @@
     border-color: $color-accent-gold;
     background: rgba(212, 168, 94, 0.1);
     box-shadow: 0 0 12px rgba(212, 168, 94, 0.15);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
   }
 
   @media (max-width: 767px) {
@@ -918,6 +955,14 @@
   font-weight: 700;
   line-height: 16px;
   text-align: center;
+  box-shadow: 0 0 8px rgba(212, 168, 94, 0.4);
+  animation: badgePop 300ms $ease-snap;
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 /* ------------------------------------------------------------------ */
@@ -944,6 +989,7 @@
   flex-direction: column;
   transform: translateX(100%);
   transition: transform $duration-mid $ease-cinematic;
+  will-change: transform;
   overflow: visible; // Allow toggleHandle to hang outside on the left
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
 
@@ -1438,7 +1484,7 @@
 }
 
 /* ------------------------------------------------------------------ */
-/*  Filter sidebar — tab switcher                                      */
+/*  Filter sidebar - tab switcher                                      */
 /* ------------------------------------------------------------------ */
 
 .tabRow {
@@ -2057,66 +2103,6 @@
 }
 
 /* ------------------------------------------------------------------ */
-/*  Graffiti layer toggle pill                                         */
-/* ------------------------------------------------------------------ */
-
-.graffitiLayerToggle {
-  position: absolute;
-  // sits directly below the vizToggleGroup (top:16px + ~36px button + 4px gap)
-  top: 58px;
-  left: 108px;
-  z-index: $z-toolbar;
-
-  @media (max-width: 767px) {
-    top: 58px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-}
-
-.graffitiToggleRow {
-  display: flex;
-  align-items: center;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  border-radius: $radius-pill;
-  padding: 3px;
-}
-
-.graffitiToggleBtn {
-  display: flex;
-  align-items: center;
-  gap: $space-1;
-  padding: 4px 10px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: $radius-pill;
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color $duration-ui $ease-snap,
-    background $duration-ui $ease-snap,
-    border-color $duration-ui $ease-snap;
-
-  &:hover {
-    color: var(--color-text-primary);
-    background: var(--tint-subtle);
-  }
-
-  &.graffitiToggleBtnActive {
-    color: #CAFF00;
-    background: rgba(202, 255, 0, 0.1);
-    border-color: rgba(202, 255, 0, 0.35);
-  }
-}
-
-/* ------------------------------------------------------------------ */
 /*  MapLibre control overrides                                         */
 /* ------------------------------------------------------------------ */
 
@@ -2211,7 +2197,7 @@
   }
 }
 
-// ── Pulse Marker ────────────────────────────────────────────────────────────────
+// ---------- Pulse Marker ----------
 
 .pulseMarker {
   width: 24px;
@@ -2255,7 +2241,7 @@
   }
 }
 
-// ── Hexagon Info Button & Popover ───────────────────────────────────────────────
+// ---------- Hexagon Info Button & Popover ----------
 
 .vizInfoBtn {
   display: flex;
@@ -2337,7 +2323,7 @@
   margin-top: $space-1;
 }
 
-// ── Onboarding / Welcome Helper popups ──────────────────────────────────────────
+// ---------- Onboarding / Welcome Helper popups ----------
 
 .onboardingOverlay {
   position: absolute;
@@ -2555,9 +2541,9 @@
   }
 }
 
-.helperGraffiti {
+.helperTours {
   top: 58px;
-  left: 260px;
+  left: 100px;
 
   &::before {
     top: 8px;
@@ -2602,6 +2588,16 @@
     border-color: var(--color-accent-gold);
     background: var(--glass-bg-hover);
     box-shadow: 0 0 12px rgba(212, 168, 94, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
   }
 
   @media (max-width: 767px) {
@@ -2648,4 +2644,1148 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+/* ------------------------------------------------------------------ */
+/*  Tour launcher (standalone, below back button)                       */
+/* ------------------------------------------------------------------ */
+
+.tourLauncher {
+  position: absolute;
+  top: 58px;
+  left: $space-4;
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+
+  @media (max-width: 767px) {
+    top: 62px;
+    left: $space-3;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Cinematic globe intro                                              */
+/* ------------------------------------------------------------------ */
+
+.introOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: $z-modal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 10vh;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(4, 6, 12, 0.55) 100%);
+}
+
+.introTitleBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-2;
+  animation: introTitleIn 1100ms $ease-cinematic both;
+}
+
+.introKicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: $color-accent-gold;
+}
+
+.introTitle {
+  font-family: var(--font-heading);
+  font-size: clamp(42px, 9vw, 84px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: #f4f2ec;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+}
+
+.introSub {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: rgba(223, 224, 228, 0.75);
+  text-transform: uppercase;
+}
+
+.introSkipBtn {
+  pointer-events: auto;
+  margin-top: $space-6;
+  padding: $space-2 20px;
+  min-height: 38px;
+  background: rgba(14, 21, 33, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 168, 94, 0.4);
+  border-radius: $radius-pill;
+  color: $color-accent-gold;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+  animation: introTitleIn 1100ms 500ms $ease-cinematic both;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.14);
+    border-color: $color-accent-gold;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+}
+
+@keyframes introTitleIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .introTitleBlock,
+  .introSkipBtn {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Guided tours                                                       */
+/* ------------------------------------------------------------------ */
+
+.tourLauncherBtn {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 6px 12px;
+  min-height: 30px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap,
+    transform $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--glass-bg-hover);
+    box-shadow: 0 0 12px rgba(212, 168, 94, 0.15);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+
+  &.tourLauncherBtnActive {
+    color: $color-accent-gold;
+    background: rgba(212, 168, 94, 0.12);
+    border-color: rgba(212, 168, 94, 0.35);
+    box-shadow: 0 0 10px rgba(212, 168, 94, 0.12);
+  }
+}
+
+.tourCatalog {
+  position: absolute;
+  top: calc(100% + #{$space-2});
+  left: 0;
+  z-index: $z-dropdown;
+  width: 330px;
+  max-width: calc(100vw - 32px);
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: $space-4;
+  animation: fadeSlideUp 240ms $ease-cinematic;
+
+  @media (max-width: 767px) {
+    left: 0;
+    transform: none;
+    width: calc(100vw - #{$space-3} * 2);
+  }
+}
+
+.tourCatalogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tourCatalogTitle {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.02em;
+}
+
+.tourCatalogSub {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.tourList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-3;
+}
+
+.tourListItem {
+  display: flex;
+  align-items: stretch;
+  gap: $space-3;
+  width: 100%;
+  padding: $space-3;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  text-align: left;
+  transition: background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    transform $duration-ui $ease-snap;
+
+  &:hover {
+    background: var(--tint-subtle);
+    border-color: rgba(212, 168, 94, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+}
+
+.tourListStrip {
+  width: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.tourListBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tourListTitle {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.tourListTagline {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.tourListMeta {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+}
+
+.tourListEra {
+  font-weight: 700;
+}
+
+/* ---------- Active tour narrative card ---------- */
+
+.tourCard {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-toolbar;
+  width: 440px;
+  max-width: calc(100vw - 24px);
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: $space-4;
+  animation: tourCardIn 420ms $ease-cinematic;
+  box-shadow: $shadow-float;
+
+  @media (max-width: 767px) {
+    bottom: $space-3;
+  }
+}
+
+@keyframes tourCardIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tourCard {
+    animation: none;
+  }
+}
+
+.tourCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.tourCardTourName {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tourExitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    border-color: var(--glass-border);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 1px;
+  }
+}
+
+.tourProgress {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: $space-2 0 $space-3;
+}
+
+.tourDot {
+  width: 16px;
+  height: 4px;
+  padding: 0;
+  border: none;
+  border-radius: 2px;
+  background: var(--tint-bar);
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap, transform $duration-ui $ease-snap;
+
+  &:hover {
+    transform: scaleY(1.6);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+}
+
+.tourDotActive {
+  transform: scaleY(1.6);
+}
+
+.tourStopHeader {
+  display: flex;
+  align-items: baseline;
+  gap: $space-3;
+}
+
+.tourStopIndex {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.tourStopTitleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tourStopName {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.01em;
+}
+
+.tourStopYear {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.tourStopText {
+  margin-top: $space-2;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--color-text-data);
+}
+
+.tourNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $space-3;
+}
+
+.tourNavBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 14px;
+  min-height: 32px;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover:not(:disabled) {
+    color: var(--color-text-primary);
+    background: var(--tint-subtle);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+}
+
+.tourNavBtnPrimary {
+  background: var(--tint-faint);
+}
+
+.tourNavCount {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-secondary);
+}
+
+/* ------------------------------------------------------------------ */
+/*  3D landmark popup panel                                            */
+/* ------------------------------------------------------------------ */
+
+.landmarkPanel {
+  position: absolute;
+  top: $space-4;
+  right: $space-4;
+  z-index: $z-panel;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: $space-4;
+  animation: fadeSlideUp 280ms $ease-cinematic;
+  scrollbar-width: thin;
+
+  @media (max-width: 767px) {
+    top: auto;
+    bottom: $space-3;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    max-height: 62dvh;
+  }
+}
+
+.landmarkHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.landmarkBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: rgba(212, 168, 94, 0.1);
+  border: 1px solid rgba(212, 168, 94, 0.35);
+  border-radius: $radius-pill;
+  color: $color-accent-gold;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.landmarkClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    border-color: var(--glass-border);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 1px;
+  }
+}
+
+.landmarkName {
+  margin-top: $space-3;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.01em;
+}
+
+.landmarkDesc {
+  margin-top: $space-2;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--color-text-data);
+}
+
+.landmarkFacts {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-3;
+  padding: $space-3;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+}
+
+.landmarkFactRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+
+  svg {
+    color: $color-accent-gold;
+    flex-shrink: 0;
+  }
+}
+
+.landmarkFactKey {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  width: 48px;
+  flex-shrink: 0;
+}
+
+.landmarkFactVal {
+  color: var(--color-text-primary);
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.landmarkFactList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-3;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-2;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+
+    svg {
+      color: $color-accent-gold;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+  }
+}
+
+.landmarkFlyBtn {
+  width: 100%;
+  margin-top: $space-4;
+  padding: $space-2 $space-4;
+  min-height: 38px;
+  background: rgba(212, 168, 94, 0.12);
+  border: 1px solid rgba(212, 168, 94, 0.45);
+  border-radius: $radius-pill;
+  color: $color-accent-gold;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.2);
+    border-color: $color-accent-gold;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Touch tap-to-preview card                                          */
+/* ------------------------------------------------------------------ */
+
+.tapPreview {
+  position: absolute;
+  bottom: calc(#{$space-4} + 52px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-tooltip;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  padding: $space-2 $space-2 $space-2 $space-3;
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  box-shadow: $shadow-float;
+  animation: tapPreviewIn 240ms $ease-cinematic;
+}
+
+@keyframes tapPreviewIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tapPreview {
+    animation: none;
+  }
+}
+
+.tapPreviewDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+}
+
+.tapPreviewBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  min-width: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tapPreviewName {
+  font-family: var(--font-heading);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  max-width: 46vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tapPreviewMeta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+
+.tapPreviewSep {
+  opacity: 0.5;
+}
+
+.tapPreviewOpen {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 12px;
+  min-height: 32px;
+  background: rgba(212, 168, 94, 0.12);
+  border: 1px solid rgba(212, 168, 94, 0.4);
+  border-radius: $radius-pill;
+  color: $color-accent-gold;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background $duration-ui $ease-snap;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.2);
+  }
+}
+
+.tapPreviewClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Layers tab - 3D extrusion mode + overlay rows                      */
+/* ------------------------------------------------------------------ */
+
+.extrudeModeRow {
+  display: flex;
+  gap: $space-2;
+  margin-top: $space-2;
+}
+
+.extrudeModeBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 10px;
+  min-height: 34px;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--tint-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+
+  &.extrudeModeBtnActive {
+    color: $color-accent-gold;
+    background: rgba(212, 168, 94, 0.1);
+    border-color: rgba(212, 168, 94, 0.4);
+  }
+}
+
+.extrudeModeHint {
+  margin-top: $space-2;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.overlayList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-2;
+}
+
+.overlayRow {
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  padding: $space-3;
+  transition: border-color $duration-ui $ease-snap, background $duration-ui $ease-snap;
+
+  &.overlayRowActive {
+    border-color: rgba(212, 168, 94, 0.35);
+    background: var(--color-gold-tint-06);
+  }
+}
+
+.overlayRowMain {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.overlayRowIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: $radius-sm;
+  background: var(--tint-subtle);
+  color: $color-accent-gold;
+  flex-shrink: 0;
+}
+
+.overlayRowText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.overlayRowTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.overlayRowBadge {
+  padding: 1px 6px;
+  background: rgba(245, 184, 46, 0.12);
+  border: 1px solid rgba(245, 184, 46, 0.4);
+  border-radius: $radius-pill;
+  color: #f5b82e;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.overlayRowDesc {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.overlaySwitch {
+  position: relative;
+  width: 34px;
+  height: 19px;
+  padding: 0;
+  background: var(--tint-bar);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+
+  &.overlaySwitchOn {
+    background: rgba(212, 168, 94, 0.45);
+    border-color: $color-accent-gold;
+  }
+}
+
+.overlaySwitchKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--color-text-secondary);
+  transition: transform $duration-ui $ease-snap, background $duration-ui $ease-snap;
+
+  .overlaySwitchOn & {
+    transform: translateX(15px);
+    background: #fff;
+  }
+}
+
+.overlayRowInfo {
+  margin-top: $space-2;
+  padding-top: $space-2;
+  border-top: 1px solid var(--glass-border);
+  animation: fadeSlideUp 180ms $ease-cinematic;
+}
+
+.overlayLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: $space-2;
+}
+
+.overlayLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--color-text-secondary);
+}
+
+.overlayLegendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ------------------------------------------------------------------ */
+/*  First-load chip + tour playback controls                           */
+/* ------------------------------------------------------------------ */
+
+.mapLoadingChip {
+  position: absolute;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-toast;
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+  background: var(--glass-bg-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  animation: fadeSlideUp 240ms $ease-cinematic;
+}
+
+.mapLoadingDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: $color-accent-gold;
+  animation: loadingDotPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes loadingDotPulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapLoadingDot { animation: none; }
+}
+
+/* Tour card control cluster (voice / autoplay) */
+.tourCardControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tourCtrlBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 7px;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--tint-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 1px;
+  }
+
+  &.tourCtrlBtnActive {
+    color: #00d2ff;
+    background: rgba(0, 210, 255, 0.1);
+    border-color: rgba(0, 210, 255, 0.4);
+  }
+}
+
+.tourCtrlLabel {
+  text-transform: uppercase;
+}
+
+.tourFallbackNote {
+  display: block;
+  margin-top: $space-1;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: rgba(245, 184, 46, 0.8);
+}
+
+/* Silent-autoplay countdown rail along the top edge of the tour card */
+.tourAutoTimer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  border-radius: 2px;
+  transform-origin: left center;
+  animation-name: tourAutoFill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  opacity: 0.85;
+}
+
+@keyframes tourAutoFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tourAutoTimer { animation: none; transform: scaleX(1); opacity: 0.3; }
 }

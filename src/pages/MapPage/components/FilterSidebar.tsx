@@ -1,9 +1,14 @@
 import { useState, useMemo, memo, useRef } from 'react';
-import { ChevronDown, ChevronRight, ChevronLeft, X, Search, Sun, Moon, Layers, Thermometer, Mountain, Building2, Flame, Info } from 'lucide-react';
+import {
+  ChevronDown, ChevronRight, ChevronLeft, X, Search, Sun, Moon, Layers,
+  Thermometer, Mountain, Building2, Flame, Info, Ruler, History,
+  SprayCan, Siren, Trees, Hexagon,
+} from 'lucide-react';
 import s from '../MapPage.module.scss';
 import { TYPE_OPTIONS, DISTRICT_OPTIONS, ERA_CONFIG, DISTRICT_TOTAL_COUNTS } from '../constants';
 import { type MapTheme } from '../mapTheme';
-import { type ColorMode, type DecadeLstPoint, ELEVATION_STEPS, LST_STEPS, TYPE_LEGEND, UHI_MATRIX } from '../mapHelpers';
+import { type ColorMode, type DecadeLstPoint, type ExtrudeMode, ELEVATION_STEPS, LST_STEPS, TYPE_LEGEND, UHI_MATRIX } from '../mapHelpers';
+import { CRIME_CATEGORIES, GREEN_SCORE_COLORS, GREEN_SCORE_LABELS } from '../overlays/overlayLayers';
 
 // One distinct colour per district for the comparison chart
 const DISTRICT_COLORS: Record<string, string> = {
@@ -39,6 +44,54 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 // ── Sub-components ───────────────────────────────────────────────────────────
+
+// Toggle-switch row for thematic overlay layers (Layers tab)
+interface OverlayRowProps {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  active: boolean;
+  onToggle: () => void;
+  infoOpen: boolean;
+  onInfoToggle: (e: React.MouseEvent) => void;
+  children?: React.ReactNode; // expanded info / legend content
+  badge?: string;
+}
+function OverlayRow({ icon, title, desc, active, onToggle, infoOpen, onInfoToggle, children, badge }: OverlayRowProps) {
+  return (
+    <div className={`${s.overlayRow} ${active ? s.overlayRowActive : ''}`}>
+      <div className={s.overlayRowMain}>
+        <span className={s.overlayRowIcon}>{icon}</span>
+        <div className={s.overlayRowText}>
+          <span className={s.overlayRowTitle}>
+            {title}
+            {badge && <span className={s.overlayRowBadge}>{badge}</span>}
+          </span>
+          <span className={s.overlayRowDesc}>{desc}</span>
+        </div>
+        <button
+          type="button"
+          className={`${s.infoBtn} ${infoOpen ? s.infoBtnActive : ''}`}
+          onClick={onInfoToggle}
+          aria-label={`About ${title}`}
+        >
+          <Info size={11} />
+        </button>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={active}
+          aria-label={`Toggle ${title} layer`}
+          className={`${s.overlaySwitch} ${active ? s.overlaySwitchOn : ''}`}
+          onClick={onToggle}
+        >
+          <span className={s.overlaySwitchKnob} />
+        </button>
+      </div>
+      {infoOpen && <div className={s.overlayRowInfo}>{children}</div>}
+    </div>
+  );
+}
 
 function FilterChip({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
@@ -281,6 +334,16 @@ interface FilterSidebarProps {
   colorMode: ColorMode;
   onColorModeChange: (mode: ColorMode) => void;
   decadeLstData: DecadeLstPoint[];
+  extrudeMode: ExtrudeMode;
+  onExtrudeModeChange: (mode: ExtrudeMode) => void;
+  graffitiVisible: boolean;
+  onGraffitiToggle: () => void;
+  crimeVisible: boolean;
+  onCrimeToggle: () => void;
+  greenVisible: boolean;
+  onGreenToggle: () => void;
+  districtsVisible: boolean;
+  onDistrictsToggle: () => void;
 }
 
 export const FilterSidebar = memo(function FilterSidebar({
@@ -297,6 +360,16 @@ export const FilterSidebar = memo(function FilterSidebar({
   colorMode,
   onColorModeChange,
   decadeLstData,
+  extrudeMode,
+  onExtrudeModeChange,
+  graffitiVisible,
+  onGraffitiToggle,
+  crimeVisible,
+  onCrimeToggle,
+  greenVisible,
+  onGreenToggle,
+  districtsVisible,
+  onDistrictsToggle,
 }: FilterSidebarProps) {
   const [tab, setTab] = useState<'filters' | 'charts' | 'layers'>('filters');
   const [expandedInfo, setExpandedInfo] = useState<Record<string, boolean>>({});
@@ -1012,6 +1085,138 @@ export const FilterSidebar = memo(function FilterSidebar({
                 </div>
               )}
             </div>
+
+          </div>
+
+          {/* ── 3D extrusion mode ───────────────────────────────────────── */}
+          <div className={s.layersIntro} style={{ marginTop: 18 }}>
+            <span className={s.layersIntroLabel}>3D Extrusion</span>
+            <span className={s.layersIntroMeta}>What building height represents at zoom 13+</span>
+          </div>
+          <div className={s.extrudeModeRow} role="radiogroup" aria-label="3D extrusion mode">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={extrudeMode === 'height'}
+              className={`${s.extrudeModeBtn} ${extrudeMode === 'height' ? s.extrudeModeBtnActive : ''}`}
+              onClick={() => onExtrudeModeChange('height')}
+            >
+              <Ruler size={12} />
+              <span>Real Height</span>
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={extrudeMode === 'age'}
+              className={`${s.extrudeModeBtn} ${extrudeMode === 'age' ? s.extrudeModeBtnActive : ''}`}
+              onClick={() => onExtrudeModeChange('age')}
+            >
+              <History size={12} />
+              <span>Building Age</span>
+            </button>
+          </div>
+          {extrudeMode === 'age' && (
+            <p className={s.extrudeModeHint}>
+              Older buildings rise taller — the historic Tselinograd core towers
+              over the new left bank. Buildings with unknown years stay flat.
+            </p>
+          )}
+
+          {/* ── Thematic overlay layers ─────────────────────────────────── */}
+          <div className={s.layersIntro} style={{ marginTop: 18 }}>
+            <span className={s.layersIntroLabel}>Overlay Layers</span>
+            <span className={s.layersIntroMeta}>Independent data layers on top of the basemap</span>
+          </div>
+          <div className={s.overlayList}>
+
+            <OverlayRow
+              icon={<SprayCan size={13} />}
+              title="Street Graffiti"
+              desc="Murals, stencils and tags with photo archive"
+              active={graffitiVisible}
+              onToggle={onGraffitiToggle}
+              infoOpen={!!expandedInfo['ov-graffiti']}
+              onInfoToggle={(e) => toggleInfo('ov-graffiti', e)}
+            >
+              <p className={s.vizInfoText}>
+                Community-documented street art across Astana. Points with a glowing
+                ring carry photos — tap a pin for artist, style, year and status.
+              </p>
+            </OverlayRow>
+
+            <OverlayRow
+              icon={<Siren size={13} />}
+              title="Crime & Accidents"
+              desc="Incident heatmap, categorised points at street zoom"
+              active={crimeVisible}
+              onToggle={onCrimeToggle}
+              infoOpen={!!expandedInfo['ov-crime']}
+              onInfoToggle={(e) => toggleInfo('ov-crime', e)}
+              badge="Demo data"
+            >
+              <p className={s.vizInfoText}>
+                <strong>Note:</strong> currently shows synthetic placeholder incidents
+                for layout and styling — real police-report data will replace it.
+              </p>
+              <p className={s.vizInfoText}>
+                City-wide density renders as a heatmap; zoom past 14 to see individual
+                incidents coloured by category.
+              </p>
+              <div className={s.overlayLegend}>
+                {CRIME_CATEGORIES.map((c) => (
+                  <span key={c.id} className={s.overlayLegendItem}>
+                    <span className={s.overlayLegendDot} style={{ background: c.color }} />
+                    {c.label}
+                  </span>
+                ))}
+              </div>
+            </OverlayRow>
+
+            <OverlayRow
+              icon={<Trees size={13} />}
+              title="3-30-300 Green Rule"
+              desc="Urban forestry benchmark per ~400 m cell"
+              active={greenVisible}
+              onToggle={onGreenToggle}
+              infoOpen={!!expandedInfo['ov-green']}
+              onInfoToggle={(e) => toggleInfo('ov-green', e)}
+              badge="Demo data"
+            >
+              <p className={s.vizInfoText}>
+                The <strong>3-30-300 rule</strong> (Cecil Konijnendijk, 2021) is a
+                global benchmark for healthy urban greening: every home should see
+                at least <strong>3 trees</strong>, every neighbourhood should have{' '}
+                <strong>30% canopy cover</strong>, and everyone should live within{' '}
+                <strong>300 m</strong> of a public green space.
+              </p>
+              <p className={s.vizInfoText}>
+                Cells are scored 0–3 by how many of the three criteria they meet.
+                Values shown are synthetic placeholders pending a tree-canopy survey.
+              </p>
+              <div className={s.overlayLegend}>
+                {GREEN_SCORE_COLORS.map((color, i) => (
+                  <span key={color} className={s.overlayLegendItem}>
+                    <span className={s.overlayLegendDot} style={{ background: color }} />
+                    {GREEN_SCORE_LABELS[i]}
+                  </span>
+                ))}
+              </div>
+            </OverlayRow>
+
+            <OverlayRow
+              icon={<Hexagon size={13} />}
+              title="District Borders"
+              desc="Administrative boundaries with labels"
+              active={districtsVisible}
+              onToggle={onDistrictsToggle}
+              infoOpen={!!expandedInfo['ov-districts']}
+              onInfoToggle={(e) => toggleInfo('ov-districts', e)}
+            >
+              <p className={s.vizInfoText}>
+                Official district boundaries of Astana — useful spatial context when
+                filtering buildings by district.
+              </p>
+            </OverlayRow>
 
           </div>
         </div>

@@ -200,6 +200,40 @@ export function buildLstColorExpr(): maplibregl.ExpressionSpecification {
   ] as unknown as maplibregl.ExpressionSpecification;
 }
 
+// ── 3D extrusion modes ───────────────────────────────────────────────────────
+
+export type ExtrudeMode = 'height' | 'age';
+
+/** Real building height (metres), zoom-faded in like the original layer. */
+export function buildHeightExtrusionExpr(): maplibregl.ExpressionSpecification {
+  return [
+    'interpolate', ['linear'], ['zoom'],
+    13, 0,
+    13.5, ['to-number', ['coalesce', ['get', 'b_height'], 10], 10],
+  ] as unknown as maplibregl.ExpressionSpecification;
+}
+
+/**
+ * Extrude by building AGE — older buildings rise taller, inverting the skyline
+ * so the historic Tselinograd core towers over the glass left bank.
+ * Unknown years stay flat (6 m) so they don't fake antiquity.
+ */
+export function buildAgeExtrusionExpr(): maplibregl.ExpressionSpecification {
+  const year = ['coalesce', ['get', 'year_int'], 0];
+  const currentYear = new Date().getFullYear();
+  const age = ['-', currentYear, year];
+  return [
+    'interpolate', ['linear'], ['zoom'],
+    13, 0,
+    13.5, [
+      'case',
+      ['==', year, 0],
+      6,
+      ['max', 6, ['*', age, 3]],
+    ],
+  ] as unknown as maplibregl.ExpressionSpecification;
+}
+
 export function buildCombinedFilter(
   yearRange: [number, number],
   types: string[],

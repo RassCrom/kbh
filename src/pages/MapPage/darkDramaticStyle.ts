@@ -3,11 +3,13 @@ import type { StyleSpecification } from 'maplibre-gl';
 export const darkDramaticStyle: StyleSpecification = {
   version: 8,
   name: 'Dark Dramatic',
-  glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   sources: {
     openmaptiles: {
       type: 'vector',
       url: 'https://tiles.openfreemap.org/planet',
+      attribution:
+        '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>',
     },
   },
   layers: [

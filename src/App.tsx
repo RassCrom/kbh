@@ -15,6 +15,7 @@ const MapPage = lazy(() => import('./pages/MapPage/MapPage'));
 const StoryPage = lazy(() => import('./pages/StoryPage/StoryPage'));
 const BayterekStory = lazy(() => import('./pages/StoryPage/BayterekStory'));
 const ArticlesPage = lazy(() => import('./pages/ArticlesPage/ArticlesPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage'));
 
 function RouteLoader() {
   return (
@@ -93,6 +94,7 @@ function App() {
           <Route path="/articles" element={<ArticlesPage />} />
           <Route path="/stories/soviet-grid" element={<StoryPage />} />
           <Route path="/stories/bayterek" element={<BayterekStory />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

@@ -1,0 +1,243 @@
+﻿@use '../../styles/tokens/colors' as *;
+@use '../../styles/tokens/spacing' as *;
+@use '../../styles/tokens/radius' as *;
+@use '../../styles/tokens/transitions' as *;
+
+.page {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #111a24 0%, #080d12 100%);
+  color: var(--color-text-primary);
+}
+
+/* Drifting cartographic grid */
+.grid {
+  position: absolute;
+  inset: -120px;
+  background-image:
+    linear-gradient(rgba(212, 168, 94, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 168, 94, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(109, 125, 148, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(109, 125, 148, 0.045) 1px, transparent 1px);
+  background-size: 220px 220px, 220px 220px, 44px 44px, 44px 44px;
+  animation: gridDrift 60s linear infinite;
+  will-change: transform;
+}
+
+@keyframes gridDrift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(220px, 220px); }
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(4, 6, 10, 0.8) 100%);
+  pointer-events: none;
+}
+
+/* Radar search rings behind the content */
+.radar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  border: 1px solid rgba(212, 168, 94, 0.35);
+  border-radius: 50%;
+  animation: radarPulse 3.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  opacity: 0;
+}
+
+.ringDelay1 { animation-delay: 1.2s; }
+.ringDelay2 { animation-delay: 2.4s; }
+
+@keyframes radarPulse {
+  0% { transform: scale(0.4); opacity: 0.7; }
+  100% { transform: scale(4.5); opacity: 0; }
+}
+
+.pin {
+  position: absolute;
+  top: -270px;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  margin-left: -15px;
+  color: $color-accent-gold;
+  filter: drop-shadow(0 0 12px rgba(212, 168, 94, 0.45));
+  animation: pinFloat 3.2s ease-in-out infinite;
+}
+
+@keyframes pinFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---------- Content ---------- */
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: $space-6;
+  max-width: 480px;
+}
+
+.code {
+  display: flex;
+  gap: $space-2;
+  font-family: var(--font-heading);
+  font-size: clamp(86px, 18vw, 150px);
+  font-weight: 700;
+  line-height: 1;
+  color: #f0eee8;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+}
+
+.digit {
+  display: inline-block;
+  animation: digitIn 700ms $ease-cinematic both;
+
+  &:nth-child(1) { animation-delay: 60ms; }
+  &:nth-child(3) { animation-delay: 220ms; }
+}
+
+.digitMid {
+  color: $color-accent-gold;
+  animation-delay: 140ms !important;
+  text-shadow: 0 0 36px rgba(212, 168, 94, 0.4);
+}
+
+@keyframes digitIn {
+  from { opacity: 0; transform: translateY(26px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.title {
+  margin-top: $space-4;
+  font-family: var(--font-heading);
+  font-size: clamp(19px, 4vw, 26px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  animation: fadeUp 600ms 350ms $ease-cinematic both;
+}
+
+.text {
+  margin-top: $space-3;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  animation: fadeUp 600ms 450ms $ease-cinematic both;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-3;
+  margin-top: $space-6;
+  animation: fadeUp 600ms 550ms $ease-cinematic both;
+}
+
+.btnPrimary,
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-3 20px;
+  min-height: 44px;
+  border-radius: $radius-pill;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    color $duration-ui $ease-snap,
+    transform $duration-ui $ease-snap;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 3px;
+  }
+}
+
+.btnPrimary {
+  background: $color-accent-gold;
+  color: #14100a;
+  border: 1px solid $color-accent-gold;
+
+  &:hover {
+    background: #e0b873;
+  }
+}
+
+.btnSecondary {
+  background: rgba(212, 168, 94, 0.08);
+  color: $color-accent-gold;
+  border: 1px solid rgba(212, 168, 94, 0.4);
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.16);
+    border-color: $color-accent-gold;
+  }
+}
+
+.coords {
+  margin-top: $space-6;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(109, 125, 148, 0.7);
+  animation: fadeUp 600ms 650ms $ease-cinematic both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid,
+  .ring,
+  .pin,
+  .digit,
+  .title,
+  .text,
+  .actions,
+  .coords {
+    animation: none;
+  }
+
+  .digit,
+  .title,
+  .text,
+  .actions,
+  .coords {
+    opacity: 1;
+  }
+}
