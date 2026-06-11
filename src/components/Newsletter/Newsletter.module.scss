@@ -103,16 +103,14 @@
   padding: 12px 28px;
   border: none;
   border-radius: $radius-md;
-  background: linear-gradient(135deg, $color-accent-gold, #b8922e);
+  background: $color-accent-gold;
   color: $color-bg-base;
   cursor: pointer;
   white-space: nowrap;
-  transition: transform $duration-mid $ease-cinematic,
-              box-shadow $duration-mid $ease-cinematic;
+  transition: background $duration-mid $ease-cinematic;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-glow-gold-btn;
+    background: lighten($color-accent-gold, 8%);
   }
 }
 

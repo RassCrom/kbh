@@ -43,7 +43,7 @@ export function HexControls({
 
       {/* Metric selector — only when hexagons active */}
       {vizMode === 'hexagons' && !hexLoading && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div className={s.vizMetricWrap}>
           <div className={s.vizMetricRow}>
             <button
               className={`${s.vizMetricBtn} ${hexMetric === 'count' ? s.vizMetricActive : ''}`}

@@ -132,12 +132,9 @@
 }
 
 .titleAccent {
-  background: linear-gradient(135deg, #f5d493 0%, #d4a85e 50%, #a87930 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-accent-gold);
   font-style: italic;
   display: block;
-  filter: drop-shadow(0 2px 20px rgba(212, 168, 94, 0.28));
   padding-right: 0.15em;
   padding-bottom: 0.1em;
 }
@@ -191,19 +188,17 @@
   padding: 16px 32px;
   border: none;
   border-radius: $radius-md;
-  background: linear-gradient(135deg, $color-accent-gold 0%, #b8922e 100%);
+  background: $color-accent-gold;
   color: $color-bg-base;
   cursor: pointer;
   text-decoration: none;
   font-weight: 600;
   transition:
-    transform   $duration-mid $ease-cinematic,
-    box-shadow  $duration-mid $ease-cinematic,
+    background  $duration-mid $ease-cinematic,
     gap         $duration-ui  $ease-snap;
 
   &:hover {
-    transform: translateY(-2.5px);
-    box-shadow: $shadow-glow-gold-btn;
+    background: lighten($color-accent-gold, 8%);
     color: $color-bg-base;
     gap: $space-3;
   }

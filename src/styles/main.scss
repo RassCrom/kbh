@@ -31,8 +31,8 @@
   padding: 0;
 }
 
-// 5. Fonts
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Open+Sans:wght@300;400&family=DM+Mono:wght@400;500&display=swap');
+// 5. Fonts — loaded via <link> in index.html so the request starts with the
+//    document instead of being chained behind the compiled CSS bundle.
 
 // 6. Global base
 html {

@@ -57,13 +57,7 @@
   &:hover {
     background: var(--glass-bg-hover);
     border-color: $color-accent-gold;
-    box-shadow: 0 0 16px rgba(212, 168, 94, 0.15);
     color: $color-accent-gold;
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 
   &:focus-visible {
@@ -109,7 +103,6 @@
   letter-spacing: 0.03em;
   white-space: nowrap;
   pointer-events: none;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* ------------------------------------------------------------------ */
@@ -128,8 +121,9 @@
 
   @media (max-width: 767px) {
     bottom: auto;
-    top: 60px;
-    left: $space-4; // align with back button (also left: $space-4)
+    // below the back button (16+44) and the Tours launcher row (62+30)
+    top: 104px;
+    left: $space-4;
     max-width: 220px;
     z-index: $z-panel;
   }
@@ -159,12 +153,6 @@
     color: $color-accent-gold;
     border-color: $color-accent-gold;
     background: var(--glass-bg-hover);
-    box-shadow: 0 0 12px rgba(212, 168, 94, 0.18);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 
   &:focus-visible {
@@ -624,7 +612,6 @@
 
   &:hover {
     background: $color-gold-tint-12;
-    box-shadow: 0 0 14px rgba(212, 168, 94, 0.22);
   }
 
   @media (max-width: 767px) {
@@ -634,7 +621,6 @@
 
   &.playing {
     background: rgba(212, 168, 94, 0.18);
-    box-shadow: 0 0 10px rgba(212, 168, 94, 0.18);
   }
 }
 
@@ -775,6 +761,18 @@
   }
 }
 
+.vizMetricWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  // Mobile: the viz group is centred under the top bar while the Tours/Cinema
+  // launcher hangs top-left at ~62-92px — push the metric row below it.
+  @media (max-width: 767px) {
+    margin-top: 44px;
+  }
+}
+
 .vizMetricRow {
   display: flex;
   align-items: center;
@@ -874,7 +872,6 @@
     color: var(--color-accent-gold);
     border-color: var(--color-accent-gold);
     background: var(--glass-bg-hover);
-    box-shadow: 0 0 14px rgba(0, 0, 0, 0.12);
   }
 
   @media (max-width: 767px) {
@@ -914,19 +911,12 @@
     color: var(--color-accent-gold);
     border-color: var(--color-accent-gold);
     background: var(--glass-bg-hover);
-    box-shadow: 0 0 14px rgba(212, 168, 94, 0.2);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 
   &.active {
     color: $color-accent-gold;
     border-color: $color-accent-gold;
     background: rgba(212, 168, 94, 0.1);
-    box-shadow: 0 0 12px rgba(212, 168, 94, 0.15);
   }
 
   &:focus-visible {
@@ -955,7 +945,6 @@
   font-weight: 700;
   line-height: 16px;
   text-align: center;
-  box-shadow: 0 0 8px rgba(212, 168, 94, 0.4);
   animation: badgePop 300ms $ease-snap;
 }
 
@@ -1081,7 +1070,6 @@
   &:hover {
     color: $color-accent-gold;
     border-color: $color-accent-gold;
-    box-shadow: -6px 0 16px rgba(212, 168, 94, 0.12);
   }
 }
 
@@ -1100,7 +1088,6 @@
   font-weight: 700;
   line-height: 16px;
   text-align: center;
-  box-shadow: 0 0 8px rgba(212, 168, 94, 0.35);
 }
 
 .filterHeader {
@@ -1168,7 +1155,6 @@
   font-weight: 700;
   line-height: 18px;
   text-align: center;
-  box-shadow: 0 0 8px rgba(212, 168, 94, 0.3);
 }
 
 .filterClose {
@@ -1298,7 +1284,6 @@
   height: 6px;
   border-radius: 50%;
   background: $color-accent-gold;
-  box-shadow: 0 0 8px $color-accent-gold;
 }
 
 .sectionContent {
@@ -1330,7 +1315,6 @@
   &:focus {
     background: rgba(212, 168, 94, 0.03);
     border-color: $color-accent-gold;
-    box-shadow: 0 0 8px rgba(212, 168, 94, 0.1);
   }
 
   &::placeholder {
@@ -1383,7 +1367,6 @@
     background: rgba(212, 168, 94, 0.12);
     border-color: $color-accent-gold;
     color: $color-accent-gold;
-    box-shadow: 0 0 8px rgba(212, 168, 94, 0.08);
   }
 }
 
@@ -1572,8 +1555,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #4ade80;
-  box-shadow: 0 0 6px #4ade80;
+  background: var(--color-accent-gold);
   flex-shrink: 0;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -1825,7 +1807,6 @@
   &.vizOptionActive {
     background: rgba(212, 168, 94, 0.05);
     border-color: rgba(212, 168, 94, 0.38);
-    box-shadow: 0 0 18px rgba(212, 168, 94, 0.07);
   }
 }
 
@@ -1954,7 +1935,6 @@
   border-radius: 50%;
   background: $color-accent-gold;
   flex-shrink: 0;
-  box-shadow: 0 0 5px rgba(212, 168, 94, 0.6);
 }
 
 /* ------------------------------------------------------------------ */
@@ -2266,7 +2246,6 @@
     color: var(--color-accent-gold);
     border-color: var(--color-accent-gold);
     background: rgba(212, 168, 94, 0.12);
-    box-shadow: 0 0 8px rgba(212, 168, 94, 0.25);
   }
 }
 
@@ -2325,73 +2304,48 @@
 
 // ---------- Onboarding / Welcome Helper popups ----------
 
-.onboardingOverlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 9999;
-  pointer-events: none;
-  background: rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(1px);
-  animation: fadeIn 0.4s ease-out;
-
-  @media (max-width: 767px) {
-    position: fixed;
-    z-index: 10005;
-    background: rgba(8, 14, 20, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    overflow-y: auto;
-    padding: $space-6 $space-4;
-    display: flex;
-    flex-direction: column;
-    gap: $space-4;
-    pointer-events: auto;
-  }
-}
-
-.onboardingWelcomeCard {
+/* Compact map guide — a single floating card, never blocks the map */
+.guideCard {
   position: absolute;
   left: 50%;
-  top: 45%;
+  top: 50%;
   transform: translate(-50%, -50%);
+  z-index: $z-modal;
+  width: 340px;
+  max-width: calc(100vw - 24px);
   background: rgba(12, 19, 29, 0.94);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(212, 168, 94, 0.35);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
   border-radius: $radius-lg;
-  padding: $space-4 $space-6;
-  width: 360px;
-  max-width: calc(100% - 32px);
-  z-index: 10001;
-  text-align: center;
+  padding: $space-4;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: $space-3;
-  animation: helperFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  pointer-events: auto;
+  // opacity-only entrance — a transform animation would clobber the
+  // centering translate once its forwards fill kicks in
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @media (max-width: 767px) {
-    position: relative !important;
-    left: auto !important;
-    top: auto !important;
-    transform: none !important;
-    width: 100% !important;
-    margin-bottom: $space-2;
-    background: rgba(12, 19, 29, 0.8) !important;
+    // bottom sheet on phones — keeps the map visible while reading
+    top: auto;
+    bottom: calc($space-3 + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    width: calc(100vw - 24px);
   }
 }
 
-.onboardingWelcomeTitle {
+.guideHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.guideTitle {
   font-family: var(--font-heading);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--color-accent-gold);
   text-transform: uppercase;
@@ -2402,12 +2356,52 @@
   gap: $space-2;
 }
 
-.onboardingWelcomeDesc {
-  font-family: var(--font-body);
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
+.guideList {
+  list-style: none;
   margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-2;
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--color-text-secondary);
+
+    b {
+      color: var(--color-text-primary);
+      font-weight: 600;
+    }
+
+    i {
+      display: block;
+      font-style: normal;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(212, 168, 94, 0.75);
+    }
+  }
+}
+
+.guideIco {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  border-radius: $radius-md;
+  background: rgba(212, 168, 94, 0.1);
+  border: 1px solid rgba(212, 168, 94, 0.25);
+  color: var(--color-accent-gold);
 }
 
 .onboardingBtn {
@@ -2426,73 +2420,10 @@
 
   &:hover {
     background: lighten($color-accent-gold, 10%);
-    box-shadow: 0 0 16px rgba(212, 168, 94, 0.4);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 }
 
-.helperCard {
-  position: absolute;
-  background: rgba(12, 19, 29, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212, 168, 94, 0.25);
-  border-radius: $radius-md;
-  padding: $space-3 $space-4;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  width: 280px;
-  z-index: 10000;
-  display: flex;
-  flex-direction: column;
-  gap: $space-1;
-  animation: helperFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  pointer-events: auto;
-
-  &::before {
-    content: '';
-    position: absolute;
-    border: 6px solid transparent;
-  }
-
-  @media (max-width: 767px) {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    width: 100% !important;
-    transform: none !important;
-
-    &::before {
-      display: none !important;
-    }
-  }
-}
-
-.helperCardHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $space-2;
-}
-
-.helperCardTitle {
-  font-family: var(--font-heading);
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--color-accent-gold);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.helperCardClose {
+.guideClose {
   background: transparent;
   border: none;
   color: var(--color-text-secondary);
@@ -2507,59 +2438,6 @@
   &:hover {
     color: var(--color-text-primary);
     background: rgba(255, 255, 255, 0.1);
-  }
-}
-
-.helperCardDesc {
-  font-family: var(--font-body);
-  font-size: 11px;
-  line-height: 1.45;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-// Specific placements and pointer arrows
-.helperFilter {
-  top: 64px;
-  right: 16px;
-
-  &::before {
-    bottom: 100%;
-    right: 12px;
-    border-bottom-color: rgba(12, 19, 29, 0.88);
-  }
-}
-
-.helperHex {
-  top: 16px;
-  left: 345px;
-
-  &::before {
-    top: 10px;
-    right: 100%;
-    border-right-color: rgba(12, 19, 29, 0.88);
-  }
-}
-
-.helperTours {
-  top: 58px;
-  left: 100px;
-
-  &::before {
-    top: 8px;
-    right: 100%;
-    border-right-color: rgba(12, 19, 29, 0.88);
-  }
-}
-
-.helperLegend {
-  bottom: 52px;
-  left: 16px;
-
-  &::before {
-    top: 100%;
-    left: 12px;
-    border-top-color: rgba(12, 19, 29, 0.88);
   }
 }
 
@@ -2587,12 +2465,6 @@
     color: var(--color-accent-gold);
     border-color: var(--color-accent-gold);
     background: var(--glass-bg-hover);
-    box-shadow: 0 0 12px rgba(212, 168, 94, 0.25);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 
   &:focus-visible {
@@ -2605,33 +2477,6 @@
     right: $space-4;
     width: 40px;
     height: 40px;
-  }
-}
-
-.helperPulseDot {
-  width: 6px;
-  height: 6px;
-  background: var(--color-accent-gold);
-  border-radius: 50%;
-  position: absolute;
-  top: -3px;
-  left: -3px;
-  box-shadow: 0 0 8px var(--color-accent-gold);
-  animation: pulseDotGlow 2s infinite;
-}
-
-@keyframes pulseDotGlow {
-  0% {
-    transform: scale(0.9);
-    box-shadow: 0 0 0 0 rgba(212, 168, 94, 0.7);
-  }
-  70% {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 6px rgba(212, 168, 94, 0);
-  }
-  100% {
-    transform: scale(0.9);
-    box-shadow: 0 0 0 0 rgba(212, 168, 94, 0);
   }
 }
 
@@ -2661,6 +2506,14 @@
   @media (max-width: 767px) {
     top: 62px;
     left: $space-3;
+  }
+}
+
+// Hexagon mode: the metric row occupies the band below the viz toggle on
+// desktop — drop the launcher one row down so they never overlap.
+.tourLauncherLow {
+  @media (min-width: 768px) {
+    top: 100px;
   }
 }
 
@@ -2766,6 +2619,164 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Cinema mode — time-lapse fly-over                                  */
+/* ------------------------------------------------------------------ */
+
+.cinemaOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: $z-modal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8vh;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(4, 6, 12, 0.6), transparent 32%);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.cinemaYear {
+  font-family: var(--font-heading);
+  font-size: clamp(56px, 11vw, 110px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: #f4f2ec;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.65);
+  font-variant-numeric: tabular-nums;
+}
+
+.cinemaEra {
+  margin-top: $space-2;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.8);
+  transition: color 600ms ease;
+}
+
+.cinemaCount {
+  margin-top: $space-1;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(223, 224, 228, 0.7);
+}
+
+.cinemaProgress {
+  margin-top: $space-3;
+  width: min(420px, 72vw);
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    background: $color-accent-gold;
+    transition: width 120ms linear;
+  }
+}
+
+/* Row under the progress bar: layer chips + exit button */
+.cinemaControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: $space-2;
+  margin-top: $space-4;
+  pointer-events: auto;
+
+  .cinemaExitBtn {
+    margin-top: 0;
+  }
+}
+
+.cinemaChipRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: rgba(14, 21, 33, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+}
+
+.cinemaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  min-height: 30px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+
+  &.cinemaChipActive {
+    color: $color-accent-gold;
+    background: $color-gold-tint-12;
+    border-color: rgba(212, 168, 94, 0.35);
+  }
+}
+
+.cinemaExitBtn {
+  pointer-events: auto;
+  margin-top: $space-4;
+  padding: $space-2 20px;
+  min-height: 38px;
+  background: rgba(14, 21, 33, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 168, 94, 0.4);
+  border-radius: $radius-pill;
+  color: $color-accent-gold;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.14);
+    border-color: $color-accent-gold;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-gold;
+    outline-offset: 2px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Guided tours                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -2796,12 +2807,6 @@
   &:hover {
     color: var(--color-text-primary);
     background: var(--glass-bg-hover);
-    box-shadow: 0 0 12px rgba(212, 168, 94, 0.15);
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 
   &:focus-visible {
@@ -2813,7 +2818,6 @@
     color: $color-accent-gold;
     background: rgba(212, 168, 94, 0.12);
     border-color: rgba(212, 168, 94, 0.35);
-    box-shadow: 0 0 10px rgba(212, 168, 94, 0.12);
   }
 }
 
@@ -2884,7 +2888,6 @@
   &:hover {
     background: var(--tint-subtle);
     border-color: rgba(212, 168, 94, 0.4);
-    transform: translateY(-1px);
   }
 
   &:focus-visible {
@@ -3159,7 +3162,8 @@
   position: absolute;
   top: $space-4;
   right: $space-4;
-  z-index: $z-panel;
+  // Above the toolbar layer so the filter toggle never covers the close button
+  z-index: $z-dropdown;
   width: 320px;
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 32px);
@@ -3577,10 +3581,10 @@
 
 .overlayRowBadge {
   padding: 1px 6px;
-  background: rgba(245, 184, 46, 0.12);
-  border: 1px solid rgba(245, 184, 46, 0.4);
+  background: var(--color-gold-tint-12);
+  border: 1px solid rgba(212, 168, 94, 0.4);
   border-radius: $radius-pill;
-  color: #f5b82e;
+  color: var(--color-accent-gold);
   font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 700;
@@ -3747,9 +3751,9 @@
   }
 
   &.tourCtrlBtnActive {
-    color: #00d2ff;
-    background: rgba(0, 210, 255, 0.1);
-    border-color: rgba(0, 210, 255, 0.4);
+    color: $color-accent-gold;
+    background: $color-gold-tint-08;
+    border-color: rgba(212, 168, 94, 0.4);
   }
 }
 
@@ -3763,7 +3767,7 @@
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.05em;
-  color: rgba(245, 184, 46, 0.8);
+  color: rgba(212, 168, 94, 0.85);
 }
 
 /* Silent-autoplay countdown rail along the top edge of the tour card */

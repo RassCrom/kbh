@@ -4,7 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Protocol } from 'pmtiles';
 import {
   ArrowLeft, Layers, SlidersHorizontal, HelpCircle, X,
-  Map as MapIcon, Compass, Grid2x2, ListTree,
+  Map as MapIcon, Compass, Grid2x2, Film, Building2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
@@ -22,7 +22,10 @@ import { FilterSidebar } from './components/FilterSidebar';
 import { BuildingPanel } from './components/BuildingPanel';
 import { GraffitiPanel } from './components/GraffitiPanel';
 import { HexControls } from './components/HexControls';
-import { buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr, type HexMetric } from './hexUtils';
+import {
+  buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr,
+  buildHexCinemaHeightExpr, type HexMetric,
+} from './hexUtils';
 import { applyMapTheme, type MapTheme } from './mapTheme';
 
 // Custom Hooks
@@ -41,6 +44,29 @@ import { createGraffitiPinImage, loadGraffitiPhotoMarkers, type GraffitiGeoJSON 
 import { setOverlayVisible } from './overlays/overlayLayers';
 import { landmarksGeoJSON, LANDMARKS, type Landmark } from './overlays/landmarksData';
 import { TOURS, type Tour } from './tours';
+
+/**
+ * Backport of maplibre-gl#7117 (fixes maplibre-gl#6093): when a render-task
+ * callback throws (e.g. during a globe↔mercator projection transition), the
+ * queue's _currentlyRunning flag is never reset and every subsequent frame
+ * fails with "Attempting to run(), but is already running." — freezing the
+ * map. Wrapping run() in try/finally lets it recover. Remove once the
+ * upstream fix ships in a stable maplibre-gl release (currently 6.x-pre).
+ */
+function patchRenderTaskQueue(map: maplibregl.Map): void {
+  const queue = (map as unknown as {
+    _renderTaskQueue?: { run: (timeStamp?: number) => void; _currentlyRunning: unknown };
+  })._renderTaskQueue;
+  if (!queue || typeof queue.run !== 'function') return;
+  const originalRun = queue.run.bind(queue);
+  queue.run = (timeStamp?: number) => {
+    try {
+      originalRun(timeStamp);
+    } finally {
+      queue._currentlyRunning = false;
+    }
+  };
+}
 
 /** Lazily attach the three.js landmark layer — keeps three out of the main chunk. */
 function addLandmarks3D(map: maplibregl.Map): void {
@@ -79,8 +105,9 @@ function getTourRouteData(tour: Tour, step: number, progress: number): GeoJSON.F
   };
 }
 
-// Tour route/marker accent — matches the glowing scrub line
-const TOUR_ACCENT = '#00d2ff';
+// Tour route/marker accent — single gold accent shared with the rest of the UI
+const TOUR_ACCENT = '#d4a85e';
+const TOUR_ACCENT_VISITED = 'rgba(212, 168, 94, 0.55)';
 
 /** Parses a shareable #zoom/lat/lng[/pitch[/bearing]] camera hash. */
 function parseCameraHash(): {
@@ -104,8 +131,6 @@ function parseCameraHash(): {
 }
 
 const COLOR_MODES: ColorMode[] = ['year', 'elevation', 'lst', 'type', 'uhi'];
-
-const INTRO_PLAYED_KEY = 'kbh-map-intro-played';
 
 const PREFERS_REDUCED_MOTION =
   typeof window !== 'undefined' &&
@@ -186,6 +211,10 @@ export default function MapPage() {
   // Guided tours
   const [activeTour, setActiveTour] = useState<Tour | null>(null);
   const [tourStep, setTourStep] = useState(0);
+  const activeTourRef = useRef<Tour | null>(null);
+  useEffect(() => {
+    activeTourRef.current = activeTour;
+  }, [activeTour]);
   const tourStepRef = useRef(0);
   const tourProgressRef = useRef(0);
   const absoluteCurrentRef = useRef(0);
@@ -202,13 +231,12 @@ export default function MapPage() {
   // Shared camera from the URL hash — when present, the intro is skipped
   const hashCameraRef = useRef(parseCameraHash());
 
-  // Cinematic globe → city intro
+  // Cinematic globe → city intro — plays on every fresh open of the map;
+  // skipped only for shared #camera links, ?tour deep links and reduced motion
   const [introActive, setIntroActive] = useState(() =>
     !PREFERS_REDUCED_MOTION &&
     !pendingTourRef.current &&
-    !hashCameraRef.current &&
-    typeof window !== 'undefined' &&
-    sessionStorage.getItem(INTRO_PLAYED_KEY) !== 'true',
+    !hashCameraRef.current,
   );
   const introActiveRef = useRef(introActive);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -218,15 +246,23 @@ export default function MapPage() {
     return localStorage.getItem('kbh-map-onboarding-dismissed') !== 'true';
   });
 
-  const handleDismissHelpers = () => {
+  const handleDismissHelpers = useCallback(() => {
     setShowHelpers(false);
     localStorage.setItem('kbh-map-onboarding-dismissed', 'true');
-  };
+  }, []);
 
-  const handleOpenHelpers = () => {
+  const handleOpenHelpers = useCallback(() => {
     setShowHelpers(true);
     localStorage.removeItem('kbh-map-onboarding-dismissed');
-  };
+  }, []);
+
+  // Cinematic time-lapse ("Cinema") mode
+  const [cinemaActive, setCinemaActive] = useState(false);
+  const [cinemaYear, setCinemaYear] = useState(1900);
+  const cinemaActiveRef = useRef(false);
+  useEffect(() => {
+    cinemaActiveRef.current = cinemaActive;
+  }, [cinemaActive]);
 
   // Dark / light map theme
   const [mapTheme, setMapTheme] = useState<MapTheme>('dark');
@@ -373,7 +409,6 @@ export default function MapPage() {
     map.setProjection({ type: 'mercator' });
     map.setMinZoom(10);
     map.jumpTo({ ...ASTANA_CAMERA, pitch: 0, bearing: 0 });
-    sessionStorage.setItem(INTRO_PLAYED_KEY, 'true');
     setIntroActive(false);
   }, []);
 
@@ -397,6 +432,8 @@ export default function MapPage() {
       maxZoom: 23,
       attributionControl: { compact: true },
     });
+
+    patchRenderTaskQueue(map);
 
     // Keep a shareable #zoom/lat/lng/pitch/bearing hash in sync with the camera
     let hashTimer: number | null = null;
@@ -567,87 +604,6 @@ export default function MapPage() {
           'line-width': 0.5,
         },
       });
-
-      // ── Graffiti layer — fetched once, photos lazy-loaded on first toggle ──
-      createGraffitiPinImage(map);
-
-      fetch('/graffiti-astana.geojson')
-        .then((res) => res.json())
-        .then((geojson: GraffitiGeoJSON) => {
-          if (!geojson?.features || !map.getStyle()) return;
-          graffitiDataRef.current = geojson;
-
-          map.addSource('graffiti', { type: 'geojson', data: geojson });
-
-          map.addLayer({
-            id: 'graffiti-layer',
-            type: 'symbol',
-            source: 'graffiti',
-            layout: {
-              'icon-image': ['coalesce', ['image', ['get', 'photo']], 'graffiti-pin'],
-              'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.55, 14, 0.9, 18, 1.1],
-              'icon-allow-overlap': true,
-              'icon-anchor': 'center',
-              'visibility': 'none',
-            },
-            paint: {
-              'icon-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1.0, 0.88],
-            },
-          });
-
-          map.addLayer({
-            id: 'graffiti-label',
-            type: 'symbol',
-            source: 'graffiti',
-            minzoom: 15,
-            layout: {
-              'text-field': ['get', 'title'],
-              'text-size': 11,
-              'text-anchor': 'top',
-              'text-offset': [0, 1.0],
-              'text-allow-overlap': false,
-              'visibility': 'none',
-            },
-            paint: {
-              'text-color': '#CAFF00',
-              'text-halo-color': 'rgba(0,0,0,0.8)',
-              'text-halo-width': 1.5,
-            },
-          });
-
-          // Graffiti hover
-          let hoveredGraffitiId: string | number | null = null;
-
-          map.on('mousemove', 'graffiti-layer', (e) => {
-            if (!e.features?.length) return;
-            map.getCanvas().style.cursor = 'pointer';
-            const feat = e.features[0];
-            if (feat.id !== hoveredGraffitiId) {
-              if (hoveredGraffitiId !== null) {
-                map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: false });
-              }
-              hoveredGraffitiId = feat.id ?? null;
-              if (hoveredGraffitiId !== null) {
-                map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: true });
-              }
-            }
-            setHoverInfo({
-              x: e.point.x,
-              y: e.point.y,
-              properties: { ...(feat.properties as Record<string, unknown>), _source: 'graffiti' },
-            });
-          });
-
-          map.on('mouseleave', 'graffiti-layer', () => {
-            map.getCanvas().style.cursor = '';
-            if (hoveredGraffitiId !== null) {
-              map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: false });
-              hoveredGraffitiId = null;
-            }
-            setHoverInfo(null);
-          });
-        })
-        .catch((err) => console.error('Error loading graffiti layer:', err));
 
       // ── 3D landmark models + clickable halo markers ────────────────────────
       map.addSource('landmarks', { type: 'geojson', data: landmarksGeoJSON() });
@@ -872,8 +828,10 @@ export default function MapPage() {
       let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
       const updateHistogram = () => {
-        // Hexagons mode check - building layers are hidden, skip calculations completely
-        if (vizModeRef.current === 'hexagons') {
+        // Skip entirely when building layers are hidden (hexagon mode) or the
+        // camera is being animated by a tour / cinema sweep — the heavy
+        // queryRenderedFeatures pass would just burn frames there.
+        if (vizModeRef.current === 'hexagons' || activeTourRef.current || cinemaActiveRef.current) {
           return;
         }
 
@@ -999,13 +957,17 @@ export default function MapPage() {
           });
           map.once('moveend', () => {
             if (!introActiveRef.current) return;
-            introActiveRef.current = false;
-            map.setProjection({ type: 'mercator' });
-            map.setMinZoom(10);
-            addLandmarks3D(map);
-            sessionStorage.setItem(INTRO_PLAYED_KEY, 'true');
-            map.easeTo({ pitch: 0, bearing: 0, duration: 1200 });
-            setIntroActive(false);
+            // Deferred: moveend fires from inside the render task queue, and
+            // switching projection there can throw mid-frame (maplibre-gl#6093).
+            window.setTimeout(() => {
+              if (!introActiveRef.current || !map.getStyle()) return;
+              introActiveRef.current = false;
+              map.setProjection({ type: 'mercator' });
+              map.setMinZoom(10);
+              addLandmarks3D(map);
+              map.easeTo({ pitch: 0, bearing: 0, duration: 1200 });
+              setIntroActive(false);
+            }, 0);
           });
         }, 700);
       }
@@ -1164,23 +1126,131 @@ export default function MapPage() {
     map.setPaintProperty('hex-layer', 'fill-extrusion-color', colorExpr);
   }, [hexMetric]);
 
-  // ── Graffiti layer visibility + lazy photo loading ─────────────────────────
+  // ── Cinema × hexagons — cells rise as the sweep passes their avg year ──────
+  const hexCinemaActiveRef = useRef(false);
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getStyle()) return;
+    if (!map || !map.getStyle() || !map.getLayer('hex-layer')) return;
+
+    if (cinemaActive && vizMode === 'hexagons') {
+      hexCinemaActiveRef.current = true;
+      map.setPaintProperty('hex-layer', 'fill-extrusion-height', buildHexCinemaHeightExpr(cinemaYear));
+    } else if (hexCinemaActiveRef.current) {
+      hexCinemaActiveRef.current = false;
+      map.setPaintProperty('hex-layer', 'fill-extrusion-height', buildHexHeightExpr());
+    }
+  }, [cinemaActive, vizMode, cinemaYear]);
+
+  // ── Graffiti layer — everything (geojson, pin image, layers, photos) is
+  //    loaded lazily the first time the toggle turns on ─────────────────────
+  const graffitiInitRef = useRef(false);
+  const graffitiVisibleRef = useRef(false);
+
+  const ensureGraffitiLayer = useCallback((map: maplibregl.Map) => {
+    if (graffitiInitRef.current) return;
+    graffitiInitRef.current = true;
+    createGraffitiPinImage(map);
+
+    fetch('/graffiti-astana.geojson')
+      .then((res) => res.json())
+      .then((geojson: GraffitiGeoJSON) => {
+        if (!geojson?.features || !map.getStyle()) return;
+        graffitiDataRef.current = geojson;
+        const vis: maplibregl.VisibilitySpecification =
+          graffitiVisibleRef.current ? 'visible' : 'none';
+
+        map.addSource('graffiti', { type: 'geojson', data: geojson });
+
+        map.addLayer({
+          id: 'graffiti-layer',
+          type: 'symbol',
+          source: 'graffiti',
+          layout: {
+            'icon-image': ['coalesce', ['image', ['get', 'photo']], 'graffiti-pin'],
+            'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.55, 14, 0.9, 18, 1.1],
+            'icon-allow-overlap': true,
+            'icon-anchor': 'center',
+            'visibility': vis,
+          },
+          paint: {
+            'icon-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1.0, 0.88],
+          },
+        });
+
+        map.addLayer({
+          id: 'graffiti-label',
+          type: 'symbol',
+          source: 'graffiti',
+          minzoom: 15,
+          layout: {
+            'text-field': ['get', 'title'],
+            'text-size': 11,
+            'text-anchor': 'top',
+            'text-offset': [0, 1.0],
+            'text-allow-overlap': false,
+            'visibility': vis,
+          },
+          paint: {
+            'text-color': '#CAFF00',
+            'text-halo-color': 'rgba(0,0,0,0.8)',
+            'text-halo-width': 1.5,
+          },
+        });
+
+        // Graffiti hover
+        let hoveredGraffitiId: string | number | null = null;
+
+        map.on('mousemove', 'graffiti-layer', (e) => {
+          if (!e.features?.length) return;
+          map.getCanvas().style.cursor = 'pointer';
+          const feat = e.features[0];
+          if (feat.id !== hoveredGraffitiId) {
+            if (hoveredGraffitiId !== null) {
+              map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: false });
+            }
+            hoveredGraffitiId = feat.id ?? null;
+            if (hoveredGraffitiId !== null) {
+              map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: true });
+            }
+          }
+          setHoverInfo({
+            x: e.point.x,
+            y: e.point.y,
+            properties: { ...(feat.properties as Record<string, unknown>), _source: 'graffiti' },
+          });
+        });
+
+        map.on('mouseleave', 'graffiti-layer', () => {
+          map.getCanvas().style.cursor = '';
+          if (hoveredGraffitiId !== null) {
+            map.setFeatureState({ source: 'graffiti', id: hoveredGraffitiId }, { hover: false });
+            hoveredGraffitiId = null;
+          }
+          setHoverInfo(null);
+        });
+
+        // Photo markers download only while the layer is actually visible
+        if (graffitiVisibleRef.current && !graffitiPhotosLoadedRef.current) {
+          graffitiPhotosLoadedRef.current = true;
+          loadGraffitiPhotoMarkers(map, geojson);
+        }
+      })
+      .catch((err) => console.error('Error loading graffiti layer:', err));
+  }, []);
+
+  useEffect(() => {
+    graffitiVisibleRef.current = graffitiVisible;
+    const map = mapRef.current;
+    if (!map || !mapLoaded || !map.getStyle()) return;
+    if (graffitiVisible) ensureGraffitiLayer(map);
     const vis: maplibregl.VisibilitySpecification = graffitiVisible ? 'visible' : 'none';
-    const apply = () => {
-      if (map.getLayer('graffiti-layer')) map.setLayoutProperty('graffiti-layer', 'visibility', vis);
-      if (map.getLayer('graffiti-label')) map.setLayoutProperty('graffiti-label', 'visibility', vis);
-      // Photo markers download only the first time the layer becomes visible
-      if (graffitiVisible && !graffitiPhotosLoadedRef.current && graffitiDataRef.current) {
-        graffitiPhotosLoadedRef.current = true;
-        loadGraffitiPhotoMarkers(map, graffitiDataRef.current);
-      }
-    };
-    if (map.isStyleLoaded()) apply();
-    else map.once('load', apply);
-  }, [graffitiVisible, mapLoaded]);
+    if (map.getLayer('graffiti-layer')) map.setLayoutProperty('graffiti-layer', 'visibility', vis);
+    if (map.getLayer('graffiti-label')) map.setLayoutProperty('graffiti-label', 'visibility', vis);
+    if (graffitiVisible && !graffitiPhotosLoadedRef.current && graffitiDataRef.current) {
+      graffitiPhotosLoadedRef.current = true;
+      loadGraffitiPhotoMarkers(map, graffitiDataRef.current);
+    }
+  }, [graffitiVisible, mapLoaded, ensureGraffitiLayer]);
 
   // ── Thematic overlays (lazy add on first toggle) ──────────────────────────
   useEffect(() => {
@@ -1255,7 +1325,7 @@ export default function MapPage() {
         source: 'tour-route-base',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#00d2ff',
+          'line-color': TOUR_ACCENT,
           'line-width': 2,
           'line-dasharray': [1, 2],
           'line-opacity': 0.3,
@@ -1264,7 +1334,7 @@ export default function MapPage() {
     } else {
       (map.getSource('tour-route-base') as maplibregl.GeoJSONSource).setData(baseRouteData);
       if (map.getLayer('tour-route-base-line')) {
-        map.setPaintProperty('tour-route-base-line', 'line-color', '#00d2ff');
+        map.setPaintProperty('tour-route-base-line', 'line-color', TOUR_ACCENT);
         map.setLayoutProperty('tour-route-base-line', 'visibility', 'visible');
       }
     }
@@ -1278,7 +1348,7 @@ export default function MapPage() {
         source: 'tour-route',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': '#00d2ff',
+          'line-color': TOUR_ACCENT,
           'line-width': 10,
           'line-blur': 8,
           'line-opacity': 0.8,
@@ -1298,7 +1368,7 @@ export default function MapPage() {
     } else {
       (map.getSource('tour-route') as maplibregl.GeoJSONSource).setData(routeData);
       if (map.getLayer('tour-route-glow')) {
-        map.setPaintProperty('tour-route-glow', 'line-color', '#00d2ff');
+        map.setPaintProperty('tour-route-glow', 'line-color', TOUR_ACCENT);
         map.setLayoutProperty('tour-route-glow', 'visibility', 'visible');
       }
       if (map.getLayer('tour-route-core')) {
@@ -1340,7 +1410,7 @@ export default function MapPage() {
           'circle-color': [
             'case',
             ['get', 'current'], TOUR_ACCENT,
-            ['get', 'visited'], 'rgba(0,210,255,0.55)',
+            ['get', 'visited'], TOUR_ACCENT_VISITED,
             'rgba(20,26,36,0.85)',
           ],
           'circle-stroke-color': ['case', ['get', 'current'], '#ffffff', TOUR_ACCENT],
@@ -1381,6 +1451,8 @@ export default function MapPage() {
     const map = mapRef.current;
     if (!map || !map.getStyle()) return;
     if (introActiveRef.current) finishIntro();
+    setCinemaActive(false);
+    handleDismissHelpers(); // the guide overlay must never resurface over a running/finished tour
     setActiveTour(tour);
     tourStepRef.current = 0;
     tourProgressRef.current = 0;
@@ -1395,7 +1467,7 @@ export default function MapPage() {
     setSelectedGraffiti(null);
     setSelectedLandmark(null);
     ensureTourLayers(map, tour);
-  }, [ensureTourLayers, finishIntro]);
+  }, [ensureTourLayers, finishIntro, handleDismissHelpers]);
 
   const handleExitTour = useCallback(() => {
     const map = mapRef.current;
@@ -1411,6 +1483,103 @@ export default function MapPage() {
       map.easeTo({ pitch: 0, duration: 800 });
     }
   }, [stopTourPulse]);
+
+  // ── Cinema mode — orbiting 3D time-lapse of the city's growth ─────────────
+  const handleStartCinema = useCallback(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+    if (introActiveRef.current) finishIntro();
+    setSidebarOpen(false);
+    setLegendOpen(false);
+    setTimelineCollapsed(true);
+    setSelectedBuilding(null);
+    setSelectedGraffiti(null);
+    setSelectedLandmark(null);
+    setTapPreview(null);
+    clearSelectedBuildingState();
+    setCinemaActive(true);
+  }, [finishIntro, clearSelectedBuildingState]);
+
+  const handleExitCinema = useCallback(() => setCinemaActive(false), []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!cinemaActive || !map || !map.getStyle()) return;
+
+    const START_YEAR = 1900;
+    const endYear = sliderMax;
+    const SWEEP_MS = 45000; // 1900 → today in 45 s
+
+    // Glide into a tilted 3D view over the city core
+    map.easeTo({
+      center: ASTANA_CAMERA.center,
+      zoom: 13.9,
+      pitch: 57,
+      bearing: -20,
+      duration: PREFERS_REDUCED_MOTION ? 0 : 2600,
+      essential: true,
+    });
+
+    setCinemaYear(START_YEAR);
+    setYearRange([START_YEAR, START_YEAR]);
+
+    let raf = 0;
+    let startTs: number | null = null;
+    let lastYear = START_YEAR;
+    let orbit = !PREFERS_REDUCED_MOTION;
+    let doneTimer: number | null = null;
+
+    // Any user gesture hands camera control back, the year sweep continues
+    const stopOrbit = () => { orbit = false; };
+    const stopOrbitIfUser = (e: { originalEvent?: unknown }) => {
+      if (e.originalEvent) orbit = false;
+    };
+    map.on('dragstart', stopOrbit);
+    map.on('zoomstart', stopOrbitIfUser);
+    map.on('rotatestart', stopOrbitIfUser);
+
+    const frame = (now: number) => {
+      if (startTs === null) startTs = now;
+      const elapsed = now - startTs;
+      const t = PREFERS_REDUCED_MOTION ? 1 : Math.min(1, elapsed / SWEEP_MS);
+      const year = Math.round(START_YEAR + t * (endYear - START_YEAR));
+      if (year !== lastYear) {
+        lastYear = year;
+        setCinemaYear(year);
+        setYearRange([START_YEAR, year]);
+      }
+      // Slow orbital drift once the entry flight has landed
+      if (orbit && elapsed > 2800) {
+        map.setBearing(-20 + (elapsed - 2800) * 0.0028);
+      }
+      if (t >= 1 && doneTimer === null) {
+        // Hold the finished skyline for a beat, then leave cinema
+        doneTimer = window.setTimeout(() => setCinemaActive(false), 2600);
+      }
+      if (t < 1 || orbit) raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setCinemaActive(false);
+    };
+    window.addEventListener('keydown', onKey);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      if (doneTimer !== null) window.clearTimeout(doneTimer);
+      window.removeEventListener('keydown', onKey);
+      map.off('dragstart', stopOrbit);
+      map.off('zoomstart', stopOrbitIfUser);
+      map.off('rotatestart', stopOrbitIfUser);
+      if (map.getStyle()) {
+        map.stop();
+        map.easeTo({ pitch: 0, duration: PREFERS_REDUCED_MOTION ? 0 : 900 });
+      }
+      handlePlayReset(); // restore the full year range
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cinemaActive]);
 
   // Fly the camera + move the active stop marker on every step change
   const driftGuardRef = useRef(0);
@@ -1434,13 +1603,16 @@ export default function MapPage() {
     // Any user interaction or step change interrupts it naturally.
     if (!PREFERS_REDUCED_MOTION) {
       map.once('moveend', () => {
-        if (driftGuardRef.current !== guard || !map.getStyle()) return;
-        map.easeTo({
-          bearing: stop.camera.bearing + 16,
-          duration: 20000,
-          easing: (t) => t,
-          essential: false,
-        });
+        // Deferred out of the render task queue — see maplibre-gl#6093
+        window.setTimeout(() => {
+          if (driftGuardRef.current !== guard || !map.getStyle()) return;
+          map.easeTo({
+            bearing: stop.camera.bearing + 16,
+            duration: 20000,
+            easing: (t) => t,
+            essential: false,
+          });
+        }, 0);
       });
     }
 
@@ -1528,7 +1700,8 @@ export default function MapPage() {
 
     const handleTouchMove = (e: TouchEvent) => {
       const touchY = e.touches[0].clientY;
-      const deltaY = touchLastY - touchY;
+      // Inverted vs. wheel: dragging the finger down advances to the next stop
+      const deltaY = touchY - touchLastY;
       touchLastY = touchY;
       processScroll(deltaY * 2);
     };
@@ -1603,6 +1776,12 @@ export default function MapPage() {
 
   const uiHidden = introActive;
 
+  const cinemaEra = cinemaActive
+    ? ERA_CONFIG.find(
+        (e) => e.label !== 'Unknown' && cinemaYear >= e.bounds[0] && cinemaYear <= e.bounds[1],
+      )
+    : null;
+
   return (
     <div className={s.mapPage}>
       <div ref={containerRef} className={s.mapContainer} />
@@ -1647,7 +1826,7 @@ export default function MapPage() {
           </Link>
 
           {/* Viz mode toggle */}
-          {!activeTour && (
+          {!activeTour && !cinemaActive && (
             <HexControls
               vizMode={vizMode}
               onVizModeChange={setVizMode}
@@ -1657,9 +1836,9 @@ export default function MapPage() {
             />
           )}
 
-          {/* Tours launcher — standalone, below back button */}
-          {!activeTour && (
-            <div className={s.tourLauncher}>
+          {/* Tours + Cinema launchers — standalone, below back button */}
+          {!activeTour && !cinemaActive && (
+            <div className={`${s.tourLauncher} ${vizMode === 'hexagons' ? s.tourLauncherLow : ''}`}>
               <TourPanel
                 activeTour={activeTour}
                 tourStep={tourStep}
@@ -1667,17 +1846,28 @@ export default function MapPage() {
                 onStepChange={handleStepChange}
                 onExitTour={handleExitTour}
               />
+              <button
+                className={s.tourLauncherBtn}
+                onClick={handleStartCinema}
+                title="Cinematic time-lapse — watch the city grow from 1900"
+                aria-label="Play cinematic time-lapse"
+              >
+                <Film size={13} />
+                <span>Cinema</span>
+              </button>
             </div>
           )}
 
           {/* Page title chip */}
-          <div className={s.titleChip}>
-            <Layers size={16} />
-            <span>Astana</span>
-          </div>
+          {!cinemaActive && (
+            <div className={s.titleChip}>
+              <Layers size={16} />
+              <span>Astana</span>
+            </div>
+          )}
 
           {/* Filter toggle (top-right, hidden when sidebar is open) */}
-          {!sidebarOpen && !activeTour && (
+          {!sidebarOpen && !activeTour && !cinemaActive && (
             <button
               className={s.filterToggle}
               onClick={handleSidebarToggle}
@@ -1727,7 +1917,7 @@ export default function MapPage() {
           />
 
           {/* Legend panel */}
-          {!activeTour && (
+          {!activeTour && !cinemaActive && (
             <LegendPanel
               colorMode={colorMode}
               legendOpen={legendOpen}
@@ -1789,8 +1979,64 @@ export default function MapPage() {
             />
           )}
 
+          {/* Cinema mode overlay — big year counter + era + progress */}
+          {cinemaActive && (
+            <div className={s.cinemaOverlay} role="region" aria-label="City growth time-lapse">
+              <span className={s.cinemaYear}>{cinemaYear}</span>
+              {cinemaEra && (
+                <span className={s.cinemaEra} style={{ color: cinemaEra.color }}>
+                  {cinemaEra.label}
+                </span>
+              )}
+              <div className={s.cinemaProgress} aria-hidden="true">
+                <span
+                  style={{
+                    width: `${((cinemaYear - 1900) / Math.max(1, sliderMax - 1900)) * 100}%`,
+                  }}
+                />
+              </div>
+              <div className={s.cinemaControls}>
+                <div className={s.cinemaChipRow} role="group" aria-label="Time-lapse layer">
+                  <button
+                    className={`${s.cinemaChip} ${vizMode === 'buildings' ? s.cinemaChipActive : ''}`}
+                    onClick={() => setVizMode('buildings')}
+                  >
+                    <Building2 size={12} />
+                    <span>Buildings</span>
+                  </button>
+                  <button
+                    className={`${s.cinemaChip} ${vizMode === 'hexagons' ? s.cinemaChipActive : ''}`}
+                    onClick={() => setVizMode('hexagons')}
+                  >
+                    <Grid2x2 size={12} />
+                    <span>Hexagons</span>
+                  </button>
+                </div>
+                {vizMode === 'hexagons' && (
+                  <div className={s.cinemaChipRow} role="group" aria-label="Hexagon metric">
+                    <button
+                      className={`${s.cinemaChip} ${hexMetric === 'count' ? s.cinemaChipActive : ''}`}
+                      onClick={() => setHexMetric('count')}
+                    >
+                      Density
+                    </button>
+                    <button
+                      className={`${s.cinemaChip} ${hexMetric === 'year' ? s.cinemaChipActive : ''}`}
+                      onClick={() => setHexMetric('year')}
+                    >
+                      Avg Era
+                    </button>
+                  </div>
+                )}
+                <button className={s.cinemaExitBtn} onClick={handleExitCinema}>
+                  Exit cinema
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Timeline Slider with play controls */}
-          {!activeTour && (
+          {!activeTour && !cinemaActive && (
             <TimelineSlider
               min={1900}
               max={sliderMax}
@@ -1808,95 +2054,56 @@ export default function MapPage() {
             />
           )}
 
-          {/* Onboarding Welcome & Floating Controls Helpers */}
-          {showHelpers && !activeTour && (
-            <div className={s.onboardingOverlay}>
-              {/* Center card */}
-              <div className={s.onboardingWelcomeCard}>
-                <h4 className={s.onboardingWelcomeTitle}>
-                  <MapIcon size={15} style={{ marginRight: 6, verticalAlign: -2 }} />
+          {/* Map guide — one compact card, the map stays fully interactive */}
+          {showHelpers && !activeTour && !cinemaActive && (
+            <div className={s.guideCard} role="dialog" aria-label="Astana map guide">
+              <div className={s.guideHeader}>
+                <h4 className={s.guideTitle}>
+                  <MapIcon size={14} />
                   Astana Map Guide
                 </h4>
-                <p className={s.onboardingWelcomeDesc}>
-                  Discover Astana's architectural evolution and street culture. We've highlighted key possibilities across the screen for you!
-                </p>
-                <button className={s.onboardingBtn} onClick={handleDismissHelpers}>
-                  Explore Map
+                <button className={s.guideClose} onClick={handleDismissHelpers} aria-label="Close guide">
+                  <X size={14} />
                 </button>
               </div>
-
-              {/* Helper 1: Filter Panel (anchored next to top-right button) */}
-              <div className={`${s.helperCard} ${s.helperFilter}`}>
-                <span className={s.helperPulseDot} />
-                <div className={s.helperCardHeader}>
-                  <span className={s.helperCardTitle}>
-                    <ListTree size={11} style={{ marginRight: 4, verticalAlign: -1 }} />
-                    Filter Panel
+              <ul className={s.guideList}>
+                <li>
+                  <span className={s.guideIco}><Compass size={13} /></span>
+                  <span>
+                    <b>Tours & Cinema</b> — guided fly-throughs and a city time-lapse
+                    <i>top left</i>
                   </span>
-                  <button className={s.helperCardClose} onClick={handleDismissHelpers} aria-label="Close">
-                    <X size={12} />
-                  </button>
-                </div>
-                <p className={s.helperCardDesc}>
-                  Query and filter building footprints by construction era, architectural style, type, or construction company.
-                </p>
-              </div>
-
-              {/* Helper 2: Hexagons Toggle (anchored next to top-left vizBtn) */}
-              <div className={`${s.helperCard} ${s.helperHex}`}>
-                <span className={s.helperPulseDot} />
-                <div className={s.helperCardHeader}>
-                  <span className={s.helperCardTitle}>
-                    <Grid2x2 size={11} style={{ marginRight: 4, verticalAlign: -1 }} />
-                    Hexagons Toggle
+                </li>
+                <li>
+                  <span className={s.guideIco}><Grid2x2 size={13} /></span>
+                  <span>
+                    <b>Hexagons</b> — building density & age heatmaps
+                    <i>top center</i>
                   </span>
-                  <button className={s.helperCardClose} onClick={handleDismissHelpers} aria-label="Close">
-                    <X size={12} />
-                  </button>
-                </div>
-                <p className={s.helperCardDesc}>
-                  Switch to Hexagon Grid Mode to explore building density heatmaps and map-wide historical average construction years.
-                </p>
-              </div>
-
-              {/* Helper 3: Tours (anchored next to the tour launcher below back button) */}
-              <div className={`${s.helperCard} ${s.helperTours}`}>
-                <span className={s.helperPulseDot} />
-                <div className={s.helperCardHeader}>
-                  <span className={s.helperCardTitle}>
-                    <Compass size={11} style={{ marginRight: 4, verticalAlign: -1 }} />
-                    Guided Tours
+                </li>
+                <li>
+                  <span className={s.guideIco}><SlidersHorizontal size={13} /></span>
+                  <span>
+                    <b>Filters</b> — era, style, type & thematic overlays
+                    <i>top right</i>
                   </span>
-                  <button className={s.helperCardClose} onClick={handleDismissHelpers} aria-label="Close">
-                    <X size={12} />
-                  </button>
-                </div>
-                <p className={s.helperCardDesc}>
-                  Start a guided cinematic tour of the city's landmarks. Toggle graffiti and other overlays from the Filter panel.
-                </p>
-              </div>
-
-              {/* Helper 4: Map Legend (anchored next to bottom-left legendToggle) */}
-              <div className={`${s.helperCard} ${s.helperLegend}`}>
-                <span className={s.helperPulseDot} />
-                <div className={s.helperCardHeader}>
-                  <span className={s.helperCardTitle}>
-                    <Layers size={11} style={{ marginRight: 4, verticalAlign: -1 }} />
-                    Map Legend
+                </li>
+                <li>
+                  <span className={s.guideIco}><Layers size={13} /></span>
+                  <span>
+                    <b>Legend</b> — tap an era to highlight its buildings
+                    <i>bottom left</i>
                   </span>
-                  <button className={s.helperCardClose} onClick={handleDismissHelpers} aria-label="Close">
-                    <X size={12} />
-                  </button>
-                </div>
-                <p className={s.helperCardDesc}>
-                  Click directly on specific construction eras or building uses in the legend to filter map data dynamically.
-                </p>
-              </div>
+                </li>
+              </ul>
+              <button className={s.onboardingBtn} onClick={handleDismissHelpers}>
+                Explore the map
+              </button>
             </div>
           )}
 
           {/* Floating Help Trigger button to re-trigger onboarding */}
-          {!showHelpers && !activeTour && (
+          {!showHelpers && !activeTour && !cinemaActive && (
             <button
               className={s.helpGuideBtn}
               onClick={handleOpenHelpers}

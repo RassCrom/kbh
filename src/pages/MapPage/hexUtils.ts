@@ -52,3 +52,22 @@ export function buildHexHeightExpr(): maplibregl.ExpressionSpecification {
   ] as unknown as maplibregl.ExpressionSpecification;
 }
 
+/**
+ * Cinema sweep height — a hexagon starts rising once the sweep year reaches
+ * its average construction year and reaches full height ~4 years later, so
+ * cells grow smoothly instead of popping in. Hexagons without year data stay flat.
+ */
+export function buildHexCinemaHeightExpr(year: number): maplibregl.ExpressionSpecification {
+  const yearMean = ['coalesce', ['get', 'year_mean'], 0];
+  return [
+    'case',
+    ['>', yearMean, 0],
+    [
+      '*',
+      ['max', ['*', ['coalesce', ['get', 'height_mean_2'], 0], 15], 10],
+      ['min', 1, ['max', 0, ['/', ['-', year, yearMean], 4]]],
+    ],
+    0,
+  ] as unknown as maplibregl.ExpressionSpecification;
+}
+

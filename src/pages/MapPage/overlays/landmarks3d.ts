@@ -17,14 +17,18 @@ interface LandmarkScene {
   scale: number;
 }
 
-function buildLights(scene: THREE.Scene): void {
-  scene.add(new THREE.AmbientLight(0xb8c4d8, 1.6));
-  const sun = new THREE.DirectionalLight(0xfff2dd, 2.4);
+function buildLights(scene: THREE.Scene, boost = 1): void {
+  scene.add(new THREE.AmbientLight(0xb8c4d8, 1.6 * boost));
+  const sun = new THREE.DirectionalLight(0xfff2dd, 2.4 * boost);
   sun.position.set(60, 120, 80);
   scene.add(sun);
-  const rim = new THREE.DirectionalLight(0x6688cc, 0.8);
+  const rim = new THREE.DirectionalLight(0x6688cc, 0.8 * boost);
   rim.position.set(-80, 40, -60);
   scene.add(rim);
+  if (boost > 1) {
+    // Sky/ground fill so boosted models stay bright on faces the sun misses
+    scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x8a7448, 1.2 * boost));
+  }
 }
 
 /** Procedural Bayterek: tapered white shaft, flaring lattice crown, golden orb. */
@@ -114,9 +118,10 @@ export function createLandmarksLayer(): maplibregl.CustomLayerInterface {
       });
       renderer.autoClear = false;
 
-      // Bayterek — GLB with procedural fallback
+      // Bayterek — GLB with procedural fallback (extra-bright: the model's
+      // baked materials read too dark against the night basemap)
       const bayterekScene = new THREE.Scene();
-      buildLights(bayterekScene);
+      buildLights(bayterekScene, 2.3);
       scenes.push({
         scene: bayterekScene,
         mercator: maplibregl.MercatorCoordinate.fromLngLat(LANDMARKS[0].lngLat, 0),
