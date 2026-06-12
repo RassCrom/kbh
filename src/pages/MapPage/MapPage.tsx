@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, Film, Layers, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft, Film, SlidersHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
 import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
@@ -531,7 +531,7 @@ export default function MapPage() {
 
           {/* Tours + Cinema launchers */}
           {!tours.activeTour && !cinema.cinemaActive && (
-            <div className={`${s.tourLauncher} ${vizMode === 'hexagons' ? s.tourLauncherLow : ''}`}>
+            <div className={s.tourLauncher}>
               <TourPanel
                 activeTour={tours.activeTour}
                 tourStep={tours.tourStep}
@@ -548,14 +548,6 @@ export default function MapPage() {
                 <Film size={13} />
                 <span>Cinema</span>
               </button>
-            </div>
-          )}
-
-          {/* Page title chip */}
-          {!cinema.cinemaActive && (
-            <div className={s.titleChip}>
-              <Layers size={16} />
-              <span>Astana</span>
             </div>
           )}
 

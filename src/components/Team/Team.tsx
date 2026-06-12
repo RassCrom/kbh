@@ -4,16 +4,14 @@ const TEAM = [
   {
     initials: 'AB',
     name: 'Alikhan B.',
-    role: 'Ideas & data visualization',
-    bio: 'Data visualization, map maker, storyteller',
-    bg: 'linear-gradient(135deg, rgba(77, 138, 173, 0.15), rgba(212, 168, 94, 0.1))',
+    role: 'Ideas & Data Visualization',
+    bio: 'Experienced map maker and data visualization specialist.'
   },
   {
     initials: 'TA',
     name: 'Tolegen A.',
-    role: 'GIS researcher',
-    bio: 'Seasoned GIS specialist with teaching experience in Urban ecology. Focus on socio-economic urban enviroments.',
-    bg: 'linear-gradient(135deg, rgba(212, 168, 94, 0.15), rgba(143, 80, 64, 0.1))',
+    role: 'Data collection and GIS research',
+    bio: 'Seasoned (Middle) GIS specialist with teaching experience in Urban ecology. Focus on socio-economic urban environments.'
   },
 ];
 
@@ -24,9 +22,8 @@ export default function Team() {
         <span className={s.tag}>06 · About</span>
         <h2 className={s.heading}>The Team Behind the Data</h2>
         <p className={s.mission}>
-          We believe urban history should be open, visual, and interactive. Our small team 
-          combines architecture research, data engineering, and design to make Astana's 
-          building heritage explorable by anyone.
+          We were inspired by how old is this building, a project started by Nikita Slavin and decided to make it for our hometown.
+          Now Astana's buildings visualized. Although collection is still going. Many missing data.
         </p>
 
         <div className={s.grid}>

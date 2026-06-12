@@ -75,32 +75,6 @@
   }
 }
 
-.titleChip {
-  position: absolute;
-  top: $space-4;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: $z-toolbar;
-  display: flex;
-  align-items: center;
-
-  @media (max-width: 767px) {
-    display: none; // viz toggle takes the centre slot on mobile
-  }
-  gap: $space-2;
-  padding: $space-2 $space-4;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: $radius-pill;
-  color: $color-accent-brand;
-  font-family: var(--font-heading);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
 /* ------------------------------------------------------------------ */
 /*  Legend panel                                                        */
 /* ------------------------------------------------------------------ */
@@ -693,18 +667,12 @@
 .vizToggleGroup {
   position: absolute;
   top: $space-4;
-  // sits right-of the back button (back btn is left:16px, width ~80px)
-  left: 108px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: $z-toolbar;
   display: flex;
   flex-direction: column;
   gap: $space-1;
-
-  @media (max-width: 767px) {
-    left: 50%;
-    transform: translateX(-50%);
-    // keep top: $space-4 to share the top bar row with Back + Filter buttons
-  }
 }
 
 .vizToggleRow {
@@ -2457,14 +2425,14 @@
   }
 }
 /* ------------------------------------------------------------------ */
-/*  Tour launcher (standalone, below back button)                       */
+/*  Tour launcher (standalone, beside back button)                      */
 /* ------------------------------------------------------------------ */
 
 .tourLauncher {
   position: absolute;
-  top: 58px;
-  left: $space-4;
-  z-index: $z-toolbar;
+  top: $space-4;
+  left: 108px;
+  z-index: 150;
   display: flex;
   align-items: center;
   gap: $space-1;
@@ -2472,14 +2440,6 @@
   @media (max-width: 767px) {
     top: 62px;
     left: $space-3;
-  }
-}
-
-// Hexagon mode: the metric row occupies the band below the viz toggle on
-// desktop — drop the launcher one row down so they never overlap.
-.tourLauncherLow {
-  @media (min-width: 768px) {
-    top: 100px;
   }
 }
 

@@ -1,4 +1,4 @@
-import { Satellite, Cpu, BarChart3, Globe, Database, FileJson } from 'lucide-react';
+import { Satellite, Cpu, BarChart3, Globe } from 'lucide-react';
 import s from './HowItWorks.module.scss';
 
 const STEPS = [
@@ -6,28 +6,26 @@ const STEPS = [
     icon: Satellite,
     number: '01',
     title: 'Data Collection',
-    desc: 'Building footprints, construction dates, and architectural metadata are gathered from OpenStreetMap, government registries, and satellite imagery.',
+    desc: 'Buildings footprints from OSM.',
   },
   {
     icon: Cpu,
     number: '02',
     title: 'Processing & Analysis',
-    desc: 'Raw data is cleaned, geo-coded, and enriched with era classifications. Machine learning helps estimate construction dates for undocumented structures.',
+    desc: 'Data is gathered from advertisement websites, open source, googling and using Google Earth Pro.',
   },
   {
     icon: BarChart3,
     number: '03',
     title: 'Visualization & Stories',
-    desc: 'Interactive maps, scrollytelling articles, and guided tours bring the data to life — revealing the urban DNA of Astana across nine historical eras.',
+    desc: 'We have collected interactive map, interesting data, engaging guided tours, and more analysis on the map. All visualized through or connected to buildings of Astana.',
   },
 ];
 
 const SOURCES = [
   { icon: Globe, label: 'OpenStreetMap' },
-  { icon: Database, label: 'KZ Gov Registry' },
-  { icon: Satellite, label: 'Sentinel-2' },
-  { icon: FileJson, label: 'GeoJSON Sources' },
-  { icon: BarChart3, label: 'Statistical Bureau' },
+  { icon: Satellite, label: 'Google Earth Pro' },
+  { icon: BarChart3, label: 'Ad websites' },
 ];
 
 export default function HowItWorks() {

@@ -3,32 +3,20 @@ import { Clock, ArrowLeft, ArrowRight, Search, Calendar, Tag } from 'lucide-reac
 import { Link } from 'react-router-dom';
 import s from './ArticlesPage.module.scss';
 
-const ARTICLES = [
-  {
-    id: 'article-soviet-grid',
-    era: '1960s',
-    date: 'Mar 2026',
-    title: 'The Soviet Grid: How Tselinograd Was Planned',
-    excerpt:
-      'Before becoming Astana, the city was Tselinograd — a Soviet agricultural hub laid out in rigid blocks. We trace the original masterplan and its echoes in today\'s street grid.',
-    readTime: '8 min',
-    image: '/story-one-bg-photo.png',
-    route: '/stories/soviet-grid',
-  },
-  {
-    id: 'article-bayterek',
-    era: '2000s',
-    title: 'Rise of Bayterek: Symbolism in Steel and Glass',
-    date: 'Jan 2026',
-    excerpt:
-      'The Bayterek tower became the city\'s icon overnight. This deep-dive explores how Nazarbayev\'s vision materialized through Japanese engineering and Kazakh mythology.',
-    readTime: '12 min',
-    image: '/story-one-bg-photo.png', // Fallback or another background
-    route: '/stories/bayterek',
-  },
-];
+type Article = {
+  id: string;
+  era: string;
+  date: string;
+  title: string;
+  excerpt: string;
+  readTime: string;
+  image: string;
+  route?: string;
+};
 
-const ALL_ERAS = ['All', '1960s', '2000s'];
+const ARTICLES: Article[] = [];
+
+const ALL_ERAS = ['All'];
 
 export default function ArticlesPage() {
   const [searchQuery, setSearchQuery] = useState('');

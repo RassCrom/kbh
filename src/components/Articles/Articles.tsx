@@ -1,33 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { Clock, ArrowRight, ChevronRight, FileText } from 'lucide-react';
+import { ChevronRight, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './Articles.module.scss';
-
-const STORY_ROUTES: Record<string, string> = {
-  'article-soviet-grid': '/stories/soviet-grid',
-  'article-bayterek': '/stories/bayterek',
-};
-
-const ARTICLES = [
-  {
-    id: 'article-soviet-grid',
-    era: '1960s',
-    date: 'Mar 2026',
-    title: 'The Soviet Grid: How Tselinograd Was Planned',
-    excerpt:
-      'Before becoming Astana, the city was Tselinograd — a Soviet agricultural hub laid out in rigid blocks. We trace the original masterplan and its echoes in today\'s street grid.',
-    readTime: '8 min',
-  },
-  {
-    id: 'article-bayterek',
-    era: '2000s',
-    title: 'Rise of Bayterek: Symbolism in Steel and Glass',
-    date: 'Jan 2026',
-    excerpt:
-      'The Bayterek tower became the city\'s icon overnight. This deep-dive explores how Nazarbayev\'s vision materialized through Japanese engineering and Kazakh mythology.',
-    readTime: '12 min',
-  },
-];
 
 export default function Articles() {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
@@ -63,41 +37,24 @@ export default function Articles() {
         </div>
 
         <div className={s.grid}>
-          {ARTICLES.map((article, i) => (
-            <div
-              className={s.card}
-              key={article.id}
-              id={article.id}
-              ref={(el) => { cardsRef.current[i] = el; }}
-              style={{ transitionDelay: `${i * 150}ms` }}
-            >
-              <div className={s.cardImagePlaceholder}>
-                <FileText size={40} strokeWidth={1} />
-              </div>
-              <div className={s.cardBody}>
-                <div className={s.cardMeta}>
-                  <span className={s.cardEra}>{article.era}</span>
-                  <span className={s.cardDate}>{article.date}</span>
-                </div>
-                <h3 className={s.cardTitle}>{article.title}</h3>
-                <p className={s.cardExcerpt}>{article.excerpt}</p>
-                <div className={s.cardFooter}>
-                  <span className={s.readTime}>
-                    <Clock size={12} /> {article.readTime}
-                  </span>
-                  {STORY_ROUTES[article.id] ? (
-                    <Link to={STORY_ROUTES[article.id]} className={s.readMore}>
-                      Read <ArrowRight size={12} />
-                    </Link>
-                  ) : (
-                    <a href="#" className={s.readMore}>
-                      Read <ArrowRight size={12} />
-                    </a>
-                  )}
-                </div>
-              </div>
+          <div
+            className={s.card}
+            ref={(el) => { cardsRef.current[0] = el; }}
+          >
+            <div className={s.cardImagePlaceholder}>
+              <FileText size={40} strokeWidth={1} />
             </div>
-          ))}
+            <div className={s.cardBody}>
+              <div className={s.cardMeta}>
+                <span className={s.cardEra}>Coming soon</span>
+              </div>
+              <h3 className={s.cardTitle}>Stories coming soon</h3>
+              <p className={s.cardExcerpt}>
+                New stories about Kazakhstan's architecture, cities, and history
+                are currently in production.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -24,8 +24,7 @@ export default function Footer() {
             <span className={s.logoText}>Astana Buildings</span>
           </div>
           <p className={s.brandDesc}>
-            Open-source project mapping the architectural evolution of Kazakhstan's capital 
-            from Tselinograd to modern Astana.
+            Open-source project.
           </p>
           <ul className={s.socialLinks}>
             {socialLinks.map((link) => (
@@ -65,7 +64,7 @@ export default function Footer() {
 
       <div className={s.divider}>
         <span className={s.copyright}>
-          © {new Date().getFullYear()} Astana Buildings Heritage.
+          © {new Date().getFullYear()} Astana Buildings.
         </span>
       </div>
     </footer>
