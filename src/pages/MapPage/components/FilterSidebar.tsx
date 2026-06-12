@@ -137,7 +137,7 @@ function HBar({ label, count, total, color }: { label: string; count: number; to
       <div className={s.hBarTrack}>
         <div
           className={s.hBarFill}
-          style={{ width: `${pct}%`, background: color ?? 'var(--color-accent-gold)' }}
+          style={{ width: `${pct}%`, background: color ?? 'var(--color-accent-brand)' }}
         />
       </div>
       <span className={s.hBarCount}>{count.toLocaleString()}</span>

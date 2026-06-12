@@ -73,15 +73,15 @@
     transform: translateX(-50%);
     width: 60%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--color-accent-gold), transparent);
+    background: linear-gradient(90deg, transparent, var(--color-accent-brand), transparent);
     opacity: 0;
     transition: opacity $duration-mid $ease-cinematic;
   }
 
   &:hover {
-    border-color: var(--color-accent-gold);
+    border-color: var(--color-accent-brand);
     transform: translateY(-4px);
-    box-shadow: $shadow-glow-gold;
+    box-shadow: $shadow-glow-brand;
 
     &::before {
       opacity: 1;
@@ -98,12 +98,12 @@
   justify-content: center;
   border-radius: $radius-md;
   background: rgba(212, 168, 94, 0.08);
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
 }
 
 .number {
   @include typ.data-lg;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   font-size: 48px;
   display: block;
   margin-bottom: $space-2;

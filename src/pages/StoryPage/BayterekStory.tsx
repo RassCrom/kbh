@@ -261,7 +261,7 @@ export default function BayterekStory() {
               Detailed architectural cross-section of Bayterek: labelled levels
               (entrance, trunk structure, restaurant floor, observation deck),
               key dimensions, material callouts (reinforced concrete trunk, steel
-              armature, gold-tinted glass sphere), and annotations mapping each
+              armature, brand-tinted glass sphere), and annotations mapping each
               element to its mythological equivalent.
             </p>
           </div>

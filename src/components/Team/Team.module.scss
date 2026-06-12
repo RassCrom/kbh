@@ -91,7 +91,7 @@
   font-family: var(--font-heading);
   font-size: 28px;
   font-weight: 700;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   border: 2px solid rgba(212, 168, 94, 0.2);
 }
 
@@ -103,7 +103,7 @@
 
 .role {
   @include typ.label-sm;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   margin-bottom: $space-3;
   text-transform: none;
 }

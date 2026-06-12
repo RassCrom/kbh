@@ -75,13 +75,13 @@
 
   &:hover {
     border-color: rgba(212, 168, 94, 0.3);
-    box-shadow: $shadow-glow-gold;
+    box-shadow: $shadow-glow-brand;
   }
 }
 
 .stepNumber {
   @include typ.data-lg;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   opacity: 0.3;
   font-size: 64px;
   position: absolute;
@@ -99,7 +99,7 @@
   justify-content: center;
   border-radius: $radius-full;
   background: rgba(212, 168, 94, 0.1);
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   border: 1px solid rgba(212, 168, 94, 0.2);
 }
 

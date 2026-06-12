@@ -1,4 +1,4 @@
-@use '../../styles/tokens/colors' as *;
+﻿@use '../../styles/tokens/colors' as *;
 @use '../../styles/tokens/spacing' as *;
 @use '../../styles/tokens/radius' as *;
 @use '../../styles/tokens/transitions' as *;
@@ -39,8 +39,6 @@
   gap: $space-2;
   padding: $space-2 $space-4 $space-2 $space-3;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   color: var(--color-text-primary);
@@ -56,12 +54,12 @@
 
   &:hover {
     background: var(--glass-bg-hover);
-    border-color: $color-accent-gold;
-    color: $color-accent-gold;
+    border-color: $color-accent-brand;
+    color: $color-accent-brand;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 
@@ -92,11 +90,9 @@
   gap: $space-2;
   padding: $space-2 $space-4;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   font-family: var(--font-heading);
   font-size: 14px;
   font-weight: 600;
@@ -137,8 +133,6 @@
   width: 32px;
   height: 32px;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   color: var(--color-text-secondary);
@@ -150,13 +144,13 @@
     transform $duration-ui $ease-snap;
 
   &:hover {
-    color: $color-accent-gold;
-    border-color: $color-accent-gold;
+    color: $color-accent-brand;
+    border-color: $color-accent-brand;
     background: var(--glass-bg-hover);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 
@@ -168,8 +162,6 @@
 
 .legendBody {
   background: var(--glass-bg-medium);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-lg;
   padding: $space-4;
@@ -192,7 +184,7 @@
 
 .legendTitle {
   @include typ.label-lg;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   margin-bottom: $space-3;
   font-size: 12px;
   text-transform: uppercase;
@@ -263,7 +255,7 @@
 
   &:hover {
     background: rgba(212, 168, 94, 0.1);
-    color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
     border-color: rgba(212, 168, 94, 0.3);
   }
 }
@@ -276,8 +268,6 @@
   position: absolute;
   z-index: $z-tooltip;
   background: var(--glass-bg-heavy);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   padding: $space-3 $space-4;
@@ -363,16 +353,15 @@
   right: 56px;
   width: auto;
   max-width: none;
-  background: var(--glass-bg-medium);
-  backdrop-filter: blur(4px);
-  border: 1px solid var(--glass-border);
-  border-radius: $radius-lg;
-  padding: $space-4 $space-6;
+  // background: var(--glass-bg-medium);
+  // border: 1px solid var(--glass-border);
+  // border-radius: $radius-lg;
+  // padding: $space-4 $space-6;
   z-index: $z-panel;
   display: flex;
   flex-direction: column;
-  gap: $space-2;
-  box-shadow: $shadow-md;
+  // gap: $space-2;
+  // box-shadow: $shadow-md;
   // Animate alongside the filter sidebar sliding in/out
   transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
               left  0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -441,7 +430,7 @@
   transition: color $duration-ui $ease-snap;
 
   &:hover {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
   }
 }
 
@@ -485,10 +474,10 @@
 }
 
 .bar.active {
-  background: $color-accent-gold;
+  background: $color-accent-brand;
 
   &:hover {
-    background: lighten($color-accent-gold, 10%);
+    background: lighten($color-accent-brand, 10%);
   }
 }
 
@@ -510,7 +499,7 @@
 .sliderRange {
   position: absolute;
   height: 100%;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   border-radius: 2px;
 }
 
@@ -531,7 +520,7 @@
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: $color-accent-gold;
+    background: $color-accent-brand;
     cursor: pointer;
     pointer-events: auto;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
@@ -584,9 +573,9 @@
     background $duration-ui $ease-snap;
 
   &:hover {
-    color: $color-accent-gold;
-    border-color: $color-accent-gold;
-    background: $color-gold-tint-06;
+    color: $color-accent-brand;
+    border-color: $color-accent-brand;
+    background: $color-brand-tint-06;
   }
 
   @media (max-width: 767px) {
@@ -602,16 +591,16 @@
   flex-shrink: 0;
   width: 34px;
   height: 34px;
-  background: $color-gold-tint-08;
-  border: 1px solid $color-accent-gold;
+  background: $color-brand-tint-08;
+  border: 1px solid $color-accent-brand;
   border-radius: 50%;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   cursor: pointer;
   transition: background $duration-ui $ease-snap,
     box-shadow $duration-ui $ease-snap;
 
   &:hover {
-    background: $color-gold-tint-12;
+    background: $color-brand-tint-12;
   }
 
   @media (max-width: 767px) {
@@ -666,8 +655,8 @@
   }
 
   &.speedActive {
-    color: $color-accent-gold;
-    background: $color-gold-tint-08;
+    color: $color-accent-brand;
+    background: $color-brand-tint-08;
   }
 }
 
@@ -722,8 +711,6 @@
   display: flex;
   align-items: center;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   padding: 3px;
@@ -755,7 +742,7 @@
   }
 
   &.vizBtnActive {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.12);
     border-color: rgba(212, 168, 94, 0.35);
   }
@@ -777,8 +764,6 @@
   display: flex;
   align-items: center;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   padding: 2px;
@@ -810,7 +795,7 @@
   }
 
   &.vizMetricActive {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.12);
     border-color: rgba(212, 168, 94, 0.3);
   }
@@ -822,8 +807,6 @@
   gap: $space-2;
   padding: 4px $space-3;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   font-family: var(--font-mono);
@@ -856,8 +839,6 @@
   width: 36px;
   height: 36px;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   color: var(--color-text-secondary);
@@ -869,8 +850,8 @@
     box-shadow   $duration-ui $ease-snap;
 
   &:hover {
-    color: var(--color-accent-gold);
-    border-color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
     background: var(--glass-bg-hover);
   }
 
@@ -895,8 +876,6 @@
   width: 36px;
   height: 36px;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   color: var(--color-text-secondary);
@@ -908,19 +887,19 @@
     transform $duration-ui $ease-snap;
 
   &:hover {
-    color: var(--color-accent-gold);
-    border-color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
     background: var(--glass-bg-hover);
   }
 
   &.active {
-    color: $color-accent-gold;
-    border-color: $color-accent-gold;
+    color: $color-accent-brand;
+    border-color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.1);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 
@@ -937,7 +916,7 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   color: $color-bg-base;
   border-radius: $radius-pill;
   font-family: var(--font-mono);
@@ -971,8 +950,6 @@
   &.open {
     z-index: 160;
   }
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   border-left: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
@@ -1034,8 +1011,6 @@
     inset: 0;
     z-index: 159; // just below the open filter sidebar (160), above building panel (150)
     background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
     animation: fadeIn 200ms ease-out;
   }
 }
@@ -1053,8 +1028,6 @@
   width: 28px;
   height: 70px;
   background: var(--glass-bg-medium);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-right: none;
   border-radius: $radius-md 0 0 $radius-md;
@@ -1068,8 +1041,8 @@
   transition: all $duration-ui $ease-snap;
 
   &:hover {
-    color: $color-accent-gold;
-    border-color: $color-accent-gold;
+    color: $color-accent-brand;
+    border-color: $color-accent-brand;
   }
 }
 
@@ -1080,7 +1053,7 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   color: $color-bg-base;
   border-radius: $radius-pill;
   font-family: var(--font-mono);
@@ -1122,8 +1095,8 @@
     background $duration-ui $ease-snap;
 
   &:hover {
-    color: var(--color-accent-gold);
-    border-color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
     background: rgba(212, 168, 94, 0.08);
   }
 }
@@ -1140,14 +1113,14 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
 }
 
 .filterBadge {
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   color: $color-bg-base;
   border-radius: $radius-pill;
   font-family: var(--font-mono);
@@ -1229,7 +1202,7 @@
     }
 
     .sectionChevron {
-      color: $color-accent-gold;
+      color: $color-accent-brand;
     }
   }
 }
@@ -1256,7 +1229,7 @@
 
   &.expanded {
     transform: rotate(180deg);
-    color: $color-accent-gold;
+    color: $color-accent-brand;
   }
 }
 
@@ -1274,7 +1247,7 @@
   transition: all $duration-ui $ease-snap;
 
   &:hover {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.08);
   }
 }
@@ -1283,7 +1256,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
 }
 
 .sectionContent {
@@ -1314,7 +1287,7 @@
 
   &:focus {
     background: rgba(212, 168, 94, 0.03);
-    border-color: $color-accent-gold;
+    border-color: $color-accent-brand;
   }
 
   &::placeholder {
@@ -1365,8 +1338,8 @@
 
   &.selected {
     background: rgba(212, 168, 94, 0.12);
-    border-color: $color-accent-gold;
-    color: $color-accent-gold;
+    border-color: $color-accent-brand;
+    color: $color-accent-brand;
   }
 }
 
@@ -1423,7 +1396,7 @@
 
   &:focus {
     outline: none;
-    border-color: $color-accent-gold;
+    border-color: $color-accent-brand;
     background-color: rgba(212, 168, 94, 0.06);
   }
 
@@ -1450,7 +1423,7 @@
   background: rgba(212, 168, 94, 0.08);
   border: 1px solid rgba(212, 168, 94, 0.25);
   border-radius: $radius-sm;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 500;
@@ -1462,7 +1435,7 @@
 
   &:hover {
     background: rgba(212, 168, 94, 0.15);
-    border-color: $color-accent-gold;
+    border-color: $color-accent-brand;
   }
 }
 
@@ -1504,7 +1477,7 @@
   }
 
   &.tabActive {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.1);
     border-color: rgba(212, 168, 94, 0.3);
   }
@@ -1517,7 +1490,7 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   color: $color-bg-base;
   border-radius: $radius-pill;
   font-size: 9px;
@@ -1555,7 +1528,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--color-accent-gold);
+  background: var(--color-accent-brand);
   flex-shrink: 0;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -1828,7 +1801,7 @@
   flex-shrink: 0;
 
   .vizOptionActive & {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
   }
 }
 
@@ -1847,7 +1820,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   background: rgba(212, 168, 94, 0.12);
   border: 1px solid rgba(212, 168, 94, 0.32);
   padding: 2px 7px;
@@ -1933,7 +1906,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   flex-shrink: 0;
 }
 
@@ -2041,7 +2014,7 @@
     opacity: 1 !important;
     transform: scale(1.1);
     border-color: #ffffff;
-    box-shadow: 0 0 0 2px var(--color-accent-gold), 0 4px 12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 2px var(--color-accent-brand), 0 4px 12px rgba(0, 0, 0, 0.5);
     z-index: 10;
   }
 
@@ -2089,7 +2062,6 @@
 :global {
   .maplibregl-ctrl-group {
     background: var(--glass-bg) !important;
-    backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border) !important;
     border-radius: $radius-md !important;
     box-shadow: $shadow-md !important;
@@ -2141,15 +2113,15 @@
   transition: all $duration-ui $ease-snap;
 
   &:hover {
-    background: var(--color-gold-tint-12);
-    border-color: var(--color-accent-gold);
-    color: var(--color-accent-gold);
+    background: var(--color-brand-tint-12);
+    border-color: var(--color-accent-brand);
+    color: var(--color-accent-brand);
   }
 
   &.infoBtnActive {
-    background: var(--color-gold-tint-12);
-    border-color: var(--color-accent-gold);
-    color: var(--color-accent-gold);
+    background: var(--color-brand-tint-12);
+    border-color: var(--color-accent-brand);
+    color: var(--color-accent-brand);
   }
 }
 
@@ -2157,7 +2129,7 @@
   margin-top: $space-2;
   padding: $space-3;
   background: var(--tint-faint);
-  border-left: 2px solid var(--color-accent-gold);
+  border-left: 2px solid var(--color-accent-brand);
   border-radius: $radius-sm;
   display: flex;
   flex-direction: column;
@@ -2193,9 +2165,9 @@
 .pulseDot {
   width: 10px;
   height: 10px;
-  background: var(--color-accent-gold);
+  background: var(--color-accent-brand);
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--color-accent-gold);
+  box-shadow: 0 0 8px var(--color-accent-brand);
   z-index: 2;
 }
 
@@ -2203,7 +2175,7 @@
   position: absolute;
   width: 28px;
   height: 28px;
-  border: 2px solid var(--color-accent-gold);
+  border: 2px solid var(--color-accent-brand);
   border-radius: 50%;
   animation: markerPulse 1.8s ease-out infinite;
   opacity: 0;
@@ -2237,14 +2209,14 @@
   transition: all $duration-ui $ease-snap;
 
   &:hover {
-    color: var(--color-accent-gold);
-    border-color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
     background: rgba(212, 168, 94, 0.08);
   }
 
   &.vizInfoBtnActive {
-    color: var(--color-accent-gold);
-    border-color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
     background: rgba(212, 168, 94, 0.12);
   }
 }
@@ -2256,8 +2228,6 @@
   margin-top: $space-2;
   width: 260px;
   background: var(--glass-bg-heavy);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-md;
   padding: $space-3;
@@ -2279,7 +2249,7 @@
   font-family: var(--font-heading);
   font-size: 11px;
   font-weight: 700;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -2314,8 +2284,6 @@
   width: 340px;
   max-width: calc(100vw - 24px);
   background: rgba(12, 19, 29, 0.94);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(212, 168, 94, 0.35);
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
   border-radius: $radius-lg;
@@ -2347,7 +2315,7 @@
   font-family: var(--font-heading);
   font-size: 13px;
   font-weight: 800;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin: 0;
@@ -2401,12 +2369,12 @@
   border-radius: $radius-md;
   background: rgba(212, 168, 94, 0.1);
   border: 1px solid rgba(212, 168, 94, 0.25);
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
 }
 
 .onboardingBtn {
-  background: $color-accent-gold;
-  border: 1px solid $color-accent-gold;
+  background: $color-accent-brand;
+  border: 1px solid $color-accent-brand;
   border-radius: $radius-pill;
   color: #121a24;
   font-family: var(--font-heading);
@@ -2419,7 +2387,7 @@
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: lighten($color-accent-gold, 10%);
+    background: lighten($color-accent-brand, 10%);
   }
 }
 
@@ -2453,8 +2421,6 @@
   width: 32px;
   height: 32px;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: 50%;
   color: var(--color-text-secondary);
@@ -2462,13 +2428,13 @@
   transition: all $duration-ui $ease-snap;
 
   &:hover {
-    color: var(--color-accent-gold);
-    border-color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
     background: var(--glass-bg-hover);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 
@@ -2548,7 +2514,7 @@
   font-weight: 600;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
 }
 
 .introTitle {
@@ -2576,10 +2542,9 @@
   padding: $space-2 20px;
   min-height: 38px;
   background: rgba(14, 21, 33, 0.6);
-  backdrop-filter: blur(12px);
   border: 1px solid rgba(212, 168, 94, 0.4);
   border-radius: $radius-pill;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
@@ -2591,11 +2556,11 @@
 
   &:hover {
     background: rgba(212, 168, 94, 0.14);
-    border-color: $color-accent-gold;
+    border-color: $color-accent-brand;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 }
@@ -2678,7 +2643,7 @@
   span {
     display: block;
     height: 100%;
-    background: $color-accent-gold;
+    background: $color-accent-brand;
     transition: width 120ms linear;
   }
 }
@@ -2704,8 +2669,6 @@
   gap: 2px;
   padding: 3px;
   background: rgba(14, 21, 33, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
 }
@@ -2736,13 +2699,13 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 
   &.cinemaChipActive {
-    color: $color-accent-gold;
-    background: $color-gold-tint-12;
+    color: $color-accent-brand;
+    background: $color-brand-tint-12;
     border-color: rgba(212, 168, 94, 0.35);
   }
 }
@@ -2753,10 +2716,9 @@
   padding: $space-2 20px;
   min-height: 38px;
   background: rgba(14, 21, 33, 0.6);
-  backdrop-filter: blur(12px);
   border: 1px solid rgba(212, 168, 94, 0.4);
   border-radius: $radius-pill;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 600;
@@ -2767,11 +2729,11 @@
 
   &:hover {
     background: rgba(212, 168, 94, 0.14);
-    border-color: $color-accent-gold;
+    border-color: $color-accent-brand;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 }
@@ -2787,8 +2749,6 @@
   padding: 6px 12px;
   min-height: 30px;
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   color: var(--color-text-secondary);
@@ -2810,12 +2770,12 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 
   &.tourLauncherBtnActive {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.12);
     border-color: rgba(212, 168, 94, 0.35);
   }
@@ -2829,8 +2789,6 @@
   width: 330px;
   max-width: calc(100vw - 32px);
   background: var(--glass-bg-heavy);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-lg;
   padding: $space-4;
@@ -2891,7 +2849,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 }
@@ -2954,8 +2912,6 @@
   width: 440px;
   max-width: calc(100vw - 24px);
   background: var(--glass-bg-heavy);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-lg;
   padding: $space-4;
@@ -3021,7 +2977,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 1px;
   }
 }
@@ -3048,7 +3004,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 }
@@ -3138,7 +3094,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 }
@@ -3169,8 +3125,6 @@
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
   background: var(--glass-bg-heavy);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-lg;
   padding: $space-4;
@@ -3201,7 +3155,7 @@
   background: rgba(212, 168, 94, 0.1);
   border: 1px solid rgba(212, 168, 94, 0.35);
   border-radius: $radius-pill;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   font-family: var(--font-mono);
   font-size: 9.5px;
   font-weight: 700;
@@ -3228,7 +3182,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 1px;
   }
 }
@@ -3268,7 +3222,7 @@
   color: var(--color-text-secondary);
 
   svg {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
     flex-shrink: 0;
   }
 }
@@ -3305,7 +3259,7 @@
     color: var(--color-text-secondary);
 
     svg {
-      color: $color-accent-gold;
+      color: $color-accent-brand;
       flex-shrink: 0;
       margin-top: 3px;
     }
@@ -3320,7 +3274,7 @@
   background: rgba(212, 168, 94, 0.12);
   border: 1px solid rgba(212, 168, 94, 0.45);
   border-radius: $radius-pill;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
@@ -3331,11 +3285,11 @@
 
   &:hover {
     background: rgba(212, 168, 94, 0.2);
-    border-color: $color-accent-gold;
+    border-color: $color-accent-brand;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 }
@@ -3357,8 +3311,6 @@
   max-width: calc(100vw - 24px);
   padding: $space-2 $space-2 $space-2 $space-3;
   background: var(--glass-bg-heavy);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   box-shadow: $shadow-float;
@@ -3436,7 +3388,7 @@
   background: rgba(212, 168, 94, 0.12);
   border: 1px solid rgba(212, 168, 94, 0.4);
   border-radius: $radius-pill;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   font-family: var(--font-mono);
   font-size: 10.5px;
   font-weight: 700;
@@ -3505,12 +3457,12 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 
   &.extrudeModeBtnActive {
-    color: $color-accent-gold;
+    color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.1);
     border-color: rgba(212, 168, 94, 0.4);
   }
@@ -3540,7 +3492,7 @@
 
   &.overlayRowActive {
     border-color: rgba(212, 168, 94, 0.35);
-    background: var(--color-gold-tint-06);
+    background: var(--color-brand-tint-06);
   }
 }
 
@@ -3558,7 +3510,7 @@
   height: 26px;
   border-radius: $radius-sm;
   background: var(--tint-subtle);
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   flex-shrink: 0;
 }
 
@@ -3581,10 +3533,10 @@
 
 .overlayRowBadge {
   padding: 1px 6px;
-  background: var(--color-gold-tint-12);
+  background: var(--color-brand-tint-12);
   border: 1px solid rgba(212, 168, 94, 0.4);
   border-radius: $radius-pill;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 700;
@@ -3611,13 +3563,13 @@
   transition: background $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 2px;
   }
 
   &.overlaySwitchOn {
     background: rgba(212, 168, 94, 0.45);
-    border-color: $color-accent-gold;
+    border-color: $color-accent-brand;
   }
 }
 
@@ -3683,8 +3635,6 @@
   gap: $space-2;
   padding: $space-2 $space-4;
   background: var(--glass-bg-heavy);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
   color: var(--color-text-secondary);
@@ -3699,7 +3649,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   animation: loadingDotPulse 1.1s ease-in-out infinite;
 }
 
@@ -3746,13 +3696,13 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 1px;
   }
 
   &.tourCtrlBtnActive {
-    color: $color-accent-gold;
-    background: $color-gold-tint-08;
+    color: $color-accent-brand;
+    background: $color-brand-tint-08;
     border-color: rgba(212, 168, 94, 0.4);
   }
 }

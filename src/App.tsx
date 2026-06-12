@@ -36,7 +36,7 @@ function RouteLoader() {
         height: '60px',
         borderRadius: '50%',
         border: '2px solid rgba(212, 168, 94, 0.05)',
-        borderTopColor: 'var(--color-accent-gold, #d4a85e)',
+        borderTopColor: 'var(--color-accent-brand, #d4a85e)',
         animation: 'spin 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite',
         boxShadow: '0 0 15px rgba(212, 168, 94, 0.2)',
       }} />

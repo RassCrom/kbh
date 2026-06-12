@@ -19,6 +19,7 @@ $color-text-data:      #8ba0bc;
 $color-accent-gold:    #d4a85e;
 $color-accent-sky:     #4d8aad;
 $color-accent-terra:   #8f5040;
+$color-accent-brand:   $color-accent-gold;
 
 $color-border-subtle:  #1e2a38;
 $color-border-active:  #d4a85e; // same as accent-gold
@@ -28,6 +29,9 @@ $color-gold-tint-12:   rgba(212, 168, 94, 0.12);
 $color-gold-tint-08:   rgba(212, 168, 94, 0.08);
 $color-gold-tint-06:   rgba(212, 168, 94, 0.06);
 $color-gold-tint-44:   rgba(212, 168, 94, 0.267); // hex 44 = 26.7%
+$color-brand-tint-12:  $color-gold-tint-12;
+$color-brand-tint-08:  $color-gold-tint-08;
+$color-brand-tint-06:  $color-gold-tint-06;
 $color-sky-tint-15:    rgba(77, 138, 173, 0.15);
 $color-white-tint-06:  rgba(255, 255, 255, 0.06);
 $color-white-tint-04:  rgba(255, 255, 255, 0.04);
@@ -46,6 +50,7 @@ $color-white-tint-08:  rgba(255, 255, 255, 0.08);
   --color-accent-gold:    #{$color-accent-gold};
   --color-accent-sky:     #{$color-accent-sky};
   --color-accent-terra:   #{$color-accent-terra};
+  --color-accent-brand:   var(--color-accent-gold);
 
   --color-border-subtle:  #{$color-border-subtle};
   --color-border-active:  #{$color-border-active};
@@ -54,16 +59,19 @@ $color-white-tint-08:  rgba(255, 255, 255, 0.08);
   --color-gold-tint-08:   #{$color-gold-tint-08};
   --color-gold-tint-06:   #{$color-gold-tint-06};
   --color-gold-tint-44:   #{$color-gold-tint-44};
+  --color-brand-tint-12:  var(--color-gold-tint-12);
+  --color-brand-tint-08:  var(--color-gold-tint-08);
+  --color-brand-tint-06:  var(--color-gold-tint-06);
   --color-sky-tint-15:    #{$color-sky-tint-15};
   --color-white-tint-06:  #{$color-white-tint-06};
   --color-white-tint-04:  #{$color-white-tint-04};
   --color-white-tint-08:  #{$color-white-tint-08};
 
-  // ── Glass panel system (replaces hardcoded rgba in components) ──────
-  --glass-bg:          rgba(14, 21, 33, 0.82);
-  --glass-bg-hover:    rgba(14, 21, 33, 0.95);
-  --glass-bg-medium:   rgba(14, 21, 33, 0.88);
-  --glass-bg-heavy:    rgba(14, 21, 33, 0.94);
+  // ── Panel surface system (solid — no backdrop-filter required) ────────
+  --glass-bg:          #{$color-bg-surface};
+  --glass-bg-hover:    #1a2739;
+  --glass-bg-medium:   #{$color-bg-surface};
+  --glass-bg-heavy:    #{$color-bg-base};
   --glass-border:      #{$color-border-subtle};
 
   // ── Transparent-white tints for histogram bars, hover states ────────
@@ -108,11 +116,11 @@ $color-white-tint-08:  rgba(255, 255, 255, 0.08);
   --color-white-tint-04: rgba(0, 0, 0, 0.04);
   --color-white-tint-08: rgba(0, 0, 0, 0.08);
 
-  // ── Glass panels ─────────────────────────────────────────────────────
-  --glass-bg:         rgba(250, 248, 244, 0.88);
-  --glass-bg-hover:   rgba(250, 248, 244, 0.98);
-  --glass-bg-medium:  rgba(248, 245, 240, 0.93);
-  --glass-bg-heavy:   rgba(246, 243, 238, 0.96);
+  // ── Panel surface system (solid — no backdrop-filter required) ────────
+  --glass-bg:         #faf8f4;
+  --glass-bg-hover:   #f0ede6;
+  --glass-bg-medium:  #f8f5f0;
+  --glass-bg-heavy:   #f6f3ee;
   --glass-border:     #ccc4b8;
 
   // ── Transparent tints (inverted: dark-on-light) ───────────────────────

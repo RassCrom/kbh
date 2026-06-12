@@ -79,7 +79,7 @@ export function TimelineSlider({
           <input type="range" min={min} max={max} value={value[1]} onChange={handleMaxChange} className={`${s.thumb} ${s.thumbRight}`} />
         </div>
 
-        <div className={s.labels} style={{ position: 'relative', height: '16px', marginTop: '4px' }}>
+        <div className={s.labels} style={{ position: 'relative', height: '16px' }}>
           {tickMarks.map((t) => (
             <span key={t} style={{ position: 'absolute', left: `${((t - min) / (max - min)) * 100}%`, transform: 'translateX(-50%)' }}>
               {t}

@@ -47,6 +47,8 @@ $shadow-row-active: 0 0 20px rgba(212, 168, 94, 0.133);
 // Border glow — input active, panel selected
 $shadow-border-gold: 0 0 0 1px rgba(212, 168, 94, 0.2);
 
+$shadow-glow-brand: $shadow-glow-gold-btn;
+
 :root {
   --shadow-sm:            #{$shadow-sm};
   --shadow-md:            #{$shadow-md};
@@ -60,4 +62,5 @@ $shadow-border-gold: 0 0 0 1px rgba(212, 168, 94, 0.2);
   --shadow-glow-sky-full: #{$shadow-glow-sky-full};
   --shadow-row-active:    #{$shadow-row-active};
   --shadow-border-gold:   #{$shadow-border-gold};
+  --shadow-glow-brand:    var(--shadow-glow-gold-btn);
 }

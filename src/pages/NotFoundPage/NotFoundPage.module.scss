@@ -78,7 +78,7 @@
   width: 30px;
   height: 30px;
   margin-left: -15px;
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   filter: drop-shadow(0 0 12px rgba(212, 168, 94, 0.45));
   animation: pinFloat 3.2s ease-in-out infinite;
 }
@@ -121,7 +121,7 @@
 }
 
 .digitMid {
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   animation-delay: 140ms !important;
   text-shadow: 0 0 36px rgba(212, 168, 94, 0.4);
 }
@@ -180,15 +180,15 @@
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 3px;
   }
 }
 
 .btnPrimary {
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   color: #14100a;
-  border: 1px solid $color-accent-gold;
+  border: 1px solid $color-accent-brand;
 
   &:hover {
     background: #e0b873;
@@ -197,12 +197,12 @@
 
 .btnSecondary {
   background: rgba(212, 168, 94, 0.08);
-  color: $color-accent-gold;
+  color: $color-accent-brand;
   border: 1px solid rgba(212, 168, 94, 0.4);
 
   &:hover {
     background: rgba(212, 168, 94, 0.16);
-    border-color: $color-accent-gold;
+    border-color: $color-accent-brand;
   }
 }
 

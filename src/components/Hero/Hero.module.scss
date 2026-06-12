@@ -132,7 +132,7 @@
 }
 
 .titleAccent {
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   font-style: italic;
   display: block;
   padding-right: 0.15em;
@@ -188,7 +188,7 @@
   padding: 16px 32px;
   border: none;
   border-radius: $radius-md;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   color: $color-bg-base;
   cursor: pointer;
   text-decoration: none;
@@ -198,13 +198,13 @@
     gap         $duration-ui  $ease-snap;
 
   &:hover {
-    background: lighten($color-accent-gold, 8%);
+    background: lighten($color-accent-brand, 8%);
     color: $color-bg-base;
     gap: $space-3;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-accent-gold;
+    outline: 2px solid $color-accent-brand;
     outline-offset: 3px;
   }
 }

@@ -24,6 +24,10 @@
   transition: background $duration-mid $ease-snap,
               box-shadow $duration-mid $ease-snap;
 
+  @include bp-down('sm') {
+    padding: $space-3 $space-4;
+  }
+
   &.scrolled {
     background: rgba(14, 21, 33, 0.92);
     box-shadow: $shadow-md;
@@ -45,6 +49,10 @@
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--color-accent-gold);
+
+    @include bp-down('sm') {
+      font-size: 14px;
+    }
   }
 }
 
@@ -52,6 +60,11 @@
   width: 28px;
   height: 28px;
   color: var(--color-accent-gold);
+
+  @include bp-down('sm') {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 .nav {
@@ -104,25 +117,29 @@
   display: flex;
   align-items: center;
   gap: $space-2;
-  padding: $space-1 $space-4 $space-1 $space-3;
-  background: rgba(212, 168, 94, 0.08);
-  border: 1px solid rgba(212, 168, 94, 0.25);
-  border-radius: $radius-pill;
-  color: $color-accent-gold;
+  padding: $space-2 $space-4;
+  background: $color-accent-brand;
+  border: none;
+  border-radius: $radius-md;
+  color: $color-bg-base;
   text-decoration: none;
   font-family: var(--font-heading);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.03em;
-  transition: background $duration-ui $ease-snap,
-              border-color $duration-ui $ease-snap,
-              box-shadow $duration-ui $ease-snap;
+  transition:
+    background  $duration-mid $ease-cinematic,
+    gap         $duration-ui  $ease-snap;
 
   &:hover {
-    background: rgba(212, 168, 94, 0.15);
-    border-color: rgba(212, 168, 94, 0.5);
-    box-shadow: 0 0 12px rgba(212, 168, 94, 0.12);
-    color: $color-accent-gold;
+    background: lighten($color-accent-brand, 8%);
+    color: $color-bg-base;
+    gap: $space-3;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 3px;
   }
 }
 
@@ -139,6 +156,11 @@
 
   @include bp-down('md') {
     display: flex;
+  }
+
+  @include bp-down('sm') {
+    padding: $space-2;
+    gap: 4px;
   }
 
   span {
@@ -202,5 +224,15 @@
     padding: $space-3 $space-6;
     text-align: center;
     letter-spacing: 0.04em;
+  }
+
+  .mapLink {
+    font-size: 18px;
+    padding: $space-3 $space-6;
+    border-radius: $radius-md;
+
+    &:hover {
+      gap: $space-3;
+    }
   }
 }

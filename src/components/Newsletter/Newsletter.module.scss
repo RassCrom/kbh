@@ -93,8 +93,8 @@
 
   &:focus {
     outline: none;
-    border-color: var(--color-accent-gold);
-    box-shadow: $shadow-focus-gold;
+    border-color: var(--color-accent-brand);
+    box-shadow: $shadow-focus-brand;
   }
 }
 
@@ -103,14 +103,14 @@
   padding: 12px 28px;
   border: none;
   border-radius: $radius-md;
-  background: $color-accent-gold;
+  background: $color-accent-brand;
   color: $color-bg-base;
   cursor: pointer;
   white-space: nowrap;
   transition: background $duration-mid $ease-cinematic;
 
   &:hover {
-    background: lighten($color-accent-gold, 8%);
+    background: lighten($color-accent-brand, 8%);
   }
 }
 
@@ -139,7 +139,7 @@
   cursor: pointer;
 
   input[type="checkbox"] {
-    accent-color: $color-accent-gold;
+    accent-color: $color-accent-brand;
     width: 16px;
     height: 16px;
   }

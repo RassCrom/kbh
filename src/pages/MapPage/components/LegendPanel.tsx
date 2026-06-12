@@ -163,7 +163,7 @@ export function LegendPanel({
                     style={{
                       background: 'transparent',
                       border: 'none',
-                      color: 'var(--color-accent-gold)',
+                      color: 'var(--color-accent-brand)',
                       fontSize: '11px',
                       cursor: 'pointer',
                       padding: '2px 6px',
@@ -209,7 +209,7 @@ export function LegendPanel({
                         <span
                           className={s.legendLabel}
                           style={{
-                            color: active && selectedTypes.length > 0 ? 'var(--color-accent-gold)' : 'var(--color-text-primary)',
+                            color: active && selectedTypes.length > 0 ? 'var(--color-accent-brand)' : 'var(--color-text-primary)',
                             fontWeight: active && selectedTypes.length > 0 ? '700' : '600',
                           }}
                         >
@@ -234,7 +234,7 @@ export function LegendPanel({
                     style={{
                       background: 'transparent',
                       border: 'none',
-                      color: 'var(--color-accent-gold)',
+                      color: 'var(--color-accent-brand)',
                       fontSize: '11px',
                       cursor: 'pointer',
                       padding: '2px 6px',

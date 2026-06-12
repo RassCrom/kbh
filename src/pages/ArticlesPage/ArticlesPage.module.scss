@@ -34,8 +34,8 @@
               box-shadow $duration-mid $ease-cinematic;
 
   &:hover {
-    border-color: var(--color-accent-gold);
-    box-shadow: $shadow-glow-gold;
+    border-color: var(--color-accent-brand);
+    box-shadow: $shadow-glow-brand;
   }
 
   @include bp-down('md') {
@@ -162,8 +162,8 @@
   transition: all $duration-mid $ease-cinematic;
 
   &:focus {
-    border-color: var(--color-accent-gold);
-    box-shadow: $shadow-glow-gold;
+    border-color: var(--color-accent-brand);
+    box-shadow: $shadow-glow-brand;
   }
 
   &::placeholder {
@@ -190,15 +190,15 @@
 
   &:hover {
     color: var(--color-text-primary);
-    border-color: var(--color-accent-gold);
+    border-color: var(--color-accent-brand);
     background: rgba(212, 168, 94, 0.05);
   }
 
   &.activeChip {
-    color: var(--color-accent-gold);
-    border-color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
     background: rgba(212, 168, 94, 0.12);
-    box-shadow: $shadow-glow-gold;
+    box-shadow: $shadow-glow-brand;
   }
 }
 
@@ -228,9 +228,9 @@
   transition: all $duration-mid $ease-cinematic;
 
   &:hover {
-    border-color: var(--color-accent-gold);
+    border-color: var(--color-accent-brand);
     transform: translateY(-4px);
-    box-shadow: $shadow-glow-gold;
+    box-shadow: $shadow-glow-brand;
 
     .cardImage {
       transform: scale(1.05);
@@ -266,7 +266,7 @@
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   border: 1px solid rgba(212, 168, 94, 0.4);
   @include typ.label-sm;
   font-size: 10px;
@@ -323,7 +323,7 @@
   display: inline-flex;
   align-items: center;
   gap: $space-2;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   text-decoration: none;
   @include typ.label-sm;
   transition: gap $duration-ui $ease-snap;
@@ -359,15 +359,15 @@
 .resetBtn {
   padding: $space-2 $space-6;
   background: rgba(212, 168, 94, 0.08);
-  border: 1px solid var(--color-accent-gold);
+  border: 1px solid var(--color-accent-brand);
   border-radius: $radius-pill;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   cursor: pointer;
   @include typ.label-sm;
   transition: all $duration-mid $ease-cinematic;
 
   &:hover {
     background: rgba(212, 168, 94, 0.16);
-    box-shadow: $shadow-glow-gold;
+    box-shadow: $shadow-glow-brand;
   }
 }

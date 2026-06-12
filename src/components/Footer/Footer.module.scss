@@ -37,7 +37,7 @@
   display: flex;
   align-items: center;
   gap: $space-2;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
 }
 
 .logoText {
@@ -45,7 +45,7 @@
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
 }
 
 .brandDesc {
@@ -80,7 +80,7 @@
   transition: color $duration-ui $ease-snap;
 
   &:hover {
-    color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
   }
 }
 
@@ -110,8 +110,8 @@
               background $duration-ui $ease-snap;
 
   &:hover {
-    border-color: var(--color-accent-gold);
-    color: var(--color-accent-gold);
+    border-color: var(--color-accent-brand);
+    color: var(--color-accent-brand);
     background: rgba(212, 168, 94, 0.06);
   }
 }

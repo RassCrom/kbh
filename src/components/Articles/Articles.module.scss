@@ -51,7 +51,7 @@
 
 .viewAll {
   @include typ.label-lg;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -60,7 +60,7 @@
 
   &:hover {
     gap: $space-3;
-    color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
   }
 }
 
@@ -99,9 +99,9 @@
   }
 
   &:hover {
-    border-color: var(--color-accent-gold);
+    border-color: var(--color-accent-brand);
     transform: translateY(-4px);
-    box-shadow: $shadow-glow-gold;
+    box-shadow: $shadow-glow-brand;
   }
 }
 
@@ -147,7 +147,7 @@
   padding: 2px $space-3;
   border-radius: 999px;
   background: rgba(212, 168, 94, 0.1);
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   border: 1px solid rgba(212, 168, 94, 0.2);
 }
 
@@ -188,7 +188,7 @@
 
 .readMore {
   @include typ.label-sm;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-brand);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -197,6 +197,6 @@
 
   &:hover {
     gap: $space-2;
-    color: var(--color-accent-gold);
+    color: var(--color-accent-brand);
   }
 }
