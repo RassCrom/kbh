@@ -29,7 +29,7 @@ export default function Team() {
         <div className={s.grid}>
           {TEAM.map((member) => (
             <div className={s.card} key={member.initials} id={`member-${member.initials.toLowerCase()}`}>
-              <div className={s.avatar} style={{ background: member.bg }}>
+              <div className={s.avatar}>
                 {member.initials}
               </div>
               <h3 className={s.name}>{member.name}</h3>
