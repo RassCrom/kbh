@@ -3,6 +3,12 @@ import type { Tour } from '../tours';
 
 export type NarrationStatus = 'idle' | 'playing' | 'paused' | 'unavailable';
 
+export interface WordTiming {
+  word: string;
+  start: number;
+  end: number;
+}
+
 interface Options {
   tour: Tour | null;
   step: number;
@@ -13,20 +19,23 @@ interface Options {
 }
 
 /**
- * Voice narration for guided tours.
+ * Voice narration for guided tours with word-level karaoke highlighting.
  *
- * Primary source: pre-generated ElevenLabs MP3s served from
+ * Primary source: pre-generated ElevenLabs MP3s + timing JSONs from
  *   /audio/tours/<tourId>/<stopId>.mp3
+ *   /audio/tours/<tourId>/<stopId>.json
  * (created by `scratch/generate-tour-audio.mjs` — see that file for setup).
  *
- * Fallback: if the MP3 is missing (e.g. audio not generated yet), the stop
- * text is spoken through the browser's Web Speech API so the feature still
- * works out of the box.
+ * Fallback: if the MP3 is missing, the stop text is spoken through the
+ * browser's Web Speech API (no word highlighting in fallback mode).
  */
 export function useTourNarration({ tour, step, enabled, onEnded }: Options) {
   const [status, setStatus] = useState<NarrationStatus>('idle');
   const [usingFallback, setUsingFallback] = useState(false);
+  const [activeWordIndex, setActiveWordIndex] = useState(-1);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const wordsRef = useRef<WordTiming[]>([]);
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
   // Token guards against stale async callbacks after rapid step changes
@@ -41,7 +50,9 @@ export function useTourNarration({ tour, step, enabled, onEnded }: Options) {
       a.load();
     }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    wordsRef.current = [];
     setStatus('idle');
+    setActiveWordIndex(-1);
   }, []);
 
   const speakFallback = useCallback((text: string, token: number) => {
@@ -60,6 +71,7 @@ export function useTourNarration({ tour, step, enabled, onEnded }: Options) {
     utterance.onend = () => {
       if (playTokenRef.current !== token) return;
       setStatus('idle');
+      setActiveWordIndex(-1);
       onEndedRef.current?.();
     };
     utterance.onerror = () => {
@@ -83,15 +95,44 @@ export function useTourNarration({ tour, step, enabled, onEnded }: Options) {
     const audio = audioRef.current;
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
+    wordsRef.current = [];
+    setActiveWordIndex(-1);
+
+    // Load word timings in parallel — silently ignore if not generated yet
+    fetch(`/audio/tours/${tour.id}/${stop.id}.json`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((words: WordTiming[]) => {
+        if (playTokenRef.current === token) wordsRef.current = words;
+      })
+      .catch(() => {});
+
     audio.src = `/audio/tours/${tour.id}/${stop.id}.mp3`;
+
+    audio.ontimeupdate = () => {
+      const t = audio.currentTime;
+      const words = wordsRef.current;
+      if (!words.length) return;
+      // Find the word currently being spoken
+      let idx = -1;
+      for (let i = 0; i < words.length; i++) {
+        if (t >= words[i].start && t <= words[i].end) {
+          idx = i;
+          break;
+        }
+      }
+      setActiveWordIndex(idx);
+    };
+
     audio.onended = () => {
       if (playTokenRef.current !== token) return;
       setStatus('idle');
+      setActiveWordIndex(-1);
       onEndedRef.current?.();
     };
     audio.onerror = () => {
       // MP3 not generated (or fetch failed) — fall back to speech synthesis
       if (playTokenRef.current !== token) return;
+      wordsRef.current = [];
       speakFallback(stop.text, token);
     };
     setUsingFallback(false);
@@ -144,5 +185,5 @@ export function useTourNarration({ tour, step, enabled, onEnded }: Options) {
   // Full teardown on unmount
   useEffect(() => () => stopAll(), [stopAll]);
 
-  return { status, usingFallback, toggle, stop: stopAll };
+  return { status, usingFallback, activeWordIndex, toggle, stop: stopAll };
 }

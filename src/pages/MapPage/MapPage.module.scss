@@ -3017,6 +3017,12 @@
   color: var(--color-text-data);
 }
 
+.tourWordActive {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  transition: color 80ms ease;
+}
+
 .tourNav {
   display: flex;
   align-items: center;

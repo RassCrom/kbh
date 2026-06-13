@@ -176,7 +176,18 @@ export function TourPanel({
           </div>
         </div>
 
-        <p className={s.tourStopText}>{stop.text}</p>
+        <p className={s.tourStopText}>
+          {voiceOn && !narration.usingFallback
+            ? stop.text.split(/\s+/).map((word, i) => (
+                <span
+                  key={i}
+                  className={narration.activeWordIndex === i ? s.tourWordActive : undefined}
+                >
+                  {word}{' '}
+                </span>
+              ))
+            : stop.text}
+        </p>
 
         <div className={s.tourNav}>
           <button
