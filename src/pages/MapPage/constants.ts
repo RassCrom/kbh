@@ -45,7 +45,7 @@ export const ERA_CONFIG = [
     label: 'Capital Founding (1997–2006)',
     color: '#007A9A',
     bounds: [1997, 2006] as [number, number],
-    description: 'Capital declared 1997 — Kurokawa masterplan, Baiterek tower, new national identity',
+    description: 'Capital transferred in 1997 — Kurokawa\'s 1998 masterplan, Baiterek tower, new national identity',
   },
   {
     label: 'Capital Boom & EXPO (2007–2018)',
@@ -128,4 +128,3 @@ export const TYPE_GROUP_MAPPING: Record<string, string[]> = {
   'Healthcare': ['healthcare', 'hospital', 'clinic'],
   'Infrastructure & Admin': ['admin', 'utility', 'airport', 'train station'],
 };
-

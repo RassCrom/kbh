@@ -19,4 +19,17 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['src/pages/MapPage/**/*.{ts,tsx}'],
+    rules: {
+      // MapLibre is an imperative external system built around mutable map refs.
+      // React Compiler's purity rules do not model those APIs correctly.
+      'react-hooks/refs': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      // MapLibre expression tuples are dynamically shaped by design.
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 ])

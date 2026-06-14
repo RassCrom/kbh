@@ -8,7 +8,7 @@ const TOURS = [
   {
     id: 'nurzhol',
     title: 'Nurzhol Axis — Birth of a Capital',
-    desc: 'Fly the ceremonial boulevard of Kisho Kurokawa\'s 1997 masterplan: Khan Shatyr, Bayterek, Ak Orda, the Pyramid and the great mosque-square of Independence.',
+    desc: 'Fly the ceremonial boulevard shaped by Kisho Kurokawa\'s award-winning 1998 masterplan: Khan Shatyr, Bayterek, Ak Orda, the Pyramid and the great mosque-square of Independence.',
     eraColor: 'linear-gradient(135deg, #00AFCA, #007A9A)',
     stops: '6 stops',
     duration: '~6 min',

@@ -316,7 +316,7 @@ export function useMapTours(opts: UseMapToursOptions) {
       } else {
         absoluteCurrentRef.current += diff * 0.15;
       }
-      let currentAbs = absoluteCurrentRef.current;
+      const currentAbs = absoluteCurrentRef.current;
       let newStep = Math.floor(currentAbs);
       let newProgress = currentAbs - newStep;
       if (newStep >= MAX_ABS) { newStep = MAX_ABS; newProgress = 0; }

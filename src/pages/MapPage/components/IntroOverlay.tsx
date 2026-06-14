@@ -10,7 +10,7 @@ export function IntroOverlay({ onSkip }: IntroOverlayProps) {
       <div className={s.introTitleBlock}>
         <span className={s.introKicker}>Architectural Atlas</span>
         <h1 className={s.introTitle}>Astana</h1>
-        <span className={s.introSub}>125 years of building history</span>
+        <span className={s.introSub}>Building history from 1900 to today</span>
       </div>
       <button className={s.introSkipBtn} onClick={onSkip}>
         Skip intro

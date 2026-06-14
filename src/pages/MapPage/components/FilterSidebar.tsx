@@ -228,7 +228,7 @@ function LstScatterChart({ data }: { data: DecadeLstPoint[] }) {
           <g key={v}>
             <line x1={PAD.left - 3} y1={scY(v)} x2={PAD.left} y2={scY(v)}
               stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
-            <text x={PAD.left - 5} y={scY(v) + 3.5} fontSize={7} fill="#6d7d94" textAnchor="end"
+            <text x={PAD.left - 5} y={scY(v) + 3.5} fontSize={9} fill="#6d7d94" textAnchor="end"
               fontFamily="var(--font-mono)">{v}°</text>
           </g>
         ))}
@@ -238,7 +238,7 @@ function LstScatterChart({ data }: { data: DecadeLstPoint[] }) {
           <g key={d}>
             <line x1={scX(d)} y1={PAD.top + CH} x2={scX(d)} y2={PAD.top + CH + 3}
               stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
-            <text x={scX(d)} y={PAD.top + CH + 12} fontSize={7} fill="#6d7d94" textAnchor="middle"
+            <text x={scX(d)} y={PAD.top + CH + 12} fontSize={9} fill="#6d7d94" textAnchor="middle"
               fontFamily="var(--font-mono)">
               {d === 1900 ? '1900' : `'${String(d).slice(2)}`}
             </text>
@@ -275,7 +275,7 @@ function LstScatterChart({ data }: { data: DecadeLstPoint[] }) {
       {/* Axis labels */}
       <div style={{
         position: 'absolute', left: 0, top: '50%', transform: 'rotate(-90deg) translateX(-50%)',
-        transformOrigin: '0 0', fontSize: 7, color: '#6d7d94',
+        transformOrigin: '0 0', fontSize: 10, color: '#6d7d94',
         fontFamily: 'var(--font-mono)', letterSpacing: '0.05em', whiteSpace: 'nowrap',
         pointerEvents: 'none',
       }}>LST °C</div>
@@ -298,10 +298,10 @@ function LstScatterChart({ data }: { data: DecadeLstPoint[] }) {
           <div style={{ fontSize: 10, fontWeight: 700, color: getEraColor(hov.pt.decade), fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             {hov.pt.decade}s
           </div>
-          <div style={{ fontSize: 9, color: '#dfe0e4', fontFamily: 'var(--font-mono)', marginTop: 1 }}>
+          <div style={{ fontSize: 11, color: '#dfe0e4', fontFamily: 'var(--font-mono)', marginTop: 1 }}>
             LST <strong style={{ color: '#fdae61' }}>{hov.pt.meanLst.toFixed(1)} °C</strong>
           </div>
-          <div style={{ fontSize: 9, color: '#6d7d94', fontFamily: 'var(--font-mono)' }}>
+          <div style={{ fontSize: 11, color: '#6d7d94', fontFamily: 'var(--font-mono)' }}>
             {hov.pt.count.toLocaleString()} buildings
           </div>
         </div>
@@ -309,7 +309,7 @@ function LstScatterChart({ data }: { data: DecadeLstPoint[] }) {
 
       {/* Trend insight */}
       {insightText && (
-        <div style={{ fontSize: 8, color: reg && Math.abs(reg.slope) > 0.02 ? 'rgba(212,168,94,0.65)' : '#6d7d94', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em', marginTop: 4, textAlign: 'center' }}>
+        <div style={{ fontSize: 10, color: reg && Math.abs(reg.slope) > 0.02 ? 'rgba(212,168,94,0.65)' : '#6d7d94', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em', marginTop: 4, textAlign: 'center' }}>
           {insightText}
         </div>
       )}

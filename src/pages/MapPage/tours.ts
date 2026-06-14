@@ -31,7 +31,7 @@ export const TOURS: Tour[] = [
     id: 'nurzhol',
     title: 'Nurzhol Axis — Birth of a Capital',
     tagline:
-      'Walk the ceremonial boulevard of Kisho Kurokawa\'s 1997 masterplan, from the tent to the pyramid.',
+      'Walk the ceremonial boulevard shaped by Kisho Kurokawa\'s award-winning 1998 masterplan, from the tent to the pyramid.',
     era: '1997 – 2017',
     color: '#00AFCA',
     duration: '~6 min',
@@ -57,7 +57,7 @@ export const TOURS: Tour[] = [
         name: 'Bayterek Tower',
         year: '2002',
         text:
-          'The 97-metre tree of life holding the golden egg of the Samruk bird — 97 for 1997, the year the capital moved. From the orb\'s observation deck the entire planned axis reveals itself in a single view.',
+          'The tree of life rises to a total height of about 105 metres. Its observation deck sits at the symbolic 97-metre mark — a reference to 1997, the year the capital moved. From the golden orb the entire planned axis reveals itself in a single view.',
         camera: { center: [71.4305, 51.1286], zoom: 16.2, pitch: 60, bearing: 75 },
       },
       {
@@ -151,7 +151,7 @@ export const TOURS: Tour[] = [
         name: 'Astana Grand Mosque',
         year: '2022',
         text:
-          'One of the largest mosques in the world, opened in 2022: a 90-metre dome and minarets visible across the left-bank skyline. Its scale states plainly that the young capital intends to be a spiritual center, not just an administrative one.',
+          'One of the largest mosques in the world, opened in 2022: its main dome rises about 83.2 metres and four minarets reach 130 metres above the left-bank skyline. Its scale states plainly that the young capital intends to be a spiritual center, not just an administrative one.',
         camera: { center: [71.3946, 51.1075], zoom: 15.4, pitch: 52, bearing: 60 },
       },
       {

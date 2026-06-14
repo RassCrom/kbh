@@ -19,7 +19,7 @@ interface Chapter extends ChapterConfig {
 const CHAPTERS: Chapter[] = [
   {
     id: 'intro',
-    heading: 'Look at the Left Bank',
+    heading: 'Look at the Right Bank',
     align: 'left',
     kicker: 'The Grid',
     camera: { center: [71.428, 51.155], zoom: 11.8 },
@@ -176,10 +176,10 @@ const CHAPTERS: Chapter[] = [
     body: (
       <>
         <p>
-          The Soviet grid was not a bad idea. It was an honest one: give
-          everyone an apartment, a school nearby, a bus to work. It worked.
-          The problem lay elsewhere — in sameness. Not a single city without a
-          standard plan. Not a single building with character.
+          The Soviet grid pursued a clear social goal: provide apartments,
+          nearby schools and reliable transport at remarkable speed. Its
+          trade-off was repetition: standard plans and prefabricated buildings
+          often left limited room for local architectural expression.
         </p>
         <blockquote className={s.pullQuoteText}>
           "The Soviet city was a machine for living. Astana is an experiment

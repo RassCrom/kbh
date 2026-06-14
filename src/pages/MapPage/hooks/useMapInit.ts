@@ -158,7 +158,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
       }, 250);
     });
 
-    map.once('idle', () => setMapSettled(true));
+    map.once('load', () => setMapSettled(true));
     map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
 
     if (playIntro) {
@@ -218,6 +218,9 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
           'fill-extrusion-height': buildHeightExtrusionExpr(),
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.85,
+          // Disable default 300ms transition so buildings appear at full height immediately
+          'fill-extrusion-height-transition': { duration: 0, delay: 0 },
+          'fill-extrusion-opacity-transition': { duration: 0, delay: 0 },
         },
       });
 

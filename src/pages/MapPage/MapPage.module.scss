@@ -26,6 +26,124 @@
 }
 
 /* ------------------------------------------------------------------ */
+/*  Historical / modern swipe comparison                              */
+/* ------------------------------------------------------------------ */
+
+.compareOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: $z-map-overlay;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.compareHistoricalClip {
+  position: absolute;
+  inset: 0 auto 0 0;
+  overflow: hidden;
+  box-shadow: 4px 0 18px rgba(0, 0, 0, 0.28);
+}
+
+.compareMap {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100%;
+}
+
+.compareLabel {
+  position: absolute;
+  top: 64px;
+  padding: 6px 10px;
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: $shadow-md;
+}
+
+.compareLabelHistorical {
+  left: $space-4;
+}
+
+.compareLabelModern {
+  right: $space-4;
+}
+
+.compareDivider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  padding: 0;
+  transform: translateX(-50%);
+  background: transparent;
+  border: 0;
+  pointer-events: auto;
+  cursor: ew-resize;
+  touch-action: none;
+
+  &:focus-visible {
+    outline: none;
+
+    .compareHandle {
+      outline: 2px solid $color-accent-brand;
+      outline-offset: 3px;
+    }
+  }
+}
+
+.compareDividerLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 0 14px rgba(0, 0, 0, 0.45);
+}
+
+.compareHandle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  background: var(--glass-bg-heavy);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  color: $color-accent-brand;
+  box-shadow: $shadow-float;
+}
+
+@media (max-width: 767px) {
+  .compareLabel {
+    top: 112px;
+    max-width: calc(50vw - 20px);
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .compareLabelHistorical {
+    left: $space-3;
+  }
+
+  .compareLabelModern {
+    right: $space-3;
+    text-align: right;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Floating UI overlays                                               */
 /* ------------------------------------------------------------------ */
 
@@ -3708,4 +3826,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tourAutoTimer { animation: none; transform: scaleX(1); opacity: 0.3; }
+}
+
+/* Keep dense map controls readable on compact touch screens. */
+@media (max-width: 767px) {
+  .mapPage :is(button, input, select, label, p, li, span) {
+    font-size: max(12px, 1em);
+  }
 }

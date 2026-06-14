@@ -9,6 +9,11 @@ export interface WordTiming {
   end: number;
 }
 
+const TEXT_ONLY_STOPS = new Set([
+  'nurzhol/bayterek',
+  'sacred/grand-mosque',
+]);
+
 interface Options {
   tour: Tour | null;
   step: number;
@@ -97,6 +102,13 @@ export function useTourNarration({ tour, step, enabled, onEnded }: Options) {
 
     wordsRef.current = [];
     setActiveWordIndex(-1);
+
+    // These stops were fact-checked after the studio audio was generated.
+    // Use the current tour text until replacement narration is available.
+    if (TEXT_ONLY_STOPS.has(`${tour.id}/${stop.id}`)) {
+      speakFallback(stop.text, token);
+      return;
+    }
 
     // Load word timings in parallel — silently ignore if not generated yet
     fetch(`/audio/tours/${tour.id}/${stop.id}.json`)

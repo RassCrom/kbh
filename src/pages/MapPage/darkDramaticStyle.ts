@@ -383,7 +383,7 @@ export const darkDramaticStyle: StyleSpecification = {
       layout: {
         'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
         'text-font': ['Noto Sans Regular'],
-        'text-size': 9,
+        'text-size': 11,
         'symbol-placement': 'line',
         'text-max-angle': 30,
       },
@@ -403,7 +403,7 @@ export const darkDramaticStyle: StyleSpecification = {
       layout: {
         'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
         'text-font': ['Noto Sans Regular'],
-        'text-size': 10,
+        'text-size': 12,
         'symbol-placement': 'line',
         'text-max-angle': 30,
       },
@@ -423,7 +423,7 @@ export const darkDramaticStyle: StyleSpecification = {
       layout: {
         'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
         'text-font': ['Noto Sans Bold'],
-        'text-size': 11,
+        'text-size': 12,
         'symbol-placement': 'line',
         'text-max-angle': 30,
       },
@@ -445,7 +445,7 @@ export const darkDramaticStyle: StyleSpecification = {
       layout: {
         'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
         'text-font': ['Noto Sans Regular'],
-        'text-size': 9,
+        'text-size': 11,
         'text-max-width': 6,
         'text-transform': 'uppercase',
         'text-letter-spacing': 0.1,

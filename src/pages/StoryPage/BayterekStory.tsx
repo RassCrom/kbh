@@ -21,10 +21,10 @@ export default function BayterekStory() {
           </div>
           <h1 className={s.title}>Rise of Bayterek: Symbolism in Steel and Glass</h1>
           <p className={s.lead}>
-            At the heart of Astana stands a 97-metre tower that is less a building
-            than a declaration. We trace how a Kazakh creation myth became the most
-            recognisable silhouette in Central Asia — and what its every dimension
-            was designed to say.
+            At the heart of Astana stands a monument about 105 metres tall that is
+            less a building than a declaration. We trace how a Kazakh creation myth
+            became the most recognisable silhouette in Central Asia — and what its
+            carefully chosen dimensions were designed to say.
           </p>
         </div>
       </header>
@@ -143,11 +143,11 @@ export default function BayterekStory() {
             carry a date.
           </p>
           <p className={s.body}>
-            That last constraint shaped everything. Ninety-seven metres. The figure
-            encoded the year the capital was transferred — 1997 — into the very
-            structure of the building. Architecture as calendar. Every time a
-            citizen looked at the skyline, they would be reading a number, even if
-            they did not consciously realise it.
+            That last constraint shaped the visitor experience. The observation
+            deck was placed at the symbolic 97-metre mark, encoding the year the
+            capital was transferred — 1997 — into the building. The full structure
+            rises to about 105 metres. Architecture becomes a calendar without
+            confusing the symbolic level with the monument's total height.
           </p>
 
           <div className={s.placeholder}>
@@ -204,9 +204,9 @@ export default function BayterekStory() {
           <div className={s.placeholder}>
             <span className={s.placeholderLabel}>Interactive map · Left Bank masterplan</span>
             <p className={s.placeholderDesc}>
-              Kurokawa's 1997 general plan for the Left Bank overlaid on current
+              Kurokawa's award-winning 1998 masterplan for the Left Bank overlaid on current
               satellite imagery. Bayterek's position highlighted as the visual
-              terminus of Nurzhol Boulevard. Toggle between the 1997 plan and the
+              terminus of Nurzhol Boulevard. Toggle between the 1998 plan and the
               built result to compare intention and execution. Built with MapLibre GL.
             </p>
           </div>
@@ -218,19 +218,19 @@ export default function BayterekStory() {
           <p className={s.body}>
             In most buildings, dimensions are the result of programme and
             engineering. In Bayterek, they were reverse-engineered from meaning.
-            Once the height of 97 metres was fixed, the structural and spatial
-            consequences followed. The observation deck sits at 86 metres. The
-            restaurant occupies the lower half of the sphere. The sphere's diameter
-            of 22 metres was chosen to read as visually dominant from the boulevard
-            below — large enough to project weight and presence across several
-            hundred metres of open space.
+            The symbolic 97-metre observation level shaped the structural and
+            spatial programme within a monument whose total height is about
+            105 metres. The restaurant occupies the lower half of the sphere. The
+            sphere's diameter of 22 metres was chosen to read as visually dominant
+            from the boulevard below — large enough to project weight and presence
+            across several hundred metres of open space.
           </p>
 
           <div className={s.statGrid}>
             <div className={s.statItem}>
               <span className={s.statYear}>Height</span>
-              <span className={s.statValue}>97 m</span>
-              <span className={s.statLabel}>encodes the year 1997</span>
+              <span className={s.statValue}>~105 m</span>
+              <span className={s.statLabel}>total height; observation level at 97 m</span>
             </div>
             <div className={s.statItem}>
               <span className={s.statYear}>Sphere</span>
@@ -251,7 +251,7 @@ export default function BayterekStory() {
             golden glass, tinted to catch the light at different hours of the day.
             At noon, in the intense northern steppe sun, it glows. At sunset it
             deepens to amber. At night, it is illuminated from within, a lantern
-            suspended 86 metres above the boulevard. The egg is always there, always
+            suspended above the boulevard. The egg is always there, always
             visible, always holding its colour against the sky.
           </p>
 
@@ -271,7 +271,7 @@ export default function BayterekStory() {
         <section className={s.section}>
           <h2 className={s.sectionHeading}>The Handprint at the Top of the World</h2>
           <p className={s.body}>
-            Inside the observation deck at 86 metres, behind glass, sits one of
+            Inside the observation deck at the symbolic 97-metre level, behind glass, sits one of
             the more quietly charged objects in the country: a gilded cast of
             Nursultan Nazarbayev's right hand, embedded in a white marble plinth.
             Visitors are invited to press their own palm against it and make a wish.
@@ -298,7 +298,7 @@ export default function BayterekStory() {
             <span className={s.placeholderLabel}>Photo · Observation deck</span>
             <p className={s.placeholderDesc}>
               The golden handprint of Nursultan Nazarbayev set in the white marble
-              plinth at the 86-metre observation deck. A visitor's hand pressed
+              plinth at the 97-metre observation level. A visitor's hand pressed
               against it in the foreground, Astana's Left Bank skyline visible
               through the curved glass behind.
             </p>
@@ -395,14 +395,14 @@ export default function BayterekStory() {
           </p>
           <p className={s.body}>
             Whether the building fully achieves what it sets out to do is a
-            question visitors settle for themselves at 86 metres, looking out over
+            question visitors settle for themselves at the 97-metre observation level, looking out over
             a city that is itself still, in many ways, an argument in progress.
           </p>
 
           <div className={s.placeholder}>
             <span className={s.placeholderLabel}>Video · Observation deck</span>
             <p className={s.placeholderDesc}>
-              360° timelapse from the observation deck at 86 metres: dawn over the
+              360° timelapse from the observation deck at the 97-metre level: dawn over the
               steppe to the east, the Ishim River bending south, Nurzhol Boulevard
               running west toward the Palace of Peace, and the full Left Bank skyline
               emerging in morning light. Duration: 90 seconds.

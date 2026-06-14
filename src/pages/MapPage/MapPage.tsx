@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, Film, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft, Columns2, Film, SlidersHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
 import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
@@ -26,6 +26,7 @@ import { TourPanel } from './components/TourPanel';
 import { LandmarkPanel } from './components/LandmarkPanel';
 import { IntroOverlay } from './components/IntroOverlay';
 import { CinemaOverlay } from './components/CinemaOverlay';
+import { HistoricalCompare } from './components/HistoricalCompare';
 import { MapGuideCard, HelpTrigger } from './components/MapGuideCard';
 import type { Landmark } from './overlays/landmarksData';
 
@@ -41,9 +42,39 @@ const COLOR_MODES: ColorMode[] = ['year', 'elevation', 'lst', 'type', 'uhi'];
 
 export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const playbackMapRef = useRef<maplibregl.Map | null>(null);
   const isMobile = useIsMobile();
 
+  // ── Ref that always holds the latest filter state for the play tick ──────
+  // Allows onPlayTick to read current values without stale closures
+  const filterStateRef = useRef({
+    yearRangeMin: 1900,
+    selectedTypes: [] as string[],
+    selectedDistricts: [] as string[],
+    selectedArchStyle: '',
+    selectedCompany: '',
+    selectedUhiCells: [] as string[],
+    colorMode: 'year' as ColorMode,
+  });
+
   // ── Timeline / play state ─────────────────────────────────────────────────
+  const onPlayTick = useCallback((year: number) => {
+    const map = playbackMapRef.current;
+    if (!map || !map.getStyle()) return;
+    const f = filterStateRef.current;
+    const filterExpr = buildCombinedFilter(
+      [f.yearRangeMin, year],
+      f.selectedTypes,
+      f.selectedDistricts,
+      f.selectedArchStyle,
+      f.selectedCompany,
+      f.colorMode === 'uhi' ? f.selectedUhiCells : [],
+    ) as maplibregl.FilterSpecification;
+    if (map.getLayer('buildings-fill')) map.setFilter('buildings-fill', filterExpr);
+    if (map.getLayer('buildings-outline')) map.setFilter('buildings-outline', filterExpr);
+    if (map.getLayer('buildings-3d')) map.setFilter('buildings-3d', filterExpr);
+  }, []);
+
   const {
     sliderMax,
     setSliderMax,
@@ -52,7 +83,7 @@ export default function MapPage() {
     isPlaying,
     handleTogglePlay,
     handlePlayReset,
-  } = useTimeLapse(1900, 2029);
+  } = useTimeLapse(1900, 2029, { onTick: onPlayTick });
 
   // ── Sidebar filter state ──────────────────────────────────────────────────
   const {
@@ -75,6 +106,7 @@ export default function MapPage() {
   // ── UI panel states ───────────────────────────────────────────────────────
   const [legendOpen, setLegendOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [compareActive, setCompareActive] = useState(false);
   const [timelineCollapsed, setTimelineCollapsed] = useState(() =>
     typeof window !== 'undefined' && window.innerWidth < 768,
   );
@@ -115,7 +147,7 @@ export default function MapPage() {
   useEffect(() => { vizModeRef.current = vizMode; }, [vizMode]);
 
   // ── Intro state ───────────────────────────────────────────────────────────
-  const hashCameraRef = useRef(parseCameraHash());
+  const [pendingHashCamera] = useState(parseCameraHash);
   const pendingTourDeepLinkId = new URLSearchParams(
     typeof window !== 'undefined' ? window.location.search : '',
   ).get('tour');
@@ -187,8 +219,12 @@ export default function MapPage() {
       setSelectedBuilding(null);
       setSelectedLandmark(null);
     },
-    pendingHashCamera: hashCameraRef.current, // read once at init, stable
+    pendingHashCamera,
   });
+
+  useEffect(() => {
+    playbackMapRef.current = mapRef.current;
+  }, [mapLoaded, mapRef]);
 
   // ── Tour hook ─────────────────────────────────────────────────────────────
   const tours = useMapTours({
@@ -291,8 +327,25 @@ export default function MapPage() {
     else map.once('load', apply);
   }, [colorMode, mapTheme, mapRef]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Combined filter ───────────────────────────────────────────────────────
+  // ── Keep filterStateRef current so onPlayTick reads fresh values ─────────
   useEffect(() => {
+    filterStateRef.current = {
+      yearRangeMin: yearRange[0],
+      selectedTypes,
+      selectedDistricts,
+      selectedArchStyle,
+      selectedCompany,
+      selectedUhiCells,
+      colorMode,
+    };
+  }, [yearRange, selectedTypes, selectedDistricts, selectedArchStyle, selectedCompany, selectedUhiCells, colorMode]);
+
+  // ── Combined filter ───────────────────────────────────────────────────────
+  // During play, onPlayTick drives the map filter directly (same rAF frame).
+  // Skipping here prevents the async useEffect from overwriting it with a
+  // stale yearRange value from the React batch.
+  useEffect(() => {
+    if (isPlaying) return;
     if (!mapRef.current) return;
     const map = mapRef.current;
     if (!map.getStyle()) return;
@@ -307,7 +360,7 @@ export default function MapPage() {
     if (map.getLayer('buildings-fill')) map.setFilter('buildings-fill', filterExpr);
     if (map.getLayer('buildings-outline')) map.setFilter('buildings-outline', filterExpr);
     if (map.getLayer('buildings-3d')) map.setFilter('buildings-3d', filterExpr);
-  }, [yearRange, selectedTypes, selectedDistricts, selectedArchStyle, selectedCompany, selectedUhiCells, colorMode, mapRef]);
+  }, [isPlaying, yearRange, selectedTypes, selectedDistricts, selectedArchStyle, selectedCompany, selectedUhiCells, colorMode, mapRef]);
 
   // ── Fly to selected districts ─────────────────────────────────────────────
   useEffect(() => {
@@ -416,6 +469,22 @@ export default function MapPage() {
   const handleClearDistricts = useCallback(() => setSelectedDistricts([]), [setSelectedDistricts]);
   const handleThemeToggle = useCallback(() => setMapTheme((t) => (t === 'dark' ? 'light' : 'dark')), []);
   const handleExtrudeModeChange = useCallback((m: ExtrudeMode) => setExtrudeMode(m), []);
+  const handleCompareToggle = useCallback(() => {
+    if (!compareActive) {
+      setVizMode('buildings');
+      setColorMode('year');
+      setYearRange([1900, sliderMax]);
+      setSidebarOpen(false);
+      setLegendOpen(false);
+      setTimelineCollapsed(true);
+      setSelectedBuilding(null);
+      setSelectedLandmark(null);
+      setTapPreview(null);
+      overlays.setSelectedGraffiti(null);
+      handleDismissHelpers();
+    }
+    setCompareActive((active) => !active);
+  }, [compareActive, handleDismissHelpers, overlays, setYearRange, sliderMax]);
 
   const handleColorModeChange = useCallback((mode: ColorMode) => {
     setColorMode(mode);
@@ -489,6 +558,9 @@ export default function MapPage() {
   return (
     <div className={s.mapPage}>
       <div ref={containerRef} className={s.mapContainer} />
+      {compareActive && mapLoaded && (
+        <HistoricalCompare mainMapRef={mapRef} mapTheme={mapTheme} />
+      )}
 
       {/* Cinematic intro overlay */}
       {introActive && <IntroOverlay onSkip={finishIntro} />}
@@ -519,7 +591,7 @@ export default function MapPage() {
           </Link>
 
           {/* Viz mode toggle */}
-          {!tours.activeTour && !cinema.cinemaActive && (
+          {!tours.activeTour && !cinema.cinemaActive && !compareActive && (
             <HexControls
               vizMode={vizMode}
               onVizModeChange={setVizMode}
@@ -532,27 +604,41 @@ export default function MapPage() {
           {/* Tours + Cinema launchers */}
           {!tours.activeTour && !cinema.cinemaActive && (
             <div className={s.tourLauncher}>
-              <TourPanel
-                activeTour={tours.activeTour}
-                tourStep={tours.tourStep}
-                onStartTour={tours.handleStartTour}
-                onStepChange={tours.handleStepChange}
-                onExitTour={tours.handleExitTour}
-              />
+              {!compareActive && (
+                <>
+                  <TourPanel
+                    activeTour={tours.activeTour}
+                    tourStep={tours.tourStep}
+                    onStartTour={tours.handleStartTour}
+                    onStepChange={tours.handleStepChange}
+                    onExitTour={tours.handleExitTour}
+                  />
+                  <button
+                    className={s.tourLauncherBtn}
+                    onClick={cinema.handleStartCinema}
+                    title="Cinematic time-lapse — watch the city grow from 1900"
+                    aria-label="Play cinematic time-lapse"
+                  >
+                    <Film size={13} />
+                    <span>Cinema</span>
+                  </button>
+                </>
+              )}
               <button
-                className={s.tourLauncherBtn}
-                onClick={cinema.handleStartCinema}
-                title="Cinematic time-lapse — watch the city grow from 1900"
-                aria-label="Play cinematic time-lapse"
+                className={`${s.tourLauncherBtn} ${compareActive ? s.tourLauncherBtnActive : ''}`}
+                onClick={handleCompareToggle}
+                title="Compare reconstructed 1990 map with the modern city"
+                aria-label={compareActive ? 'Exit map comparison' : 'Compare historical and modern maps'}
+                aria-pressed={compareActive}
               >
-                <Film size={13} />
-                <span>Cinema</span>
+                <Columns2 size={13} />
+                <span>{compareActive ? 'Exit compare' : 'Compare'}</span>
               </button>
             </div>
           )}
 
           {/* Filter toggle */}
-          {!sidebarOpen && !tours.activeTour && !cinema.cinemaActive && (
+          {!sidebarOpen && !tours.activeTour && !cinema.cinemaActive && !compareActive && (
             <button
               className={s.filterToggle}
               onClick={handleSidebarToggle}
@@ -602,7 +688,7 @@ export default function MapPage() {
           />
 
           {/* Legend panel */}
-          {!tours.activeTour && !cinema.cinemaActive && (
+          {!tours.activeTour && !cinema.cinemaActive && !compareActive && (
             <LegendPanel
               colorMode={colorMode}
               legendOpen={legendOpen}
@@ -678,7 +764,7 @@ export default function MapPage() {
           )}
 
           {/* Timeline slider */}
-          {!tours.activeTour && !cinema.cinemaActive && (
+          {!tours.activeTour && !cinema.cinemaActive && !compareActive && (
             <TimelineSlider
               min={1900}
               max={sliderMax}
@@ -697,12 +783,12 @@ export default function MapPage() {
           )}
 
           {/* Map guide */}
-          {showHelpers && !tours.activeTour && !cinema.cinemaActive && (
+          {showHelpers && !tours.activeTour && !cinema.cinemaActive && !compareActive && (
             <MapGuideCard onDismiss={handleDismissHelpers} />
           )}
 
           {/* Help trigger */}
-          {!showHelpers && !tours.activeTour && !cinema.cinemaActive && (
+          {!showHelpers && !tours.activeTour && !cinema.cinemaActive && !compareActive && (
             <HelpTrigger onOpen={handleOpenHelpers} />
           )}
         </>
