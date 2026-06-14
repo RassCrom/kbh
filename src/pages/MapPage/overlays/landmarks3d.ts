@@ -1,6 +1,7 @@
 import maplibregl from 'maplibre-gl';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { LANDMARKS } from './landmarksData';
 
 /**
@@ -128,8 +129,9 @@ export function createLandmarksLayer(): maplibregl.CustomLayerInterface {
         scale: maplibregl.MercatorCoordinate.fromLngLat(LANDMARKS[0].lngLat, 0)
           .meterInMercatorCoordinateUnits(),
       });
-      new GLTFLoader().load(
-        '/bayterek.glb',
+      const gltfLoader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+      gltfLoader.load(
+        '/bayterek-v2.glb',
         (gltf) => {
           bayterekScene.add(normalizeModel(gltf.scene, 105));
           map.triggerRepaint();
@@ -150,7 +152,7 @@ export function createLandmarksLayer(): maplibregl.CustomLayerInterface {
         scale: maplibregl.MercatorCoordinate.fromLngLat(LANDMARKS[1].lngLat, 0)
           .meterInMercatorCoordinateUnits(),
       });
-      new GLTFLoader().load(
+      gltfLoader.load(
         '/kabanbay.glb',
         (gltf) => {
           kabanbaiScene.add(normalizeModel(gltf.scene, 12));

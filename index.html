@@ -18,10 +18,27 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      if (location.pathname === '/map') {
+        fetch('/buildings-ast-v44.pmtiles', {
+          headers: { Range: 'bytes=0-16383' },
+          cache: 'force-cache',
+          priority: 'high'
+        }).catch(() => {});
+      }
+    </script>
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Open+Sans:wght@300;400&family=DM+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&amp;family=Open+Sans:wght@300;400&amp;family=DM+Mono:wght@400;500&amp;display=swap&amp;subset=latin"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&amp;family=Open+Sans:wght@300;400&amp;family=DM+Mono:wght@400;500&amp;display=swap&amp;subset=latin"
+      />
+    </noscript>
     <title>Astana Buildings</title>
   </head>
   <body>

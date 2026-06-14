@@ -39,6 +39,7 @@ import { useCinemaMode } from './hooks/useCinemaMode';
 import { useMapOverlays } from './hooks/useMapOverlays';
 
 const COLOR_MODES: ColorMode[] = ['year', 'elevation', 'lst', 'type', 'uhi'];
+const INTRO_SESSION_KEY = 'kbh-map-intro-seen';
 
 export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -155,9 +156,14 @@ export default function MapPage() {
   const [introActive, setIntroActive] = useState(() =>
     !PREFERS_REDUCED_MOTION &&
     !pendingTourDeepLinkId &&
-    parseCameraHash() === null,
+    parseCameraHash() === null &&
+    sessionStorage.getItem(INTRO_SESSION_KEY) !== 'true',
   );
   const introActiveRef = useRef(introActive);
+
+  useEffect(() => {
+    if (introActive) sessionStorage.setItem(INTRO_SESSION_KEY, 'true');
+  }, [introActive]);
 
   // ── Shared UI snapshot for hexagon mode ──────────────────────────────────
   const preHexStateRef = useRef<{ legend: boolean; sidebar: boolean; timeline: boolean } | null>(null);
@@ -715,6 +721,7 @@ export default function MapPage() {
           {IS_TOUCH_DEVICE && !selectedBuilding && (
             <TapPreviewCard
               properties={tapPreview}
+              colorMode={colorMode}
               onOpenDetails={handleOpenTapDetails}
               onDismiss={handleDismissTapPreview}
             />
@@ -723,6 +730,7 @@ export default function MapPage() {
           {/* Building detail panel */}
           <BuildingPanel
             properties={selectedBuilding}
+            colorMode={colorMode}
             onClose={closeBuildingPanel}
           />
 

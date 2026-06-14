@@ -3459,6 +3459,29 @@
   color: var(--color-text-secondary);
 }
 
+.tapPreviewTheme {
+  max-width: 48vw;
+  overflow: hidden;
+  color: $color-accent-brand;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tapPreviewHint {
+  max-width: 48vw;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1.35;
+  opacity: 0.72;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .tapPreviewSep {
   opacity: 0.5;
 }
@@ -3828,9 +3851,9 @@
   .tourAutoTimer { animation: none; transform: scaleX(1); opacity: 0.3; }
 }
 
-/* Keep dense map controls readable on compact touch screens. */
+/* Keep dense map controls compact and readable on touch screens. */
 @media (max-width: 767px) {
   .mapPage :is(button, input, select, label, p, li, span) {
-    font-size: max(12px, 1em);
+    font-size: clamp(12px, 1em, 14px);
   }
 }

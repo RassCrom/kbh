@@ -1,29 +1,14 @@
 import { useRef } from 'react';
 import { X, ImageOff } from 'lucide-react';
 import { ERA_CONFIG } from '../constants';
+import {
+  formatBuildingType,
+  formatDistrict,
+  getThemeDetails,
+  parseBuildingYear,
+} from '../buildingDisplay';
+import type { ColorMode } from '../mapHelpers';
 import s from './BuildingPanel.module.scss';
-
-const TYPE_LABELS: Record<string, string> = {
-  rc: 'Residential', bc: 'Business', ec: 'Entertainment',
-  sc: 'Shopping', sf: 'Sport', mosque: 'Mosque', church: 'Church',
-  healthcare: 'Healthcare', hospital: 'Hospital', clinic: 'Clinic',
-  utility: 'Utility', 'cultural site': 'Cultural', admin: 'Administrative',
-  airport: 'Airport', 'train station': 'Train Station', school: 'School',
-  kindergarten: 'Kindergarten', university: 'University', house: 'House',
-};
-
-function parseYear(props: Record<string, unknown>): number {
-  const yi = props.year_int;
-  if (yi != null && !isNaN(Number(yi))) return Number(yi);
-  const ys = props.year_str;
-  if (ys) {
-    const str = String(ys);
-    const d = str.indexOf('-');
-    if (d > 0) return Math.round((parseInt(str.slice(0, d)) + parseInt(str.slice(d + 1))) / 2);
-    return parseInt(str) || 0;
-  }
-  return 0;
-}
 
 function formatYear(props: Record<string, unknown>): string {
   if (props.year_int) return String(props.year_int);
@@ -46,19 +31,21 @@ function val(v: unknown): string {
 
 interface Props {
   properties: Record<string, unknown> | null;
+  colorMode: ColorMode;
   onClose: () => void;
 }
 
-export function BuildingPanel({ properties, onClose }: Props) {
+export function BuildingPanel({ properties, colorMode, onClose }: Props) {
   // Keep last known props so content stays visible during exit slide
   const lastProps = useRef<Record<string, unknown> | null>(null);
   if (properties) lastProps.current = properties;
   const p = properties ?? lastProps.current;
 
-  const year = p ? parseYear(p) : 0;
+  const year = p ? parseBuildingYear(p) : 0;
   const era = getEra(year);
-  const typeLabel = p ? (TYPE_LABELS[String(p.type)] ?? val(p.type)) : '—';
+  const typeLabel = p ? formatBuildingType(p.type) : '—';
   const height = p?.b_height ? `${p.b_height} m` : '—';
+  const themeDetails = p ? getThemeDetails(p, colorMode) : null;
   const displayName = p
     ? val(p.name) !== '—'
       ? val(p.name)
@@ -139,7 +126,7 @@ export function BuildingPanel({ properties, onClose }: Props) {
               </div>
               <div className={s.field}>
                 <span className={s.fieldLabel}>District</span>
-                <span className={s.fieldValue}>{val(p.district)}</span>
+                <span className={s.fieldValue}>{formatDistrict(p.district)}</span>
               </div>
               <div className={s.field}>
                 <span className={s.fieldLabel}>Wall</span>
@@ -147,6 +134,20 @@ export function BuildingPanel({ properties, onClose }: Props) {
               </div>
             </div>
           </div>
+
+          {!!themeDetails && (
+            <div className={s.section}>
+              <span className={s.sectionLabel}>Active layer · {themeDetails.label}</span>
+              <div className={s.grid}>
+                {themeDetails.attributes.map((attribute) => (
+                  <div className={s.field} key={attribute.label}>
+                    <span className={s.fieldLabel}>{attribute.label}</span>
+                    <span className={s.fieldValue}>{attribute.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {!!(p.arch_style || p.construction_company) && (
             <div className={s.section}>
