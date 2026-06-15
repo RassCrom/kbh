@@ -2,17 +2,15 @@
 
 > TODO: Add a one-sentence project description and the main value proposition.
 
-[Live Demo](TODO) · [Competition Entry](TODO) · [Issue Tracker](TODO)
+[Live Demo](https://kbh-nu.vercel.app)
 
-<!-- TODO: Add a hero screenshot or animated preview.
-![Astana Building History map](docs/images/hero.jpg)
--->
+TODO: Add a hero screenshot or animated preview.
+![Astana Building History map](/public/intro.png)
+
 
 ## Overview
 
-Astana Building History is an interactive web cartography project that explores the architectural and urban development of Astana through building footprints, construction years, thematic layers, guided tours, and narrative stories.
-
-TODO: Replace this paragraph with the final project overview.
+Astana building history project is an interactive web map showing Astana through buildings in many ways. It combines urban history, culture, design, and climate challenges.
 
 ## Table of Contents
 
@@ -36,10 +34,10 @@ TODO: Replace this paragraph with the final project overview.
 
 ## Project Goals
 
-- TODO: Explain the primary cartographic question.
-- TODO: Describe the intended audience.
-- TODO: Explain what makes the project different from existing maps.
-- TODO: Define the expected educational or research impact.
+- Visualizing heavy building data on the web and make it open for anyone
+- Architects, public policy makers, map enthusiasts
+- The project combine unique features that are rarely can be seen in the experience of web maps. It shows data that is hard to find for Astana (or do not exist at all) — buildings age, construction companies, urban greenness, and many other
+- Making building data available
 
 ## Key Features
 
@@ -51,47 +49,23 @@ TODO: Replace this paragraph with the final project overview.
 - Building attribute panels and mobile tap previews.
 - Narrative stories and contextual content.
 - Responsive desktop and mobile interface.
-
-## Competition Submission
-
-### Entry Details
-
-| Field | Value |
-| --- | --- |
-| Competition | TODO |
-| Category | TODO |
-| Submission URL | TODO |
-| Submission date | TODO |
-| Team / author | TODO |
-| Contact | TODO |
-
-### Cartographic Intent
-
-TODO: Describe the visual hierarchy, map language, color choices, interaction design, and the story the map is intended to communicate.
-
-### Innovation
-
-TODO: Explain the technically or cartographically innovative aspects of the project.
-
-### Jury Walkthrough
-
-1. TODO: Add the recommended starting point.
-2. TODO: Add the key interaction or layer to demonstrate.
-3. TODO: Add the guided tour or story to open.
-4. TODO: Add the final comparison or conclusion.
+- UPCOMING: Crime data and urban green (rule 3-30-300: 3 trees, 30% of green cover and 300 meters till park)
+- UPCOMING: Art of Astana through Murals, graffiti, and other street art
+- UPCOMING: More guided tours, improving existing tours
+- UPCOMING: More building data (age, construction company, etc.)
+- UPCOMING: Storytelling about Astana building heritage
 
 ## Map Layers
 
 | Layer / Mode | Purpose | Main attributes | Source |
 | --- | --- | --- | --- |
-| Year Built | Shows construction periods and historical eras | `year_int`, `year_str` | TODO |
-| Elevation | Shows terrain elevation beneath buildings | `dem_mean` | TODO |
-| Summer Heat | Shows mean summer land surface temperature | `lst_1mean` | TODO |
-| Building Use | Shows primary building function | `type` | TODO |
-| Heat × Age | Combines building age and summer LST | `year_int`, `lst_1mean` | TODO |
-| Historical Comparison | Compares buildings up to 1990 with the modern city | `year_int` | TODO |
-| District Borders | Provides administrative context | `district` | TODO |
-| Additional Overlays | TODO: Describe graffiti, green-rule, crime, or future layers | TODO | TODO |
+| Year Built | Shows construction periods and historical eras | `year_int`, `year_str`
+| Elevation | Shows terrain elevation beneath buildings | `dem_mean`
+| Summer Heat | Shows mean summer land surface temperature | `lst_1mean`
+| Building Use | Shows primary building function | `type`
+| Heat × Age | Combines building age and summer LST | `year_int`, `lst_1mean`
+| Historical Comparison | Compares buildings up to 1990 with the modern city | `year_int`
+| District Borders | Provides administrative context | `district`
 
 ## Data and Methodology
 
@@ -99,12 +73,12 @@ TODO: Explain the technically or cartographically innovative aspects of the proj
 
 | Dataset | Provider | Coverage / date | License | Processing notes |
 | --- | --- | --- | --- | --- |
-| Building footprints | TODO | TODO | TODO | TODO |
-| Construction years | TODO | TODO | TODO | TODO |
-| Building heights | TODO | TODO | TODO | TODO |
-| Elevation / DTM | TODO | TODO | TODO | TODO |
-| Land surface temperature | TODO | TODO | TODO | TODO |
-| District boundaries | TODO | TODO | TODO | TODO |
+| Building footprints | OSM and manual digitizing | Updated: June 2026 | Open Database License (ODbL) | none |
+| Construction years | Manual data aggregation | Updated: June 2026 | N/A | none |
+| Building heights | none | none | none | none |
+| Elevation / DTM | FABDEM | 2015 year | N/A | University of Bristol and Fathom |
+| Land surface temperature | Landsat 8 and 9 | 2015-2025 | N/A | none |
+| District boundaries | OSM | 2025 year | Open Database License (ODbL) | none |
 
 ### Processing Workflow
 
@@ -125,16 +99,12 @@ TODO: Explain the technically or cartographically innovative aspects of the proj
 | `type` | String | Building-use code | `rc` |
 | `dem_mean` | Number | Mean ground elevation in metres above sea level | `348.2` |
 | `lst_1mean` | Number | Mean summer land surface temperature in °C | `41.7` |
-| `arch_style` | String | Architectural style, where available | TODO |
-| `construction_company` | String | Builder or developer, where available | TODO |
+| `arch_style` | String | Architectural style, where available | - |
+| `construction_company` | String | Builder or developer, where available | - |
 
 ### Limitations
 
-- TODO: Document missing or uncertain construction years.
-- TODO: Explain the meaning of reconstructed historical views.
-- TODO: Document temporal and spatial limitations of LST data.
-- TODO: Explain synthetic, demo, or incomplete layers.
-- TODO: Add a confidence or uncertainty statement.
+- TODO
 
 ## Technology Stack
 
@@ -150,7 +120,7 @@ TODO: Explain the technically or cartographically innovative aspects of the proj
 
 ### Prerequisites
 
-- Node.js: TODO: Specify the supported version.
+- Node.js: v22+.
 - npm or pnpm.
 - A modern browser with WebGL support.
 
@@ -161,16 +131,6 @@ git clone https://github.com/RassCrom/kbh.git
 cd kbh
 npm install
 ```
-
-### Environment Variables
-
-Create a local `.env` file when required.
-
-```dotenv
-# TODO: Document required public environment variables.
-```
-
-Do not commit secrets or private access tokens.
 
 ### Run Locally
 
@@ -184,10 +144,10 @@ Open the local URL printed by Vite.
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the local Vite development server |
-| `npm run build` | Type-check and create a production build |
-| `npm run lint` | Run ESLint |
-| `npm run preview` | Preview the production build locally |
+| `pnpm  dev` | Start the local Vite development server |
+| `pnpm  build` | Type-check and create a production build |
+| `pnpm  lint` | Run ESLint |
+| `pnpm  preview` | Preview the production build locally |
 
 ## Project Structure
 
@@ -213,13 +173,9 @@ Open the local URL printed by Vite.
 
 ## Architecture
 
-### Map Lifecycle
-
-TODO: Explain how `useMapInit`, MapLibre sources, layers, filters, and UI state work together.
-
 ### Data Delivery
 
-TODO: Explain where PMTiles and GeoJSON files are stored, how they are generated, and how cache/version changes are managed.
+QGIS is used for data collection and pre web visualization in gpkg format. For web production, gpkg converts to geojson, then through tippecanoe geojson is being converted to PMTiles.
 
 ### Main Routes
 
@@ -228,8 +184,6 @@ TODO: Explain where PMTiles and GeoJSON files are stored, how they are generated
 | `/` | Project landing page |
 | `/map` | Main interactive map |
 | `/articles` | Article catalogue |
-| `/stories/soviet-grid` | Soviet-grid narrative story |
-| `/stories/bayterek` | Bayterek narrative story |
 
 ## Content Guide
 
@@ -254,31 +208,6 @@ TODO: Explain where PMTiles and GeoJSON files are stored, how they are generated
 - Avoid unsupported absolute claims.
 - State when a map view is reconstructed or approximate.
 - TODO: Add citation and transliteration standards.
-
-## Quality and Accessibility
-
-Before submitting or deploying:
-
-```bash
-npm run lint
-npm run build
-```
-
-Checklist:
-
-- [ ] Keyboard navigation works for major controls.
-- [ ] Mobile text and controls remain readable.
-- [ ] Map layers have understandable legends.
-- [ ] Colors maintain sufficient contrast.
-- [ ] All factual claims have been reviewed.
-- [ ] Data sources and limitations are documented.
-- [ ] Desktop and mobile flows have been browser-tested.
-
-## Deployment
-
-The repository contains a `vercel.json` configuration for Vercel deployment.
-
-TODO: Document the production project, domain, deployment workflow, and required environment variables.
 
 ## Roadmap
 
@@ -305,11 +234,11 @@ Suggested workflow:
 
 | Name | Role | Contact |
 | --- | --- | --- |
-| TODO | TODO | TODO |
+| Alikhan Beisenbayev | Development, Map design, Data collection | https://alinbeisenbayev.pages.dev/ |
+| Tolegen Akynzhanov | Data collection, Visualization ideas | https://www.linkedin.com/in/tolegen-akynzhanov/ |
 
 ### Data and Libraries
 
-- TODO: List data providers and licenses.
 - [MapLibre GL JS](https://maplibre.org/)
 - [PMTiles](https://protomaps.com/docs/pmtiles/)
 - [OpenStreetMap contributors](https://www.openstreetmap.org/copyright)
