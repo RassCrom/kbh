@@ -52,12 +52,13 @@ export default function ArticlesPage() {
       </header>
 
       <main className={s.main}>
-        {/* Search & Filter Toolbar */}
-        <div className={s.toolbar}>
+        {/* Search controls are only useful once the archive has entries. */}
+        {ARTICLES.length > 0 && <div className={s.toolbar}>
           <div className={s.searchBox}>
             <Search className={s.searchIcon} size={16} />
             <input
               type="text"
+              aria-label="Search articles"
               placeholder="Search articles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -71,12 +72,13 @@ export default function ArticlesPage() {
                 key={era}
                 className={`${s.filterChip} ${selectedEra === era ? s.activeChip : ''}`}
                 onClick={() => setSelectedEra(era)}
+                aria-pressed={selectedEra === era}
               >
                 {era}
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
         {/* Articles Grid */}
         {filteredArticles.length > 0 ? (
@@ -125,13 +127,23 @@ export default function ArticlesPage() {
           </div>
         ) : (
           <div className={s.emptyState}>
-            <p>No stories found matching your criteria.</p>
-            <button 
-              className={s.resetBtn} 
-              onClick={() => { setSearchQuery(''); setSelectedEra('All'); }}
-            >
-              Reset Filters
-            </button>
+            {ARTICLES.length === 0 ? (
+              <>
+                <h2>The archive is being prepared</h2>
+                <p>Long-form stories are in production. The interactive atlas and guided tours are ready now.</p>
+                <Link to="/map" className={s.resetBtn}>Explore the map</Link>
+              </>
+            ) : (
+              <>
+                <p>No stories match the current search and era.</p>
+                <button
+                  className={s.resetBtn}
+                  onClick={() => { setSearchQuery(''); setSelectedEra('All'); }}
+                >
+                  Reset filters
+                </button>
+              </>
+            )}
           </div>
         )}
       </main>

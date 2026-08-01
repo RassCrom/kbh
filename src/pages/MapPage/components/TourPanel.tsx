@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Route, X, ChevronLeft, ChevronRight, MapPin, Clock, Flag,
-  Volume2, VolumeX, Play, Pause, MonitorSpeaker,
+  Volume2, VolumeX, Play, Pause, MonitorSpeaker, Compass, ArrowUp,
 } from 'lucide-react';
 import { TOURS, type Tour } from '../tours';
 import { useTourNarration } from '../hooks/useTourNarration';
@@ -12,8 +12,10 @@ const AUTO_ADVANCE_MS = 12000; // silent-autoplay dwell time per stop
 interface TourPanelProps {
   activeTour: Tour | null;
   tourStep: number;
+  tourPaused: boolean;
   onStartTour: (tour: Tour) => void;
   onStepChange: (step: number) => void;
+  onPauseChange: (paused: boolean) => void;
   onExitTour: () => void;
 }
 
@@ -23,7 +25,7 @@ interface TourPanelProps {
  * voice narration (ElevenLabs MP3s with Web Speech fallback) and autoplay.
  */
 export function TourPanel({
-  activeTour, tourStep, onStartTour, onStepChange, onExitTour,
+  activeTour, tourStep, tourPaused, onStartTour, onStepChange, onPauseChange, onExitTour,
 }: TourPanelProps) {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [voiceOn, setVoiceOn] = useState(false);
@@ -32,20 +34,22 @@ export function TourPanel({
   const isLast = activeTour ? tourStep === activeTour.stops.length - 1 : false;
 
   // Refs so narration/timer callbacks see current values without re-subscribing
-  const stateRef = useRef({ tourStep, isLast, autoplayOn });
-  stateRef.current = { tourStep, isLast, autoplayOn };
+  const stateRef = useRef({ tourStep, isLast, autoplayOn, tourPaused });
+  stateRef.current = { tourStep, isLast, autoplayOn, tourPaused };
 
   const narration = useTourNarration({
     tour: activeTour,
     step: tourStep,
-    enabled: !!activeTour && voiceOn,
+    enabled: !!activeTour && voiceOn && !tourPaused,
     onEnded: () => {
       const cur = stateRef.current;
-      if (cur.autoplayOn && !cur.isLast) {
+      if (cur.autoplayOn && !cur.isLast && !cur.tourPaused) {
         // Small breath between stops, then move on
         window.setTimeout(() => {
           const latest = stateRef.current;
-          if (latest.autoplayOn && !latest.isLast) onStepChange(latest.tourStep + 1);
+          if (latest.autoplayOn && !latest.isLast && !latest.tourPaused) {
+            onStepChange(latest.tourStep + 1);
+          }
         }, 1400);
       }
     },
@@ -53,22 +57,27 @@ export function TourPanel({
 
   // Silent autoplay: when voice is off, advance on a fixed timer
   useEffect(() => {
-    if (!activeTour || !autoplayOn || voiceOn || isLast) return;
+    if (!activeTour || !autoplayOn || voiceOn || isLast || tourPaused) return;
     const t = window.setTimeout(() => onStepChange(tourStep + 1), AUTO_ADVANCE_MS);
     return () => window.clearTimeout(t);
-  }, [activeTour, autoplayOn, voiceOn, isLast, tourStep, onStepChange]);
+  }, [activeTour, autoplayOn, voiceOn, isLast, tourStep, tourPaused, onStepChange]);
 
   // Keyboard navigation while a tour runs
   useEffect(() => {
     if (!activeTour) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === 'ArrowRight' && !stateRef.current.isLast) {
-        onStepChange(stateRef.current.tourStep + 1);
-      } else if (e.key === 'ArrowLeft' && stateRef.current.tourStep > 0) {
-        onStepChange(stateRef.current.tourStep - 1);
-      } else if (e.key === 'Escape') {
+      if (e.key === 'Escape') {
         onExitTour();
+        return;
+      }
+      if (stateRef.current.tourPaused) return;
+      if ((e.key === 'ArrowRight' || e.key === 'ArrowUp') && !stateRef.current.isLast) {
+        e.preventDefault();
+        onStepChange(stateRef.current.tourStep + 1);
+      } else if ((e.key === 'ArrowLeft' || e.key === 'ArrowDown') && stateRef.current.tourStep > 0) {
+        e.preventDefault();
+        onStepChange(stateRef.current.tourStep - 1);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -105,6 +114,17 @@ export function TourPanel({
           </span>
 
           <div className={s.tourCardControls}>
+            <button
+              className={`${s.tourCtrlBtn} ${tourPaused ? s.tourCtrlBtnActive : ''}`}
+              onClick={() => onPauseChange(!tourPaused)}
+              title={tourPaused ? 'Resume guided camera' : 'Pause and explore the map'}
+              aria-label={tourPaused ? 'Resume guided tour' : 'Pause tour and enter explorer mode'}
+              aria-pressed={tourPaused}
+            >
+              {tourPaused ? <Play size={13} /> : <Compass size={13} />}
+              <span className={s.tourCtrlLabel}>{tourPaused ? 'Resume' : 'Explore'}</span>
+            </button>
+
             {/* Voice narration toggle */}
             <button
               className={`${s.tourCtrlBtn} ${voiceOn ? s.tourCtrlBtnActive : ''}`}
@@ -162,7 +182,9 @@ export function TourPanel({
               style={i <= tourStep ? { background: activeTour.color } : undefined}
               onClick={() => onStepChange(i)}
               aria-label={`Go to stop ${i + 1}: ${st.name}`}
-            />
+            >
+              {i + 1}
+            </button>
           ))}
         </div>
 
@@ -188,6 +210,16 @@ export function TourPanel({
               ))
             : stop.text}
         </p>
+
+        <div className={`${s.tourGestureHint} ${tourPaused ? s.tourGestureHintPaused : ''}`}>
+          {tourPaused ? (
+            <><Compass size={13} /> Explorer mode — map gestures are available</>
+          ) : isLast ? (
+            <><Flag size={13} /> Tour complete — finish or revisit a step</>
+          ) : (
+            <><ArrowUp size={13} /> Scroll or swipe up for the next point</>
+          )}
+        </div>
 
         <div className={s.tourNav}>
           <button

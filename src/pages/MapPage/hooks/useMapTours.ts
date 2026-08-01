@@ -6,25 +6,53 @@ import { PREFERS_REDUCED_MOTION } from './useMapInit';
 // Tour route/marker accent
 const TOUR_ACCENT = '#d4a85e';
 const TOUR_ACCENT_VISITED = 'rgba(212, 168, 94, 0.55)';
+const SCROLL_DISTANCE_PER_STOP = 360;
+const LINE_FOLLOW_RATE = 0.16;
+const CAMERA_FOLLOW_RATE = 0.055;
+
+function getTourPosition(tour: Tour, step: number, progress: number): [number, number] {
+  const isReturning = progress < 0 && step > 0;
+  const fromIndex = isReturning ? step - 1 : step;
+  const toIndex = isReturning ? step : Math.min(step + 1, tour.stops.length - 1);
+  const amount = isReturning ? 1 + progress : progress;
+  const from = tour.stops[fromIndex].camera.center;
+  const to = tour.stops[toIndex].camera.center;
+  return [
+    from[0] + (to[0] - from[0]) * amount,
+    from[1] + (to[1] - from[1]) * amount,
+  ];
+}
 
 function getTourRouteData(tour: Tour, step: number, progress: number): GeoJSON.Feature {
   const coords: [number, number][] = [];
-  for (let i = 0; i <= step; i++) {
+  const isReturning = progress < 0 && step > 0;
+  const lastCompletedStop = isReturning ? step - 1 : step;
+  for (let i = 0; i <= lastCompletedStop; i++) {
     coords.push(tour.stops[i].camera.center as [number, number]);
   }
-  if (step < tour.stops.length - 1 && progress > 0) {
-    const current = tour.stops[step].camera.center as [number, number];
-    const next = tour.stops[step + 1].camera.center as [number, number];
-    coords.push([
-      current[0] + (next[0] - current[0]) * progress,
-      current[1] + (next[1] - current[1]) * progress,
-    ]);
+  if (isReturning) {
+    coords.push(getTourPosition(tour, step, progress));
+  } else if (step < tour.stops.length - 1 && progress > 0) {
+    coords.push(getTourPosition(tour, step, progress));
   }
   if (coords.length === 1) coords.push([...coords[0]]);
   return {
     type: 'Feature',
     geometry: { type: 'LineString', coordinates: coords },
     properties: {},
+  };
+}
+
+function interpolateCamera(from: Tour['stops'][number]['camera'], to: Tour['stops'][number]['camera'], progress: number) {
+  const bearingDelta = ((to.bearing - from.bearing + 540) % 360) - 180;
+  return {
+    center: [
+      from.center[0] + (to.center[0] - from.center[0]) * progress,
+      from.center[1] + (to.center[1] - from.center[1]) * progress,
+    ] as [number, number],
+    zoom: from.zoom + (to.zoom - from.zoom) * progress,
+    pitch: from.pitch + (to.pitch - from.pitch) * progress,
+    bearing: from.bearing + bearingDelta * progress,
   };
 }
 
@@ -38,17 +66,19 @@ interface UseMapToursOptions {
 }
 
 export function useMapTours(opts: UseMapToursOptions) {
+  const { mapRef, introActiveRef, finishIntro, handleDismissHelpers, onEnterTour } = opts;
   const [activeTour, setActiveTour] = useState<Tour | null>(null);
   const [tourStep, setTourStep] = useState(0);
+  const [tourPaused, setTourPaused] = useState(false);
   const activeTourRef = useRef<Tour | null>(null);
   useEffect(() => { activeTourRef.current = activeTour; }, [activeTour]);
 
   const tourStepRef = useRef(0);
-  const tourProgressRef = useRef(0);
-  const absoluteCurrentRef = useRef(0);
-  const absoluteTargetRef = useRef(0);
-  const animFrameRef = useRef<number>(0);
   const driftGuardRef = useRef(0);
+  const scrollDrivenStepRef = useRef(false);
+  const tourTargetPositionRef = useRef(0);
+  const tourLinePositionRef = useRef(0);
+  const tourCameraPositionRef = useRef(0);
 
   const pendingTourRef = useRef<Tour | null>(
     (() => {
@@ -90,6 +120,14 @@ export function useMapTours(opts: UseMapToursOptions) {
   const updateTourLine = useCallback((map: maplibregl.Map, tour: Tour, step: number, progress: number) => {
     const src = map.getSource('tour-route') as maplibregl.GeoJSONSource | undefined;
     if (src) src.setData(getTourRouteData(tour, step, progress));
+    const shine = map.getSource('tour-route-shine') as maplibregl.GeoJSONSource | undefined;
+    if (shine) {
+      shine.setData({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: getTourPosition(tour, step, progress) },
+        properties: {},
+      });
+    }
   }, []);
 
   const ensureTourLayers = useCallback((map: maplibregl.Map, tour: Tour) => {
@@ -117,6 +155,11 @@ export function useMapTours(opts: UseMapToursOptions) {
     }
 
     const routeData = getTourRouteData(tour, 0, 0);
+    const routeShineData: GeoJSON.Feature = {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: getTourPosition(tour, 0, 0) },
+      properties: {},
+    };
     if (!map.getSource('tour-route')) {
       map.addSource('tour-route', { type: 'geojson', data: routeData });
       map.addLayer({
@@ -140,6 +183,37 @@ export function useMapTours(opts: UseMapToursOptions) {
         map.setLayoutProperty('tour-route-glow', 'visibility', 'visible');
       }
       if (map.getLayer('tour-route-core')) map.setLayoutProperty('tour-route-core', 'visibility', 'visible');
+    }
+
+    if (!map.getSource('tour-route-shine')) {
+      map.addSource('tour-route-shine', { type: 'geojson', data: routeShineData });
+      map.addLayer({
+        id: 'tour-route-shine-glow',
+        type: 'circle',
+        source: 'tour-route-shine',
+        paint: {
+          'circle-radius': 15,
+          'circle-color': '#ffffff',
+          'circle-blur': 0.8,
+          'circle-opacity': 0.8,
+        },
+      });
+      map.addLayer({
+        id: 'tour-route-shine-core',
+        type: 'circle',
+        source: 'tour-route-shine',
+        paint: {
+          'circle-radius': 4.5,
+          'circle-color': '#ffffff',
+          'circle-stroke-color': TOUR_ACCENT,
+          'circle-stroke-width': 2,
+        },
+      });
+    } else {
+      (map.getSource('tour-route-shine') as maplibregl.GeoJSONSource).setData(routeShineData);
+      ['tour-route-shine-glow', 'tour-route-shine-core'].forEach((id) => {
+        if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'visible');
+      });
     }
 
     const stopData = (i: number): GeoJSON.FeatureCollection => ({
@@ -214,29 +288,40 @@ export function useMapTours(opts: UseMapToursOptions) {
 
   // ── Public handlers ──────────────────────────────────────────────────────
   const handleStartTour = useCallback((tour: Tour) => {
-    const map = opts.mapRef.current;
+    const map = mapRef.current;
     if (!map || !map.getStyle()) return;
-    if (opts.introActiveRef.current) opts.finishIntro();
-    opts.handleDismissHelpers();
-    opts.onEnterTour();
+    if (introActiveRef.current) finishIntro();
+    handleDismissHelpers();
+    onEnterTour();
     setActiveTour(tour);
+    setTourPaused(false);
     tourStepRef.current = 0;
-    tourProgressRef.current = 0;
-    absoluteCurrentRef.current = 0;
-    absoluteTargetRef.current = 0;
-    cancelAnimationFrame(animFrameRef.current);
+    tourTargetPositionRef.current = 0;
+    tourLinePositionRef.current = 0;
+    tourCameraPositionRef.current = 0;
     setTourStep(0);
     ensureTourLayers(map, tour);
-  }, [opts, ensureTourLayers]);
+  }, [
+    mapRef,
+    introActiveRef,
+    finishIntro,
+    handleDismissHelpers,
+    onEnterTour,
+    ensureTourLayers,
+  ]);
 
   const handleExitTour = useCallback(() => {
     const map = opts.mapRef.current;
     setActiveTour(null);
     setTourStep(0);
+    setTourPaused(false);
+    tourTargetPositionRef.current = 0;
+    tourLinePositionRef.current = 0;
+    tourCameraPositionRef.current = 0;
     stopTourPulse();
-    cancelAnimationFrame(animFrameRef.current);
     if (map && map.getStyle()) {
       ['tour-route-base-line', 'tour-route-glow', 'tour-route-core',
+        'tour-route-shine-glow', 'tour-route-shine-core',
         'tour-pulse', 'tour-stops-points', 'tour-stops-labels'].forEach((id) => {
         if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'none');
       });
@@ -245,46 +330,63 @@ export function useMapTours(opts: UseMapToursOptions) {
   }, [opts.mapRef, stopTourPulse]);
 
   const handleStepChange = useCallback((newStep: number) => {
-    tourStepRef.current = newStep;
-    tourProgressRef.current = 0;
-    absoluteCurrentRef.current = newStep;
-    absoluteTargetRef.current = newStep;
-    cancelAnimationFrame(animFrameRef.current);
+    if (!activeTour) return;
+    const nextStep = Math.max(0, Math.min(activeTour.stops.length - 1, newStep));
+    tourStepRef.current = nextStep;
+    tourTargetPositionRef.current = nextStep;
+    tourLinePositionRef.current = nextStep;
+    tourCameraPositionRef.current = nextStep;
     if (opts.mapRef.current && activeTour) {
-      updateTourLine(opts.mapRef.current, activeTour, newStep, 0);
+      updateTourLine(opts.mapRef.current, activeTour, nextStep, 0);
     }
-    setTourStep(newStep);
+    setTourStep(nextStep);
   }, [activeTour, opts.mapRef, updateTourLine]);
+
+  const handleTourPauseChange = useCallback((paused: boolean) => {
+    driftGuardRef.current += 1;
+    opts.mapRef.current?.stop();
+    setTourPaused(paused);
+  }, [opts.mapRef]);
 
   // ── Fly to each stop ─────────────────────────────────────────────────────
   useEffect(() => {
     const map = opts.mapRef.current;
     if (!map || !activeTour || !map.getStyle()) return;
+    if (tourPaused) {
+      map.stop();
+      return;
+    }
     const stop = activeTour.stops[tourStep];
     const guard = ++driftGuardRef.current;
+    const scrollDriven = scrollDrivenStepRef.current;
+    scrollDrivenStepRef.current = false;
 
-    map.flyTo({
-      center: stop.camera.center,
-      zoom: stop.camera.zoom,
-      pitch: stop.camera.pitch,
-      bearing: stop.camera.bearing,
-      duration: PREFERS_REDUCED_MOTION ? 0 : 2600,
-      curve: 1.5,
-      essential: true,
-    });
-
-    if (!PREFERS_REDUCED_MOTION) {
-      map.once('moveend', () => {
-        window.setTimeout(() => {
-          if (driftGuardRef.current !== guard || !map.getStyle()) return;
-          map.easeTo({
-            bearing: stop.camera.bearing + 16,
-            duration: 20000,
-            easing: (t) => t,
-            essential: false,
-          });
-        }, 0);
+    // Scroll progression already owns the camera. Only explicit controls should start a fly-to.
+    if (!scrollDriven) {
+      map.stop();
+      map.flyTo({
+        center: stop.camera.center,
+        zoom: stop.camera.zoom,
+        pitch: stop.camera.pitch,
+        bearing: stop.camera.bearing,
+        duration: PREFERS_REDUCED_MOTION ? 0 : 2100,
+        curve: 1.42,
+        essential: false,
       });
+
+      if (!PREFERS_REDUCED_MOTION) {
+        map.once('moveend', () => {
+          window.setTimeout(() => {
+            if (driftGuardRef.current !== guard || !map.getStyle()) return;
+            map.easeTo({
+              bearing: stop.camera.bearing + 16,
+              duration: 20000,
+              easing: (t) => t,
+              essential: false,
+            });
+          }, 0);
+        });
+      }
     }
 
     const src = map.getSource('tour-stops') as maplibregl.GeoJSONSource | undefined;
@@ -298,58 +400,157 @@ export function useMapTours(opts: UseMapToursOptions) {
         })),
       });
     }
-  }, [activeTour, tourStep]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTour, tourStep, tourPaused]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Scroll / touch to advance tour ──────────────────────────────────────
   useEffect(() => {
     const map = opts.mapRef.current;
-    if (!activeTour || !map) return;
+    if (!activeTour || !map || tourPaused) return;
 
+    const scrollZoomWasEnabled = map.scrollZoom.isEnabled();
+    const dragPanWasEnabled = map.dragPan.isEnabled();
+    const touchZoomWasEnabled = map.touchZoomRotate.isEnabled();
     map.scrollZoom.disable();
+    map.dragPan.disable();
+    map.touchZoomRotate.disable();
+
+    const maxPosition = activeTour.stops.length - 1;
+    let lineFrame: number | null = null;
+    let cameraFrame: number | null = null;
     let touchLastY = 0;
-    const MAX_ABS = activeTour.stops.length - 1;
 
-    const animate = () => {
-      const diff = absoluteTargetRef.current - absoluteCurrentRef.current;
-      if (Math.abs(diff) < 0.001) {
-        absoluteCurrentRef.current = absoluteTargetRef.current;
-      } else {
-        absoluteCurrentRef.current += diff * 0.15;
+    const splitPosition = (position: number) => {
+      const clamped = Math.max(0, Math.min(maxPosition, position));
+      const step = Math.min(Math.floor(clamped), maxPosition);
+      return { step, progress: step === maxPosition ? 0 : clamped - step };
+    };
+
+    const renderLinePosition = () => {
+      const { step, progress } = splitPosition(tourLinePositionRef.current);
+      updateTourLine(map, activeTour, step, progress);
+    };
+
+    const renderCameraPosition = () => {
+      const { step, progress } = splitPosition(tourCameraPositionRef.current);
+      const from = activeTour.stops[step].camera;
+      const to = activeTour.stops[Math.min(step + 1, maxPosition)].camera;
+      map.jumpTo(interpolateCamera(from, to, progress));
+    };
+
+    const commitReachedStop = (direction: number) => {
+      const position = tourLinePositionRef.current;
+      const reachedStep = direction < 0
+        ? Math.max(0, Math.ceil(position - 0.001))
+        : Math.min(maxPosition, Math.floor(position + 0.001));
+      if (reachedStep !== tourStepRef.current) {
+        scrollDrivenStepRef.current = true;
+        tourStepRef.current = reachedStep;
+        setTourStep(reachedStep);
       }
-      const currentAbs = absoluteCurrentRef.current;
-      let newStep = Math.floor(currentAbs);
-      let newProgress = currentAbs - newStep;
-      if (newStep >= MAX_ABS) { newStep = MAX_ABS; newProgress = 0; }
-      updateTourLine(map, activeTour, newStep, newProgress);
-      if (newStep !== tourStepRef.current) { tourStepRef.current = newStep; setTourStep(newStep); }
-      if (Math.abs(diff) >= 0.001) animFrameRef.current = requestAnimationFrame(animate);
     };
 
-    const processScroll = (deltaY: number) => {
-      absoluteTargetRef.current = Math.max(0, Math.min(MAX_ABS, absoluteTargetRef.current + deltaY * 0.0015));
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = requestAnimationFrame(animate);
+    const followLine = () => {
+      const remaining = tourTargetPositionRef.current - tourLinePositionRef.current;
+      const direction = Math.sign(remaining);
+      if (Math.abs(remaining) < 0.0005) {
+        tourLinePositionRef.current = tourTargetPositionRef.current;
+      } else {
+        tourLinePositionRef.current += remaining * LINE_FOLLOW_RATE;
+      }
+      renderLinePosition();
+      commitReachedStop(direction);
+
+      if (tourLinePositionRef.current === tourTargetPositionRef.current) {
+        lineFrame = null;
+      } else {
+        lineFrame = requestAnimationFrame(followLine);
+      }
     };
 
-    const handleWheel = (e: WheelEvent) => processScroll(e.deltaY);
-    const handleTouchStart = (e: TouchEvent) => { touchLastY = e.touches[0].clientY; };
-    const handleTouchMove = (e: TouchEvent) => {
-      const touchY = e.touches[0].clientY;
-      processScroll((touchY - touchLastY) * 2);
-      touchLastY = touchY;
+    const followCamera = () => {
+      const remaining = tourTargetPositionRef.current - tourCameraPositionRef.current;
+      if (Math.abs(remaining) < 0.0005) {
+        tourCameraPositionRef.current = tourTargetPositionRef.current;
+        renderCameraPosition();
+        cameraFrame = null;
+        return;
+      }
+      tourCameraPositionRef.current += remaining * CAMERA_FOLLOW_RATE;
+      renderCameraPosition();
+      cameraFrame = requestAnimationFrame(followCamera);
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: true });
+    const scheduleProgress = (direction: number) => {
+      if (PREFERS_REDUCED_MOTION) {
+        tourLinePositionRef.current = tourTargetPositionRef.current;
+        tourCameraPositionRef.current = tourTargetPositionRef.current;
+        renderLinePosition();
+        renderCameraPosition();
+        commitReachedStop(direction);
+        return;
+      }
+      if (lineFrame === null) lineFrame = requestAnimationFrame(followLine);
+      if (cameraFrame === null) cameraFrame = requestAnimationFrame(followCamera);
+    };
+
+    const progressTour = (distance: number) => {
+      if (!distance) return;
+      const previousTarget = tourTargetPositionRef.current;
+      const nextTarget = Math.max(
+        0,
+        Math.min(maxPosition, previousTarget + distance / SCROLL_DISTANCE_PER_STOP),
+      );
+      if (nextTarget === previousTarget) return;
+
+      // Stop the automatic camera drift once the visitor takes control.
+      driftGuardRef.current += 1;
+      map.stop();
+      tourTargetPositionRef.current = nextTarget;
+      scheduleProgress(Math.sign(nextTarget - previousTarget));
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const lineHeight = 18;
+      const delta = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+        ? event.deltaY * lineHeight
+        : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+          ? event.deltaY * window.innerHeight
+          : event.deltaY;
+      // Scroll up advances; scroll down moves back through the same continuous path.
+      progressTour(-delta);
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      touchLastY = event.touches[0]?.clientY ?? 0;
+    };
+    const handleTouchMove = (event: TouchEvent) => {
+      const nextY = event.touches[0]?.clientY ?? touchLastY;
+      progressTour(touchLastY - nextY);
+      touchLastY = nextY;
+      event.preventDefault();
+    };
+    const handleTouchEnd = () => {
+      touchLastY = 0;
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
+      if (lineFrame !== null) cancelAnimationFrame(lineFrame);
+      if (cameraFrame !== null) cancelAnimationFrame(cameraFrame);
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
-      if (map) map.scrollZoom.enable();
+      window.removeEventListener('touchend', handleTouchEnd);
+      if (scrollZoomWasEnabled) map.scrollZoom.enable();
+      if (dragPanWasEnabled) map.dragPan.enable();
+      if (touchZoomWasEnabled) map.touchZoomRotate.enable();
     };
-  }, [activeTour, updateTourLine]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTour, tourPaused, opts.mapRef, updateTourLine]);
 
   // ── Deep link: ?tour=<id> ────────────────────────────────────────────────
   useEffect(() => {
@@ -363,9 +564,11 @@ export function useMapTours(opts: UseMapToursOptions) {
     activeTour,
     activeTourRef,
     tourStep,
+    tourPaused,
     handleStartTour,
     handleExitTour,
     handleStepChange,
+    handleTourPauseChange,
     pendingTourRef,
   };
 }

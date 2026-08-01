@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import s from './Navbar.module.scss';
 
 const NAV_ITEMS = [
-  { label: 'Hero', href: '#hero' },
+  { label: 'Overview', href: '#hero' },
   { label: 'Stats', href: '#stats' },
   { label: 'Stories', href: '#articles' },
   { label: 'Tours', href: '#tours' },
@@ -14,14 +14,29 @@ const NAV_ITEMS = [
 const DESKTOP_BP = 768;
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(() => window.scrollY > 40);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40);
+    let frame = 0;
+    let lastScrolled = window.scrollY > 40;
+    const handleScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const nextScrolled = window.scrollY > 40;
+        if (nextScrolled !== lastScrolled) {
+          lastScrolled = nextScrolled;
+          setScrolled(nextScrolled);
+        }
+      });
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   useEffect(() => {

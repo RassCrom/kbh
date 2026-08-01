@@ -11,22 +11,51 @@ export default function Hero() {
     const img  = imgRef.current;
     if (!hero || !img) return;
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let scrollY = window.scrollY;
+    let frame = 0;
+    let visible = true;
+
+    const renderTransform = () => {
+      frame = 0;
+      if (!visible) return;
+      const parallaxY = Math.min(scrollY, hero.offsetHeight) * 0.22;
+      hero.style.setProperty('--mx', String(mouseX));
+      hero.style.setProperty('--my', String(mouseY));
+      img.style.transform = `translate3d(${mouseX * -14}px, ${parallaxY + mouseY * -8}px, 0) scale(1.08)`;
+    };
+
+    const scheduleTransform = () => {
+      if (frame === 0) frame = requestAnimationFrame(renderTransform);
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
-      const mx = (e.clientX / window.innerWidth  - 0.5) * 2;
-      const my = (e.clientY / window.innerHeight - 0.5) * 2;
-      hero.style.setProperty('--mx', String(mx));
-      hero.style.setProperty('--my', String(my));
-      img.style.transform = `translate(${mx * -18}px, ${my * -10}px) scale(1.08)`;
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      scheduleTransform();
     };
 
     const handleScroll = () => {
-      img.style.transform = `translateY(${window.scrollY * 0.35}px) scale(1.08)`;
+      scrollY = window.scrollY;
+      scheduleTransform();
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) scheduleTransform();
+    });
+    observer.observe(hero);
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
+    scheduleTransform();
 
     return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
     };

@@ -1,4 +1,4 @@
-import { Satellite, Cpu, BarChart3, Globe } from 'lucide-react';
+import { Satellite, Cpu, BarChart3, Globe, Database } from 'lucide-react';
 import s from './HowItWorks.module.scss';
 
 const STEPS = [
@@ -6,19 +6,19 @@ const STEPS = [
     icon: Satellite,
     number: '01',
     title: 'Data Collection',
-    desc: 'Buildings footprints from OSM.',
+    desc: 'Building footprints and street context begin with OpenStreetMap.',
   },
   {
     icon: Cpu,
     number: '02',
     title: 'Processing & Analysis',
-    desc: 'Data is gathered from advertisement websites, open source, googling and using Google Earth Pro.',
+    desc: 'Public records and imagery are validated, normalized, deduplicated, and spatially indexed.',
   },
   {
     icon: BarChart3,
     number: '03',
     title: 'Visualization & Stories',
-    desc: 'We have collected interactive map, interesting data, engaging guided tours, and more analysis on the map. All visualized through or connected to buildings of Astana.',
+    desc: 'The processed data becomes explorable layers, architectural timelines, stories, and guided tours.',
   },
 ];
 
@@ -26,6 +26,7 @@ const SOURCES = [
   { icon: Globe, label: 'OpenStreetMap' },
   { icon: Satellite, label: 'Google Earth Pro' },
   { icon: BarChart3, label: 'Ad websites' },
+  { icon: Database, label: 'Public city datasets' },
 ];
 
 export default function HowItWorks() {

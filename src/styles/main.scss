@@ -95,6 +95,22 @@ img {
   outline-offset: 2px;
 }
 
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 2000;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-weight: 700;
+  transform: translateY(-140%);
+  transition: transform 160ms ease;
+
+  &:focus { transform: translateY(0); }
+}
+
 // 7. Map layer base — canvas fills viewport
 .map-canvas {
   position: fixed;

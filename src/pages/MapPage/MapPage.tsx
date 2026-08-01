@@ -16,6 +16,7 @@ import { TimelineSlider } from './components/TimelineSlider';
 import { FilterSidebar } from './components/FilterSidebar';
 import { BuildingPanel } from './components/BuildingPanel';
 import { GraffitiPanel } from './components/GraffitiPanel';
+import { CrimePanel } from './components/CrimePanel';
 import { HexControls } from './components/HexControls';
 import { buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr, buildHexCinemaHeightExpr, type HexMetric } from './hexUtils';
 import { applyMapTheme, type MapTheme } from './mapTheme';
@@ -28,6 +29,7 @@ import { IntroOverlay } from './components/IntroOverlay';
 import { CinemaOverlay } from './components/CinemaOverlay';
 import { HistoricalCompare } from './components/HistoricalCompare';
 import { MapGuideCard, HelpTrigger } from './components/MapGuideCard';
+import { MapNavigationControls } from './components/MapNavigationControls';
 import type { Landmark } from './overlays/landmarksData';
 
 // Custom hooks
@@ -558,6 +560,27 @@ export default function MapPage() {
     setTapPreview(null);
   }, [mapRef]);
 
+  useEffect(() => {
+    if (!overlays.selectedCrime) return;
+    setSelectedBuilding(null);
+    setSelectedLandmark(null);
+    setTapPreview(null);
+    overlays.setSelectedGraffiti(null);
+    clearSelectedBuildingState();
+  }, [overlays.selectedCrime, clearSelectedBuildingState]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (selectedBuilding || overlays.selectedGraffiti || selectedLandmark) {
+      overlays.setSelectedCrime(null);
+    }
+  }, [selectedBuilding, overlays.selectedGraffiti, selectedLandmark]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (tours.activeTour || cinema.cinemaActive || compareActive) {
+      overlays.setSelectedCrime(null);
+    }
+  }, [tours.activeTour, cinema.cinemaActive, compareActive]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Render ────────────────────────────────────────────────────────────────
   const uiHidden = introActive;
 
@@ -615,8 +638,10 @@ export default function MapPage() {
                   <TourPanel
                     activeTour={tours.activeTour}
                     tourStep={tours.tourStep}
+                    tourPaused={tours.tourPaused}
                     onStartTour={tours.handleStartTour}
                     onStepChange={tours.handleStepChange}
+                    onPauseChange={tours.handleTourPauseChange}
                     onExitTour={tours.handleExitTour}
                   />
                   <button
@@ -655,6 +680,11 @@ export default function MapPage() {
             </button>
           )}
 
+          {/* Progressive camera controls stay tucked behind one labelled trigger. */}
+          {!tours.activeTour && !cinema.cinemaActive && !compareActive && mapLoaded && (
+            <MapNavigationControls mapRef={mapRef} />
+          )}
+
           {/* Filter sidebar */}
           <FilterSidebar
             open={sidebarOpen}
@@ -683,12 +713,6 @@ export default function MapPage() {
             onColorModeChange={handleColorModeChange}
             extrudeMode={extrudeMode}
             onExtrudeModeChange={handleExtrudeModeChange}
-            graffitiVisible={overlays.graffitiVisible}
-            onGraffitiToggle={overlays.handleGraffitiToggle}
-            crimeVisible={overlays.crimeVisible}
-            onCrimeToggle={overlays.handleCrimeToggle}
-            greenVisible={overlays.greenVisible}
-            onGreenToggle={overlays.handleGreenToggle}
             districtsVisible={overlays.districtsVisible}
             onDistrictsToggle={overlays.handleDistrictsToggle}
           />
@@ -740,6 +764,12 @@ export default function MapPage() {
             onClose={() => overlays.setSelectedGraffiti(null)}
           />
 
+          {/* Historical crime record detail panel */}
+          <CrimePanel
+            properties={overlays.selectedCrime}
+            onClose={() => overlays.setSelectedCrime(null)}
+          />
+
           {/* 3D landmark popup */}
           <LandmarkPanel
             landmark={selectedLandmark}
@@ -752,8 +782,10 @@ export default function MapPage() {
             <TourPanel
               activeTour={tours.activeTour}
               tourStep={tours.tourStep}
+              tourPaused={tours.tourPaused}
               onStartTour={tours.handleStartTour}
               onStepChange={tours.handleStepChange}
+              onPauseChange={tours.handleTourPauseChange}
               onExitTour={tours.handleExitTour}
             />
           )}

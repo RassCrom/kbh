@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { createGraffitiPinImage, loadGraffitiPhotoMarkers, type GraffitiGeoJSON } from '../overlays/graffiti';
-import { setOverlayVisible } from '../overlays/overlayLayers';
+import { loadCrimeData, type CrimeDataStats, type CrimeProperties } from '../data/crimeData';
+import { addCrimeLayers, isOverlayAdded, setOverlayVisible } from '../overlays/overlayLayers';
+
+export type OverlayLoadStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 interface UseMapOverlaysOptions {
   mapRef: React.MutableRefObject<maplibregl.Map | null>;
@@ -11,6 +14,10 @@ interface UseMapOverlaysOptions {
 export function useMapOverlays(opts: UseMapOverlaysOptions) {
   const [graffitiVisible, setGraffitiVisible] = useState(false);
   const [crimeVisible, setCrimeVisible] = useState(false);
+  const [crimeStatus, setCrimeStatus] = useState<OverlayLoadStatus>('idle');
+  const [crimeError, setCrimeError] = useState<string | null>(null);
+  const [crimeStats, setCrimeStats] = useState<CrimeDataStats | null>(null);
+  const [selectedCrime, setSelectedCrime] = useState<CrimeProperties | null>(null);
   const [greenVisible, setGreenVisible] = useState(false);
   const [districtsVisible, setDistrictsVisible] = useState(false);
   const [selectedGraffiti, setSelectedGraffiti] = useState<Record<string, unknown> | null>(null);
@@ -19,6 +26,7 @@ export function useMapOverlays(opts: UseMapOverlaysOptions) {
   const graffitiPhotosLoadedRef = useRef(false);
   const graffitiInitRef = useRef(false);
   const graffitiVisibleRef = useRef(false);
+  const crimeInteractionsRef = useRef(false);
 
   // ── Lazy-load graffiti layer ─────────────────────────────────────────────
   const ensureGraffitiLayer = useCallback((map: maplibregl.Map) => {
@@ -111,11 +119,75 @@ export function useMapOverlays(opts: UseMapOverlaysOptions) {
     }
   }, [graffitiVisible, opts.mapLoaded, ensureGraffitiLayer]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const ensureCrimeInteractions = useCallback((map: maplibregl.Map) => {
+    if (crimeInteractionsRef.current) return;
+    crimeInteractionsRef.current = true;
+
+    const setPointer = () => { map.getCanvas().style.cursor = 'pointer'; };
+    const clearPointer = () => { map.getCanvas().style.cursor = ''; };
+    map.on('mouseenter', 'crime-clusters', setPointer);
+    map.on('mouseleave', 'crime-clusters', clearPointer);
+    map.on('mouseenter', 'crime-points', setPointer);
+    map.on('mouseleave', 'crime-points', clearPointer);
+
+    map.on('click', 'crime-clusters', (event) => {
+      const feature = event.features?.[0];
+      const clusterId = Number(feature?.properties?.cluster_id);
+      const source = map.getSource('crime') as maplibregl.GeoJSONSource | undefined;
+      if (!feature || !source || !Number.isFinite(clusterId)) return;
+      source.getClusterExpansionZoom(clusterId).then((zoom) => {
+        const coordinates = (feature.geometry as GeoJSON.Point).coordinates as [number, number];
+        map.easeTo({ center: coordinates, zoom, duration: 650 });
+      }).catch(() => undefined);
+    });
+
+    map.on('click', 'crime-points', (event) => {
+      const feature = event.features?.[0];
+      if (!feature) return;
+      setSelectedCrime(feature.properties as unknown as CrimeProperties);
+      const coordinates = (feature.geometry as GeoJSON.Point).coordinates as [number, number];
+      map.easeTo({ center: coordinates, duration: 420 });
+    });
+  }, []);
+
+  // Load and validate the real 4.4 MB dataset only when requested. Parsing and
+  // normalization run in a worker, keeping the map interaction thread responsive.
   useEffect(() => {
     const map = opts.mapRef.current;
     if (!map || !opts.mapLoaded || !map.getStyle()) return;
-    setOverlayVisible(map, 'crime', crimeVisible);
-  }, [crimeVisible, opts.mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!crimeVisible) {
+      if (isOverlayAdded(map, 'crime')) setOverlayVisible(map, 'crime', false);
+      setSelectedCrime(null);
+      return;
+    }
+
+    if (isOverlayAdded(map, 'crime')) {
+      setOverlayVisible(map, 'crime', true);
+      setCrimeStatus('ready');
+      return;
+    }
+
+    let cancelled = false;
+    setCrimeStatus('loading');
+    setCrimeError(null);
+    loadCrimeData()
+      .then(({ data, stats }) => {
+        if (cancelled || !map.getStyle()) return;
+        addCrimeLayers(map, data);
+        ensureCrimeInteractions(map);
+        setCrimeStats(stats);
+        setCrimeStatus('ready');
+        setOverlayVisible(map, 'crime', true);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setCrimeStatus('error');
+        setCrimeError(error instanceof Error ? error.message : 'Unable to load crime data.');
+        setCrimeVisible(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [crimeVisible, opts.mapLoaded, ensureCrimeInteractions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const map = opts.mapRef.current;
@@ -131,13 +203,21 @@ export function useMapOverlays(opts: UseMapOverlaysOptions) {
 
   // ── Stable toggle callbacks ──────────────────────────────────────────────
   const handleGraffitiToggle = useCallback(() => setGraffitiVisible((v) => !v), []);
-  const handleCrimeToggle = useCallback(() => setCrimeVisible((v) => !v), []);
+  const handleCrimeToggle = useCallback(() => {
+    setCrimeError(null);
+    setCrimeVisible((v) => !v);
+  }, []);
   const handleGreenToggle = useCallback(() => setGreenVisible((v) => !v), []);
   const handleDistrictsToggle = useCallback(() => setDistrictsVisible((v) => !v), []);
 
   return {
     graffitiVisible,
     crimeVisible,
+    crimeStatus,
+    crimeError,
+    crimeStats,
+    selectedCrime,
+    setSelectedCrime,
     greenVisible,
     districtsVisible,
     selectedGraffiti,

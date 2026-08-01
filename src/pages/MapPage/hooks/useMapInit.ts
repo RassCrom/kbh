@@ -30,15 +30,39 @@ function patchRenderTaskQueue(map: maplibregl.Map): void {
   };
 }
 
-/** Lazily attach the three.js landmark layer. */
+const landmarkLayerQueued = new WeakSet<maplibregl.Map>();
+
+/** Lazily attach the three.js landmark layer only once close-up 3D is useful. */
 export function addLandmarks3D(map: maplibregl.Map): void {
-  import('../overlays/landmarks3d')
-    .then((m) => {
-      if (map.getStyle() && !map.getLayer('landmarks-3d')) {
-        map.addLayer(m.createLandmarksLayer());
-      }
-    })
-    .catch((err) => console.error('Failed to load 3D landmarks module:', err));
+  if (landmarkLayerQueued.has(map) || map.getLayer('landmarks-3d')) return;
+  landmarkLayerQueued.add(map);
+
+  const load = () => {
+    map.off('zoomend', waitForCloseZoom);
+    const importLayer = () => {
+      import('../overlays/landmarks3d')
+        .then((module) => {
+          if (map.getStyle() && !map.getLayer('landmarks-3d')) {
+            map.addLayer(module.createLandmarksLayer());
+          }
+        })
+        .catch((error) => console.error('Failed to load 3D landmarks module:', error));
+    };
+
+    const idleCallback = window.requestIdleCallback;
+    if (typeof idleCallback === 'function') {
+      idleCallback(importLayer, { timeout: 1800 });
+    } else {
+      setTimeout(importLayer, 120);
+    }
+  };
+
+  function waitForCloseZoom() {
+    if (map.getZoom() >= 13) load();
+  }
+
+  if (map.getZoom() >= 13) load();
+  else map.on('zoomend', waitForCloseZoom);
 }
 
 /** Parses a shareable #zoom/lat/lng[/pitch[/bearing]] camera hash. */
@@ -159,8 +183,6 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
     });
 
     map.once('load', () => setMapSettled(true));
-    map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
-
     if (playIntro) {
       map.once('style.load', () => {
         map.setProjection({ type: 'globe' });
@@ -430,6 +452,18 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
       };
 
       map.on('click', (e) => {
+        // Optional overlays register their own click handlers after lazy load.
+        // Do not let the always-on building handler clear or replace those
+        // selections when an overlay feature occupies the same screen pixel.
+        const crimeLayers = ['crime-clusters', 'crime-points'].filter((id) => map.getLayer(id));
+        if (crimeLayers.length > 0) {
+          const crimeFeatures = map.queryRenderedFeatures(e.point, { layers: crimeLayers });
+          if (crimeFeatures.length > 0) {
+            clearTapPreviewState();
+            return;
+          }
+        }
+
         const graffitiFeatures = map.getLayer('graffiti-layer')
           ? map.queryRenderedFeatures(e.point, { layers: ['graffiti-layer'] })
           : [];

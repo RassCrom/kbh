@@ -1,5 +1,6 @@
 @use '../../styles/tokens/colors' as *;
 @use '../../styles/tokens/spacing' as *;
+@use 'sass:color';
 @use '../../styles/tokens/transitions' as *;
 @use '../../styles/tokens/shadows' as *;
 @use '../../styles/tokens/radius' as *;
@@ -198,7 +199,7 @@
     gap         $duration-ui  $ease-snap;
 
   &:hover {
-    background: lighten($color-accent-brand, 8%);
+    background: color.adjust($color-accent-brand, $lightness: 8%);
     color: $color-bg-base;
     gap: $space-3;
   }
@@ -208,5 +209,3 @@
     outline-offset: 3px;
   }
 }
-
-

@@ -1,5 +1,6 @@
 ﻿@use '../../styles/tokens/colors' as *;
 @use '../../styles/tokens/spacing' as *;
+@use 'sass:color';
 @use '../../styles/tokens/radius' as *;
 @use '../../styles/tokens/transitions' as *;
 @use '../../styles/tokens/shadows' as *;
@@ -569,7 +570,7 @@
   background: $color-accent-brand;
 
   &:hover {
-    background: lighten($color-accent-brand, 10%);
+    background: color.adjust($color-accent-brand, $lightness: 10%);
   }
 }
 
@@ -653,8 +654,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   background: transparent;
   border: 1px solid var(--glass-border);
   border-radius: $radius-sm;
@@ -1446,7 +1447,7 @@
   align-self: flex-start;
 
   &:hover {
-    color: lighten($color-accent-sky, 10%);
+    color: color.adjust($color-accent-sky, $lightness: 10%);
     text-decoration: underline;
   }
 }
@@ -2473,7 +2474,7 @@
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: lighten($color-accent-brand, 10%);
+    background: color.adjust($color-accent-brand, $lightness: 10%);
   }
 }
 
@@ -3040,8 +3041,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: $radius-md;
@@ -3063,22 +3064,28 @@
 .tourProgress {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   margin: $space-2 0 $space-3;
 }
 
 .tourDot {
-  width: 16px;
-  height: 4px;
+  width: 40px;
+  height: 40px;
   padding: 0;
-  border: none;
-  border-radius: 2px;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
   background: var(--tint-bar);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background $duration-ui $ease-snap, transform $duration-ui $ease-snap;
+  transition: background $duration-ui $ease-snap, color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap, transform $duration-ui $ease-snap;
 
   &:hover {
-    transform: scaleY(1.6);
+    transform: scale(1.07);
+    border-color: var(--color-accent-brand);
   }
 
   &:focus-visible {
@@ -3088,8 +3095,12 @@
 }
 
 .tourDotActive {
-  transform: scaleY(1.6);
+  color: #071018;
+  border-color: rgba(255, 255, 255, 0.72);
+  transform: scale(1.07);
 }
+
+.tourDotDone { color: #071018; }
 
 .tourStopHeader {
   display: flex;
@@ -3153,7 +3164,7 @@
   align-items: center;
   gap: 4px;
   padding: 7px 14px;
-  min-height: 32px;
+  min-height: 44px;
   background: transparent;
   border: 1px solid var(--glass-border);
   border-radius: $radius-pill;
@@ -3703,6 +3714,17 @@
   animation: fadeSlideUp 180ms $ease-cinematic;
 }
 
+.overlayError {
+  margin-bottom: $space-2;
+  padding: $space-2;
+  border: 1px solid rgba(240, 106, 106, 0.35);
+  border-radius: $radius-sm;
+  background: rgba(240, 106, 106, 0.08);
+  color: #f49a9a;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
 .overlayLegend {
   display: flex;
   flex-wrap: wrap;
@@ -3781,8 +3803,8 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-width: 28px;
-  height: 28px;
+  min-width: 36px;
+  height: 36px;
   padding: 0 7px;
   background: transparent;
   border: 1px solid var(--glass-border);
@@ -3818,6 +3840,41 @@
   text-transform: uppercase;
 }
 
+.tourGestureHint {
+  margin-top: $space-3;
+  min-height: 30px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(104, 213, 232, 0.18);
+  border-radius: $radius-pill;
+  background: rgba(104, 213, 232, 0.05);
+  color: #8fc9d5;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+
+  svg {
+    animation: tourHintLift 1400ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+}
+
+.tourGestureHintPaused {
+  border-color: rgba(212, 168, 94, 0.22);
+  background: var(--color-brand-tint-06);
+  color: var(--color-accent-brand);
+
+  svg { animation: none; }
+}
+
+@keyframes tourHintLift {
+  0%, 100% { transform: translateY(2px); opacity: 0.55; }
+  50% { transform: translateY(-2px); opacity: 1; }
+}
+
 .tourFallbackNote {
   display: block;
   margin-top: $space-1;
@@ -3849,10 +3906,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tourAutoTimer { animation: none; transform: scaleX(1); opacity: 0.3; }
+  .tourGestureHint svg { animation: none; }
 }
 
 /* Keep dense map controls compact and readable on touch screens. */
 @media (max-width: 767px) {
+  .tourCtrlBtn,
+  .tourExitBtn,
+  .tourLauncherBtn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .tourCtrlLabel { display: none; }
+
   .mapPage :is(button, input, select, label, p, li, span) {
     font-size: clamp(12px, 1em, 14px);
   }

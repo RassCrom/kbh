@@ -8,20 +8,20 @@
 // Frozen Night (default — matches #0e1521 base)
 // -----------------------------------------------------------------------------
 
-$color-bg-base:        #0e1521;
-$color-bg-surface:     #15202e;
-$color-bg-overlay:     rgba(14, 21, 33, 0.85);
+$color-bg-base:        #070b12;
+$color-bg-surface:     #101823;
+$color-bg-overlay:     rgba(7, 11, 18, 0.9);
 
-$color-text-primary:   #dfe0e4;
-$color-text-secondary: #6d7d94;
-$color-text-data:      #8ba0bc;
+$color-text-primary:   #f1eee7;
+$color-text-secondary: #9aa8ba;
+$color-text-data:      #bdc8d6;
 
 $color-accent-gold:    #d4a85e;
-$color-accent-sky:     #4d8aad;
+$color-accent-sky:     #68d5e8;
 $color-accent-terra:   #8f5040;
 $color-accent-brand:   $color-accent-gold;
 
-$color-border-subtle:  #1e2a38;
+$color-border-subtle:  #233041;
 $color-border-active:  #d4a85e; // same as accent-gold
 
 // Tinted surfaces (used in active states, frosted overlays)
@@ -69,7 +69,7 @@ $color-white-tint-08:  rgba(255, 255, 255, 0.08);
 
   // ── Panel surface system (solid — no backdrop-filter required) ────────
   --glass-bg:          #{$color-bg-surface};
-  --glass-bg-hover:    #1a2739;
+  --glass-bg-hover:    #172332;
   --glass-bg-medium:   #{$color-bg-surface};
   --glass-bg-heavy:    #{$color-bg-base};
   --glass-border:      #{$color-border-subtle};
