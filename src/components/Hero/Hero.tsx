@@ -83,6 +83,10 @@ export default function Hero() {
           of Astana
         </h1>
 
+        <p className={s.subtitle}>
+          An interactive map of Astana's buildings, from Tselinograd to today.
+        </p>
+
         <div className={s.ctas}>
           <Link to="/map" className={s.ctaPrimary} id="cta-explore">
             Explore the Map

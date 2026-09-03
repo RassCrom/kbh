@@ -1,3 +1,6 @@
+import { ERA_CONFIG, type EraStop } from './constants';
+import { buildEraColorExpr } from './mapHelpers';
+
 export type HexMetric = 'count' | 'year';
 
 export interface HexProperties {
@@ -21,26 +24,9 @@ export function buildCountColorExpr(): maplibregl.ExpressionSpecification {
   ] as unknown as maplibregl.ExpressionSpecification;
 }
 
-/** Same ERA colour step as buildings, applied to avgYear */
-export function buildYearAvgColorExpr(): maplibregl.ExpressionSpecification {
-  return [
-    'case',
-    ['>', ['coalesce', ['get', 'year_mean'], 0], 0],
-    [
-      'step', ['coalesce', ['get', 'year_mean'], 0],
-      '#8B2635',
-      1917, '#D32F2F',
-      1936, '#C47A24',
-      1953, '#5E9E6A',
-      1964, '#4A7BAA',
-      1985, '#7B4D9E',
-      1991, '#A07840',
-      1997, '#007A9A',
-      2007, '#00AFCA',
-      2019, '#F5B82E',
-    ],
-    '#242424',
-  ] as unknown as maplibregl.ExpressionSpecification;
+/** Same era colour ramp as buildings (detailed or simplified), applied to avgYear */
+export function buildYearAvgColorExpr(eras: EraStop[] = ERA_CONFIG): maplibregl.ExpressionSpecification {
+  return buildEraColorExpr(eras, ['coalesce', ['get', 'year_mean'], 0]);
 }
 
 /** Extrusion height — 15× real average height, minimum 10 m so zero-data hexagons still read */

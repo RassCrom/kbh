@@ -1,22 +1,40 @@
 import { useState, useMemo } from 'react';
-import { Clock, ArrowLeft, ArrowRight, Search, Calendar, Tag } from 'lucide-react';
+import { Clock, ArrowLeft, ArrowRight, Search, FileText, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './ArticlesPage.module.scss';
 
 type Article = {
   id: string;
   era: string;
-  date: string;
   title: string;
   excerpt: string;
   readTime: string;
-  image: string;
+  image?: string;
   route?: string;
 };
 
-const ARTICLES: Article[] = [];
+const ARTICLES: Article[] = [
+  {
+    id: 'soviet-grid',
+    route: '/stories/soviet-grid',
+    era: '1960s',
+    readTime: '8 min read',
+    title: 'The Soviet Grid: How Tselinograd Was Planned',
+    excerpt:
+      "Before becoming Astana, this city was Tselinograd — a Soviet agricultural hub laid out with a ruler. Scroll the map through its grid, era by era.",
+  },
+  {
+    id: 'bayterek',
+    route: '/stories/bayterek',
+    era: '2000s',
+    readTime: '12 min read',
+    title: 'Rise of Bayterek: Symbolism in Steel and Glass',
+    excerpt:
+      "A 105-metre monument at the heart of Astana is less a building than a declaration. How a Kazakh creation myth became Central Asia's most recognisable silhouette.",
+  },
+];
 
-const ALL_ERAS = ['All'];
+const ALL_ERAS = ['All', ...new Set(ARTICLES.map((a) => a.era))];
 
 export default function ArticlesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,23 +103,29 @@ export default function ArticlesPage() {
           <div className={s.grid}>
             {filteredArticles.map((article) => (
               <div key={article.id} className={s.card}>
-                <div 
-                  className={s.cardImage} 
-                  style={{ backgroundImage: `url(${article.image})` }}
-                >
-                  <div className={s.cardOverlay} />
-                  <span className={s.cardEra}>
-                    <Tag size={10} />
-                    {article.era}
-                  </span>
-                </div>
+                {article.image ? (
+                  <div
+                    className={s.cardImage}
+                    style={{ backgroundImage: `url(${article.image})` }}
+                  >
+                    <div className={s.cardOverlay} />
+                    <span className={s.cardEra}>
+                      <Tag size={10} />
+                      {article.era}
+                    </span>
+                  </div>
+                ) : (
+                  <div className={s.cardImagePlaceholder}>
+                    <FileText size={40} strokeWidth={1} />
+                    <span className={s.cardEra}>
+                      <Tag size={10} />
+                      {article.era}
+                    </span>
+                  </div>
+                )}
 
                 <div className={s.cardBody}>
                   <div className={s.cardMeta}>
-                    <span className={s.cardDate}>
-                      <Calendar size={12} />
-                      {article.date}
-                    </span>
                     <span className={s.cardRead}>
                       <Clock size={12} />
                       {article.readTime}

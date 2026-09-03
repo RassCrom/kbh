@@ -1,4 +1,5 @@
 import maplibregl from 'maplibre-gl';
+import { ERA_CONFIG, type EraStop } from './constants';
 
 export type ColorMode = 'year' | 'elevation' | 'lst' | 'type' | 'uhi';
 
@@ -82,28 +83,31 @@ export type DecadeLstPoint = {
   count: number;    // number of buildings contributing
 };
 
-export function buildYearColorExpr(): maplibregl.ExpressionSpecification {
-  const parsedYear = ['coalesce', ['get', 'year_int'], 0];
+/**
+ * Builds a MapLibre 'step' color expression from an era list, keyed by
+ * whatever numeric expression `yearExpr` resolves to. Shared by the building
+ * year ramp and the hexagon average-year ramp so both respect the same
+ * detailed/simplified era grouping.
+ */
+export function buildEraColorExpr(
+  eras: EraStop[],
+  yearExpr: unknown = ['coalesce', ['get', 'year_int'], 0],
+): maplibregl.ExpressionSpecification {
+  const known = eras.filter((e) => e.bounds[0] !== -1).slice().sort((a, b) => a.bounds[0] - b.bounds[0]);
+  const unknownColor = eras.find((e) => e.bounds[0] === -1)?.color ?? '#242424';
+  const stepArgs: unknown[] = [known[0]?.color ?? unknownColor];
+  for (let i = 1; i < known.length; i++) stepArgs.push(known[i].bounds[0], known[i].color);
 
   return [
     'case',
-    ['!=', parsedYear, 0],
-    [
-      'step',
-      parsedYear,
-      '#8B2635',        // < 1917  Russian Empire
-      1917, '#D32F2F',  // 1917–1935  Early Soviet / Constructivism
-      1936, '#C47A24',  // 1936–1952  Stalinist era
-      1953, '#5E9E6A',  // 1953–1963  Khrushchev Thaw
-      1964, '#4A7BAA',  // 1964–1984  Brezhnev Stagnation
-      1985, '#7B4D9E',  // 1985–1990  Late Soviet / Perestroika
-      1991, '#A07840',  // 1991–1996  Early Independence
-      1997, '#007A9A',  // 1997–2006  Capital Founding
-      2007, '#00AFCA',  // 2007–2018  Capital Boom & EXPO
-      2019, '#F5B82E',  // 2019+      Tokayev era
-    ],
-    '#242424',          // Unknown (year = 0)
+    ['!=', yearExpr, 0],
+    ['step', yearExpr, ...stepArgs],
+    unknownColor,
   ] as unknown as maplibregl.ExpressionSpecification;
+}
+
+export function buildYearColorExpr(eras: EraStop[] = ERA_CONFIG): maplibregl.ExpressionSpecification {
+  return buildEraColorExpr(eras);
 }
 
 export function buildTypeColorExpr(): maplibregl.ExpressionSpecification {

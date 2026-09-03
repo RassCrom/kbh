@@ -46,6 +46,10 @@ $color-white-tint-08:  rgba(255, 255, 255, 0.08);
   --color-text-primary:   #{$color-text-primary};
   --color-text-secondary: #{$color-text-secondary};
   --color-text-data:      #{$color-text-data};
+  // One contrast step brighter than secondary — for micro-labels (10-12px
+  // uppercase section titles, legend descriptions) that need to stay legible
+  // at small sizes. Recomputed from whichever theme/palette is active.
+  --color-text-tertiary:  color-mix(in srgb, var(--color-text-secondary) 70%, var(--color-text-primary) 30%);
 
   --color-accent-gold:    #{$color-accent-gold};
   --color-accent-sky:     #{$color-accent-sky};

@@ -284,6 +284,38 @@
   letter-spacing: 0.08em;
 }
 
+.legendTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-3;
+}
+
+.eraDetailToggle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+  background: var(--tint-subtle);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
+  }
+
+  &[aria-pressed="true"] {
+    color: var(--color-accent-brand);
+    background: var(--color-brand-tint-12);
+    border-color: var(--color-accent-brand);
+  }
+}
+
 .legendList {
   list-style: none;
   display: flex;
@@ -324,9 +356,8 @@
 
 .legendDesc {
   font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--color-text-secondary);
-  opacity: 0.7;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
   line-height: 1.35;
   letter-spacing: 0.01em;
 }
@@ -472,7 +503,9 @@
   @media (max-width: 767px) {
     left: $space-3;
     right: $space-3;
-    bottom: calc(#{$space-2} + env(safe-area-inset-bottom, 0px));
+    // +18px clears MapLibre's compact attribution control, which sits in the
+    // same bottom-right corner and would otherwise sit under the play row.
+    bottom: calc(#{$space-2} + 18px + env(safe-area-inset-bottom, 0px));
     padding: $space-3 $space-4;
 
     &.withSidebar {
@@ -1302,11 +1335,11 @@
 
 .filterSectionTitle {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   transition: color $duration-ui $ease-snap;
 }
 
@@ -2029,10 +2062,9 @@
 
 .legendGradientSource {
   font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-text-secondary);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
   letter-spacing: 0.05em;
-  opacity: 0.5;
   text-transform: uppercase;
   margin-top: $space-2;
 }
@@ -2131,8 +2163,8 @@
   gap: 2px;
   margin-top: $space-3;
   font-family: var(--font-heading);
-  font-size: 11px;
-  color: var(--color-text-secondary);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
   font-weight: 500;
   
   span {
@@ -2857,6 +2889,41 @@
     color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.12);
     border-color: rgba(212, 168, 94, 0.35);
+  }
+}
+
+.modesToggleBtn {
+  @extend .tourLauncherBtn;
+}
+
+.modesChevron {
+  transition: transform 0.2s $ease-snap;
+}
+
+.modesChevronOpen {
+  transform: rotate(180deg);
+}
+
+.modesDropdown {
+  position: absolute;
+  top: calc(100% + #{$space-2});
+  left: 0;
+  z-index: $z-dropdown;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: $space-2;
+  min-width: 168px;
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: $space-3;
+  box-shadow: $shadow-md;
+  animation: fadeSlideUp 180ms $ease-cinematic;
+
+  .tourLauncherBtn {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 
@@ -3663,8 +3730,8 @@
 }
 
 .overlayRowDesc {
-  font-size: 10px;
-  color: var(--color-text-secondary);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
   line-height: 1.4;
 }
 
@@ -3772,6 +3839,17 @@
   letter-spacing: 0.08em;
   pointer-events: none;
   animation: fadeSlideUp 240ms $ease-cinematic;
+  transition: bottom 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Clears the expanded timeline (histogram + slider + labels), not just
+  // the collapsed play row, when the timeline hasn't been collapsed yet.
+  &.mapLoadingChipLifted {
+    bottom: 200px;
+
+    @media (max-width: 767px) {
+      bottom: 248px;
+    }
+  }
 }
 
 .mapLoadingDot {

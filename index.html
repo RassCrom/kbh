@@ -9,15 +9,22 @@
 
     <!-- Open Graph / social cards -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kbh-nu.vercel.app/" />
     <meta property="og:title" content="Astana Buildings — Architectural Atlas of Kazakhstan's Capital" />
     <meta property="og:description" content="More than a century of building history on an interactive 3D map: Soviet-era Tselinograd, the Kurokawa masterplan, guided tours, and urban data." />
     <meta property="og:site_name" content="Astana Buildings" />
+    <meta property="og:image" content="https://kbh-nu.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Astana Buildings — Architectural Atlas, an interactive map of Astana's construction history" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Astana Buildings — Architectural Atlas" />
     <meta name="twitter:description" content="Interactive 3D map of Astana's architectural evolution — eras, heat islands, guided tours, and stories." />
+    <meta name="twitter:image" content="https://kbh-nu.vercel.app/og-image.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://tiles.openfreemap.org" />
     <script>
       if (location.pathname === '/map') {
         fetch('/buildings-ast-v44.pmtiles', {

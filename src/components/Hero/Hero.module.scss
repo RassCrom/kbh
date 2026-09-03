@@ -140,6 +140,24 @@
   padding-bottom: 0.1em;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Subtitle — a single-line value proposition, not a paragraph
+// ─────────────────────────────────────────────────────────────────────────────
+
+.subtitle {
+  @include typ.body-lg;
+  color: var(--color-text-secondary);
+  max-width: 640px;
+  text-align: center;
+  font-size: 17px;
+  white-space: nowrap;
+  @include anim.cinematic-enter(0.28s);
+
+  @include bp-down('md') {
+    font-size: 14px;
+    white-space: normal;
+  }
+}
 
 
 // ─────────────────────────────────────────────────────────────────────────────

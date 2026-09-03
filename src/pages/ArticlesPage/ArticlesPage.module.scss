@@ -248,6 +248,20 @@
   transition: transform $duration-mid $ease-cinematic;
 }
 
+.cardImagePlaceholder {
+  height: 200px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(77, 138, 173, 0.1),
+    rgba(212, 168, 94, 0.08)
+  );
+  color: var(--color-text-secondary);
+}
+
 .cardOverlay {
   position: absolute;
   inset: 0;

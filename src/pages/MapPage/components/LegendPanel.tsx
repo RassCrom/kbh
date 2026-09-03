@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Info, X } from 'lucide-react';
-import { ERA_CONFIG, TYPE_GROUP_MAPPING } from '../constants';
+import { ERA_CONFIG, ERA_CONFIG_SIMPLE, TYPE_GROUP_MAPPING } from '../constants';
 import {
   TYPE_LEGEND,
   UHI_MATRIX,
@@ -16,6 +16,8 @@ interface LegendPanelProps {
   colorMode: ColorMode;
   legendOpen: boolean;
   onLegendOpenChange: (open: boolean) => void;
+  eraDetail: 'simple' | 'detailed';
+  onEraDetailChange: (detail: 'simple' | 'detailed') => void;
   hoveredEra: string | null;
   onHoveredEraChange: (era: string | null) => void;
   onYearRangeChange: (range: [number, number]) => void;
@@ -30,6 +32,8 @@ export function LegendPanel({
   colorMode,
   legendOpen,
   onLegendOpenChange,
+  eraDetail,
+  onEraDetailChange,
   hoveredEra,
   onHoveredEraChange,
   onYearRangeChange,
@@ -60,6 +64,8 @@ export function LegendPanel({
     return vals.some((v) => selectedTypes.includes(v));
   }, [selectedTypes]);
 
+  const activeEraConfig = eraDetail === 'detailed' ? ERA_CONFIG : ERA_CONFIG_SIMPLE;
+
   return (
     <div className={`${s.legend} ${legendOpen ? s.open : ''}`}>
       <button
@@ -74,9 +80,19 @@ export function LegendPanel({
         <div className={s.legendBody}>
           {colorMode === 'year' && (
             <>
-              <h3 className={s.legendTitle}>Building Era</h3>
+              <div className={s.legendTitleRow}>
+                <h3 className={s.legendTitle} style={{ margin: 0 }}>Building Era</h3>
+                <button
+                  type="button"
+                  className={s.eraDetailToggle}
+                  onClick={() => onEraDetailChange(eraDetail === 'detailed' ? 'simple' : 'detailed')}
+                  aria-pressed={eraDetail === 'detailed'}
+                >
+                  {eraDetail === 'detailed' ? 'Detailed' : 'Simplified'}
+                </button>
+              </div>
               <ul className={s.legendList}>
-                {ERA_CONFIG.map((era) => (
+                {activeEraConfig.map((era) => (
                   <li
                     key={era.label}
                     className={s.legendItem}

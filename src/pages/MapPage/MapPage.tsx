@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, Columns2, Film, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Columns2, Compass, Film, SlidersHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
 import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
 
-import { ERA_CONFIG, DISTRICT_BOUNDS } from './constants';
+import { ERA_CONFIG, ERA_CONFIG_SIMPLE, DISTRICT_BOUNDS } from './constants';
 import {
   buildYearColorExpr, buildElevationColorExpr, buildLstColorExpr, buildTypeColorExpr,
   buildUhiColorExpr, buildCombinedFilter, buildHeightExtrusionExpr, buildAgeExtrusionExpr,
@@ -110,10 +110,24 @@ export default function MapPage() {
   const [legendOpen, setLegendOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [compareActive, setCompareActive] = useState(false);
+  // Mobile folds Tours/Cinema/Compare behind one "Modes" trigger instead of
+  // stacking three separate pills in the already-crowded top-left corner.
+  const [modesMenuOpen, setModesMenuOpen] = useState(false);
   const [timelineCollapsed, setTimelineCollapsed] = useState(() =>
     typeof window !== 'undefined' && window.innerWidth < 768,
   );
   const [hoveredEra, setHoveredEra] = useState<string | null>(null);
+  // Ten era hues read as noise on a near-black basemap, so the simplified
+  // 4-group palette is the default; "detailed" restores the full era list.
+  const [eraDetail, setEraDetail] = useState<'simple' | 'detailed'>(() =>
+    (typeof window !== 'undefined' && localStorage.getItem('kbh-map-era-detail') === 'detailed')
+      ? 'detailed' : 'simple',
+  );
+  const activeEraConfig = eraDetail === 'detailed' ? ERA_CONFIG : ERA_CONFIG_SIMPLE;
+  const handleEraDetailChange = useCallback((detail: 'simple' | 'detailed') => {
+    setEraDetail(detail);
+    localStorage.setItem('kbh-map-era-detail', detail);
+  }, []);
 
   // ── Selection states ──────────────────────────────────────────────────────
   const [selectedBuilding, setSelectedBuilding] = useState<Record<string, unknown> | null>(null);
@@ -327,13 +341,13 @@ export default function MapPage() {
           colorMode === 'lst' ? buildLstColorExpr() :
             colorMode === 'type' ? buildTypeColorExpr() :
               colorMode === 'uhi' ? buildUhiColorExpr() :
-                buildYearColorExpr();
+                buildYearColorExpr(activeEraConfig);
       if (map.getLayer('buildings-fill')) map.setPaintProperty('buildings-fill', 'fill-color', colorExpr);
       if (map.getLayer('buildings-3d')) map.setPaintProperty('buildings-3d', 'fill-extrusion-color', colorExpr);
     };
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
-  }, [colorMode, mapTheme, mapRef]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [colorMode, mapTheme, activeEraConfig, mapRef]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Keep filterStateRef current so onPlayTick reads fresh values ─────────
   useEffect(() => {
@@ -392,7 +406,7 @@ export default function MapPage() {
     let opacityExpr: any = ['interpolate', ['linear'], ['zoom'], 12, 0.7, 14, 0.85, 14.5, 0];
     let opacity3dExpr: any = 0.85;
     if (colorMode === 'year' && hoveredEra) {
-      const era = ERA_CONFIG.find(e => e.label === hoveredEra);
+      const era = activeEraConfig.find(e => e.label === hoveredEra);
       if (era) {
         const parsedYear = ['coalesce', ['get', 'year_int'], 0];
         let inEraExpr: any;
@@ -407,7 +421,7 @@ export default function MapPage() {
     }
     map.setPaintProperty('buildings-fill', 'fill-opacity', opacityExpr);
     if (map.getLayer('buildings-3d')) map.setPaintProperty('buildings-3d', 'fill-extrusion-opacity', opacity3dExpr);
-  }, [hoveredEra, colorMode, mapRef]);
+  }, [hoveredEra, colorMode, activeEraConfig, mapRef]);
 
   // ── Extrusion mode ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -452,9 +466,9 @@ export default function MapPage() {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.getStyle() || !map.getLayer('hex-layer')) return;
-    const colorExpr = hexMetric === 'count' ? buildCountColorExpr() : buildYearAvgColorExpr();
+    const colorExpr = hexMetric === 'count' ? buildCountColorExpr() : buildYearAvgColorExpr(activeEraConfig);
     map.setPaintProperty('hex-layer', 'fill-extrusion-color', colorExpr);
-  }, [hexMetric, mapRef]);
+  }, [hexMetric, activeEraConfig, mapRef]);
 
   // ── Cinema × hexagons ─────────────────────────────────────────────────────
   const hexCinemaActiveRef = useRef(false);
@@ -477,6 +491,10 @@ export default function MapPage() {
   const handleClearDistricts = useCallback(() => setSelectedDistricts([]), [setSelectedDistricts]);
   const handleThemeToggle = useCallback(() => setMapTheme((t) => (t === 'dark' ? 'light' : 'dark')), []);
   const handleExtrudeModeChange = useCallback((m: ExtrudeMode) => setExtrudeMode(m), []);
+  useEffect(() => {
+    if (compareActive) setModesMenuOpen(false);
+  }, [compareActive]);
+
   const handleCompareToggle = useCallback(() => {
     if (!compareActive) {
       setVizMode('buildings');
@@ -596,7 +614,11 @@ export default function MapPage() {
 
       {/* First-load indicator */}
       {!mapSettled && !introActive && (
-        <div className={s.mapLoadingChip} role="status" aria-live="polite">
+        <div
+          className={`${s.mapLoadingChip} ${!timelineCollapsed ? s.mapLoadingChipLifted : ''}`}
+          role="status"
+          aria-live="polite"
+        >
           <span className={s.mapLoadingDot} />
           Loading buildings…
         </div>
@@ -630,10 +652,67 @@ export default function MapPage() {
             />
           )}
 
-          {/* Tours + Cinema launchers */}
+          {/* Tours + Cinema + Compare launchers — one "Modes" menu on mobile
+              instead of three separate pills stacked in the top-left corner */}
           {!tours.activeTour && !cinema.cinemaActive && (
             <div className={s.tourLauncher}>
-              {!compareActive && (
+              {compareActive ? (
+                <button
+                  className={`${s.tourLauncherBtn} ${s.tourLauncherBtnActive}`}
+                  onClick={handleCompareToggle}
+                  title="Compare reconstructed 1990 map with the modern city"
+                  aria-label="Exit map comparison"
+                  aria-pressed
+                >
+                  <Columns2 size={13} />
+                  <span>Exit compare</span>
+                </button>
+              ) : isMobile ? (
+                <>
+                  <button
+                    className={s.modesToggleBtn}
+                    onClick={() => setModesMenuOpen((v) => !v)}
+                    aria-haspopup="true"
+                    aria-expanded={modesMenuOpen}
+                    aria-label="Map modes: tours, cinema, compare"
+                  >
+                    <Compass size={13} />
+                    <span>Modes</span>
+                    <ChevronDown size={12} className={`${s.modesChevron} ${modesMenuOpen ? s.modesChevronOpen : ''}`} />
+                  </button>
+                  {modesMenuOpen && (
+                    <div className={s.modesDropdown} role="menu">
+                      <TourPanel
+                        activeTour={tours.activeTour}
+                        tourStep={tours.tourStep}
+                        tourPaused={tours.tourPaused}
+                        onStartTour={tours.handleStartTour}
+                        onStepChange={tours.handleStepChange}
+                        onPauseChange={tours.handleTourPauseChange}
+                        onExitTour={tours.handleExitTour}
+                      />
+                      <button
+                        className={s.tourLauncherBtn}
+                        onClick={() => { cinema.handleStartCinema(); setModesMenuOpen(false); }}
+                        title="Cinematic time-lapse — watch the city grow from 1900"
+                        aria-label="Play cinematic time-lapse"
+                      >
+                        <Film size={13} />
+                        <span>Cinema</span>
+                      </button>
+                      <button
+                        className={s.tourLauncherBtn}
+                        onClick={() => { handleCompareToggle(); setModesMenuOpen(false); }}
+                        title="Compare reconstructed 1990 map with the modern city"
+                        aria-label="Compare historical and modern maps"
+                      >
+                        <Columns2 size={13} />
+                        <span>Compare</span>
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
                 <>
                   <TourPanel
                     activeTour={tours.activeTour}
@@ -653,18 +732,17 @@ export default function MapPage() {
                     <Film size={13} />
                     <span>Cinema</span>
                   </button>
+                  <button
+                    className={s.tourLauncherBtn}
+                    onClick={handleCompareToggle}
+                    title="Compare reconstructed 1990 map with the modern city"
+                    aria-label="Compare historical and modern maps"
+                  >
+                    <Columns2 size={13} />
+                    <span>Compare</span>
+                  </button>
                 </>
               )}
-              <button
-                className={`${s.tourLauncherBtn} ${compareActive ? s.tourLauncherBtnActive : ''}`}
-                onClick={handleCompareToggle}
-                title="Compare reconstructed 1990 map with the modern city"
-                aria-label={compareActive ? 'Exit map comparison' : 'Compare historical and modern maps'}
-                aria-pressed={compareActive}
-              >
-                <Columns2 size={13} />
-                <span>{compareActive ? 'Exit compare' : 'Compare'}</span>
-              </button>
             </div>
           )}
 
@@ -723,6 +801,8 @@ export default function MapPage() {
               colorMode={colorMode}
               legendOpen={legendOpen}
               onLegendOpenChange={setLegendOpen}
+              eraDetail={eraDetail}
+              onEraDetailChange={handleEraDetailChange}
               hoveredEra={hoveredEra}
               onHoveredEraChange={setHoveredEra}
               onYearRangeChange={setYearRange}

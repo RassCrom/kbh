@@ -1,4 +1,11 @@
-export const ERA_CONFIG = [
+export interface EraStop {
+  label: string;
+  color: string;
+  bounds: [number, number];
+  description: string;
+}
+
+export const ERA_CONFIG: EraStop[] = [
   {
     label: 'Russian Empire (< 1917)',
     color: '#8B2635',
@@ -63,6 +70,43 @@ export const ERA_CONFIG = [
     label: 'Unknown',
     color: '#242424',
     bounds: [-1, -1] as [number, number],
+    description: 'Construction year undocumented',
+  },
+];
+
+// Coarser 4-era grouping shown by default — 10 hues read as noise on a
+// near-black basemap at a glance. Bounds line up exactly with ERA_CONFIG's
+// sub-era edges so switching between the two never changes what a given
+// building's year maps to, only how many colors it's grouped into.
+export const ERA_CONFIG_SIMPLE: EraStop[] = [
+  {
+    label: 'Imperial & Early Soviet (< 1936)',
+    color: '#B23A3A',
+    bounds: [0, 1935],
+    description: 'Akmolinsk\'s tsarist garrison years through revolutionary Constructivism and the NEP era',
+  },
+  {
+    label: 'Soviet Era (1936–1990)',
+    color: '#4A7BAA',
+    bounds: [1936, 1990],
+    description: 'Sixty years of Soviet mass housing — Stalinist monuments through Brezhnev-era panel blocks and late-Soviet decline',
+  },
+  {
+    label: 'Independence & Founding (1991–2006)',
+    color: '#A07840',
+    bounds: [1991, 2006],
+    description: 'Independence, hyperinflation, and the 1997 capital transfer through Kurokawa\'s founding masterplan',
+  },
+  {
+    label: 'Modern Astana (2007+)',
+    color: '#00AFCA',
+    bounds: [2007, 2100],
+    description: 'EXPO-era boom and the contemporary skyline under President Tokayev',
+  },
+  {
+    label: 'Unknown',
+    color: '#242424',
+    bounds: [-1, -1],
     description: 'Construction year undocumented',
   },
 ];
