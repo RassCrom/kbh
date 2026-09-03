@@ -5,9 +5,11 @@ import s from './MapNavigationControls.module.scss';
 
 interface MapNavigationControlsProps {
   mapRef: React.MutableRefObject<maplibregl.Map | null>;
+  /** Phones stack the timeline under this control — lift it clear when the histogram is open. */
+  timelineExpanded?: boolean;
 }
 
-export function MapNavigationControls({ mapRef }: MapNavigationControlsProps) {
+export function MapNavigationControls({ mapRef, timelineExpanded = false }: MapNavigationControlsProps) {
   const [open, setOpen] = useState(false);
 
   const withMap = (action: (map: maplibregl.Map) => void) => {
@@ -16,7 +18,7 @@ export function MapNavigationControls({ mapRef }: MapNavigationControlsProps) {
   };
 
   return (
-    <div className={s.controls}>
+    <div className={`${s.controls} ${timelineExpanded ? s.controlsLifted : ''}`}>
       {open && (
         <div className={s.revealed} role="group" aria-label="Map camera controls">
           <button

@@ -682,7 +682,7 @@ export default function MapPage() {
 
           {/* Progressive camera controls stay tucked behind one labelled trigger. */}
           {!tours.activeTour && !cinema.cinemaActive && !compareActive && mapLoaded && (
-            <MapNavigationControls mapRef={mapRef} />
+            <MapNavigationControls mapRef={mapRef} timelineExpanded={!timelineCollapsed} />
           )}
 
           {/* Filter sidebar */}

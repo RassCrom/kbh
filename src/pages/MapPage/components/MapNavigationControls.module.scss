@@ -2,10 +2,12 @@
 @use '../../../styles/tokens/radius' as *;
 @use '../../../styles/tokens/shadows' as *;
 
+// The stack lives in the gutter the timeline reserves on its right
+// (see .timelineContainer in MapPage.module.scss) — keep the two in sync.
 .controls {
   position: absolute;
   right: 16px;
-  bottom: 84px;
+  bottom: 16px;
   z-index: 121;
   display: flex;
   flex-direction: column;
@@ -37,10 +39,18 @@
     &:active { transform: scale(0.94); }
   }
 
+  // On phones the timeline spans the full width, so the stack sits above it
+  // instead of beside it — high enough to clear the collapsed play row.
   @media (max-width: 767px) {
     right: 12px;
-    bottom: 92px;
+    bottom: 108px;
   }
+}
+
+// …and higher still once the histogram is expanded (8px offset + 24px padding
+// + 140px collapsible cap + ~61px play row).
+@media (max-width: 767px) {
+  .controlsLifted { bottom: 248px; }
 }
 
 .revealed {

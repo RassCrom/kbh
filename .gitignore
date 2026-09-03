@@ -13,8 +13,11 @@ dist-ssr
 scratch
 *.local
 .claude
+.agents
 
 .env
+
+ignore
 
 # Editor directories and files
 .vscode/*

@@ -79,15 +79,9 @@ export default function Hero() {
       <div className={s.leftCol}>
         {/* Headline */}
         <h1 className={s.title}>
-          <span className={s.titleAccent}>Building History</span>
-          of a Capital
+          <span className={s.titleAccent}>Buildings Data</span>
+          of Astana
         </h1>
-
-        <p className={s.subtitle}>
-          Explore how Astana transformed from a Soviet-era outpost into a
-          futuristic capital — one building at a time. Interactive maps,
-          data stories, and architectural timelines.
-        </p>
 
         <div className={s.ctas}>
           <Link to="/map" className={s.ctaPrimary} id="cta-explore">

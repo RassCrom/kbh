@@ -442,8 +442,8 @@
   bottom: $space-2;
   // Left edge clears the legend panel: 16px margin + 256px max-width + 8px gap
   left: 280px;
-  // Right edge clears MapLibre nav controls (~36px) + comfortable margin
-  right: 56px;
+  // Right edge clears the camera control stack: 16px margin + 104px stack + 16px gap
+  right: 136px;
   width: auto;
   max-width: none;
   // background: var(--glass-bg-medium);
