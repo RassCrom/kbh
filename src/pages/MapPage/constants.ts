@@ -67,14 +67,16 @@ export const ERA_CONFIG = [
   },
 ];
 
-// [west, south, east, north] — approximate bounding boxes for each district in Astana
+// [west, south, east, north] — approximate bounding boxes for each district in Astana.
+// Keyed by the same district code stored in the `district` feature property
+// (see DISTRICT_OPTIONS below) — not by the district's display name.
 export const DISTRICT_BOUNDS: Record<string, [number, number, number, number]> = {
-  'Nura':      [71.30, 51.05, 71.55, 51.20],
-  'Yesil':     [71.38, 51.12, 71.60, 51.25],
-  'Almaty':    [71.32, 51.07, 71.50, 51.18],
-  'Sa':        [71.25, 51.10, 71.45, 51.22],
-  'B':         [71.20, 51.08, 71.40, 51.20],
-  'Saraishik': [71.45, 51.10, 71.65, 51.23],
+  'N':  [71.30, 51.05, 71.55, 51.20], // Nura
+  'Y':  [71.38, 51.12, 71.60, 51.25], // Yesil
+  'A':  [71.32, 51.07, 71.50, 51.18], // Almaty
+  'Sa': [71.25, 51.10, 71.45, 51.22], // Saryarka
+  'B':  [71.20, 51.08, 71.40, 51.20], // Baikonur
+  'Sk': [71.45, 51.10, 71.65, 51.23], // Saraishik
 };
 
 export const DISTRICT_OPTIONS: { label: string; value: string }[] = [
@@ -88,13 +90,14 @@ export const DISTRICT_OPTIONS: { label: string; value: string }[] = [
 
 // Total building counts per district — computed from centroids-b-ast-v412.geojson
 // using each district's bounding box. Static; does not change with map viewport.
+// Keyed by district code, matching DISTRICT_OPTIONS/DISTRICT_BOUNDS above.
 export const DISTRICT_TOTAL_COUNTS: Record<string, number> = {
-  'Nura':      37263,
-  'Yesil':     28597,
-  'Sa':        26051,
-  'Almaty':    20443,
-  'Saraishik': 16608,
-  'B':         14609,
+  'N':  37263, // Nura
+  'Y':  28597, // Yesil
+  'Sa': 26051, // Saryarka
+  'A':  20443, // Almaty
+  'Sk': 16608, // Saraishik
+  'B':  14609, // Baikonur
 };
 
 export const TYPE_OPTIONS: { label: string; value: string }[] = [
