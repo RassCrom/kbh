@@ -7,19 +7,15 @@ import s from './MapPage.module.scss';
 import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
 
 import { ERA_CONFIG, ERA_CONFIG_SIMPLE, DISTRICT_BOUNDS } from './constants';
-import {
-  buildYearColorExpr, buildElevationColorExpr, buildLstColorExpr, buildTypeColorExpr,
-  buildUhiColorExpr, buildCombinedFilter, buildHeightExtrusionExpr, buildAgeExtrusionExpr,
-  type ColorMode, type ExtrudeMode,
-} from './mapHelpers';
+import { buildCombinedFilter, type ColorMode, type ExtrudeMode } from './mapHelpers';
 import { TimelineSlider } from './components/TimelineSlider';
 import { FilterSidebar } from './components/FilterSidebar';
 import { BuildingPanel } from './components/BuildingPanel';
 import { GraffitiPanel } from './components/GraffitiPanel';
 import { CrimePanel } from './components/CrimePanel';
 import { HexControls } from './components/HexControls';
-import { buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr, buildHexCinemaHeightExpr, type HexMetric } from './hexUtils';
-import { applyMapTheme, type MapTheme } from './mapTheme';
+import { type HexMetric } from './hexUtils';
+import { type MapTheme } from './mapTheme';
 import { LegendPanel } from './components/LegendPanel';
 import { HoverTooltip } from './components/HoverTooltip';
 import { TapPreviewCard } from './components/TapPreviewCard';
@@ -39,6 +35,7 @@ import { useMapInit, parseCameraHash, PREFERS_REDUCED_MOTION, addLandmarks3D } f
 import { useMapTours } from './hooks/useMapTours';
 import { useCinemaMode } from './hooks/useCinemaMode';
 import { useMapOverlays } from './hooks/useMapOverlays';
+import { useMapLayerSync } from './hooks/useMapLayerSync';
 
 const COLOR_MODES: ColorMode[] = ['year', 'elevation', 'lst', 'type', 'uhi'];
 const INTRO_SESSION_KEY = 'kbh-map-intro-seen';
@@ -123,6 +120,7 @@ export default function MapPage() {
     (typeof window !== 'undefined' && localStorage.getItem('kbh-map-era-detail') === 'detailed')
       ? 'detailed' : 'simple',
   );
+  const clearUhiCells = useCallback(() => setSelectedUhiCells([]), [setSelectedUhiCells]);
   const activeEraConfig = eraDetail === 'detailed' ? ERA_CONFIG : ERA_CONFIG_SIMPLE;
   const handleEraDetailChange = useCallback((detail: 'simple' | 'detailed') => {
     setEraDetail(detail);
@@ -320,34 +318,27 @@ export default function MapPage() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Dark/light theme ─────────────────────────────────────────────────────
-  useEffect(() => {
-    document.documentElement.dataset.theme = mapTheme;
-    const map = mapRef.current;
-    if (!map) return;
-    const apply = () => applyMapTheme(map, mapTheme);
-    if (map.isStyleLoaded()) apply();
-    else map.once('load', apply);
-  }, [mapTheme, mapRef]);
-
-  // ── Building color expression ─────────────────────────────────────────────
-  useEffect(() => {
-    setSelectedUhiCells([]);
-    const map = mapRef.current;
-    if (!map) return;
-    const apply = () => {
-      const colorExpr =
-        colorMode === 'elevation' ? buildElevationColorExpr() :
-          colorMode === 'lst' ? buildLstColorExpr() :
-            colorMode === 'type' ? buildTypeColorExpr() :
-              colorMode === 'uhi' ? buildUhiColorExpr() :
-                buildYearColorExpr(activeEraConfig);
-      if (map.getLayer('buildings-fill')) map.setPaintProperty('buildings-fill', 'fill-color', colorExpr);
-      if (map.getLayer('buildings-3d')) map.setPaintProperty('buildings-3d', 'fill-extrusion-color', colorExpr);
-    };
-    if (map.isStyleLoaded()) apply();
-    else map.once('load', apply);
-  }, [colorMode, mapTheme, activeEraConfig, mapRef]); // eslint-disable-line react-hooks/exhaustive-deps
+  // ── Push state into MapLibre paint properties and filters ────────────────
+  useMapLayerSync({
+    mapRef,
+    mapTheme,
+    colorMode,
+    activeEraConfig,
+    hoveredEra,
+    extrudeMode,
+    hexMetric,
+    vizMode,
+    cinemaActive: cinema.cinemaActive,
+    cinemaYear: cinema.cinemaYear,
+    isPlaying,
+    yearRange,
+    selectedTypes,
+    selectedDistricts,
+    selectedArchStyle,
+    selectedCompany,
+    selectedUhiCells,
+    onUhiCellsReset: clearUhiCells,
+  });
 
   // ── Keep filterStateRef current so onPlayTick reads fresh values ─────────
   useEffect(() => {
@@ -362,28 +353,6 @@ export default function MapPage() {
     };
   }, [yearRange, selectedTypes, selectedDistricts, selectedArchStyle, selectedCompany, selectedUhiCells, colorMode]);
 
-  // ── Combined filter ───────────────────────────────────────────────────────
-  // During play, onPlayTick drives the map filter directly (same rAF frame).
-  // Skipping here prevents the async useEffect from overwriting it with a
-  // stale yearRange value from the React batch.
-  useEffect(() => {
-    if (isPlaying) return;
-    if (!mapRef.current) return;
-    const map = mapRef.current;
-    if (!map.getStyle()) return;
-    const filterExpr = buildCombinedFilter(
-      yearRange,
-      selectedTypes,
-      selectedDistricts,
-      selectedArchStyle,
-      selectedCompany,
-      colorMode === 'uhi' ? selectedUhiCells : [],
-    ) as maplibregl.FilterSpecification;
-    if (map.getLayer('buildings-fill')) map.setFilter('buildings-fill', filterExpr);
-    if (map.getLayer('buildings-outline')) map.setFilter('buildings-outline', filterExpr);
-    if (map.getLayer('buildings-3d')) map.setFilter('buildings-3d', filterExpr);
-  }, [isPlaying, yearRange, selectedTypes, selectedDistricts, selectedArchStyle, selectedCompany, selectedUhiCells, colorMode, mapRef]);
-
   // ── Fly to selected districts ─────────────────────────────────────────────
   useEffect(() => {
     const map = mapRef.current;
@@ -397,44 +366,6 @@ export default function MapPage() {
       map.fitBounds([west, south, east, north], { padding: 60, duration: 1000 });
     }
   }, [selectedDistricts, mapRef]);
-
-  // ── Era hover highlight ───────────────────────────────────────────────────
-  useEffect(() => {
-    if (!mapRef.current) return;
-    const map = mapRef.current;
-    if (!map.getStyle() || !map.getLayer('buildings-fill')) return;
-    let opacityExpr: any = ['interpolate', ['linear'], ['zoom'], 12, 0.7, 14, 0.85, 14.5, 0];
-    let opacity3dExpr: any = 0.85;
-    if (colorMode === 'year' && hoveredEra) {
-      const era = activeEraConfig.find(e => e.label === hoveredEra);
-      if (era) {
-        const parsedYear = ['coalesce', ['get', 'year_int'], 0];
-        let inEraExpr: any;
-        if (era.label === 'Unknown') {
-          inEraExpr = ['==', parsedYear, 0];
-        } else {
-          inEraExpr = ['all', ['>=', parsedYear, era.bounds[0]], ['<=', parsedYear, era.bounds[1]], ['!=', parsedYear, 0]];
-        }
-        opacityExpr = ['case', inEraExpr, opacityExpr, 0.1];
-        opacity3dExpr = ['case', inEraExpr, opacity3dExpr, 0.1];
-      }
-    }
-    map.setPaintProperty('buildings-fill', 'fill-opacity', opacityExpr);
-    if (map.getLayer('buildings-3d')) map.setPaintProperty('buildings-3d', 'fill-extrusion-opacity', opacity3dExpr);
-  }, [hoveredEra, colorMode, activeEraConfig, mapRef]);
-
-  // ── Extrusion mode ────────────────────────────────────────────────────────
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.getStyle()) return;
-    const apply = () => {
-      const expr = extrudeMode === 'age' ? buildAgeExtrusionExpr() : buildHeightExtrusionExpr();
-      if (map.getLayer('buildings-3d')) map.setPaintProperty('buildings-3d', 'fill-extrusion-height', expr);
-      if (map.getLayer('buildings-3d-hover')) map.setPaintProperty('buildings-3d-hover', 'fill-extrusion-height', expr);
-    };
-    if (map.isStyleLoaded()) apply();
-    else map.once('load', apply);
-  }, [extrudeMode, mapRef]);
 
   // ── Viz mode toggle ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -461,28 +392,6 @@ export default function MapPage() {
       setTimelineCollapsed(prev.timeline);
     }
   }, [vizMode]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Hex metric ────────────────────────────────────────────────────────────
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.getStyle() || !map.getLayer('hex-layer')) return;
-    const colorExpr = hexMetric === 'count' ? buildCountColorExpr() : buildYearAvgColorExpr(activeEraConfig);
-    map.setPaintProperty('hex-layer', 'fill-extrusion-color', colorExpr);
-  }, [hexMetric, activeEraConfig, mapRef]);
-
-  // ── Cinema × hexagons ─────────────────────────────────────────────────────
-  const hexCinemaActiveRef = useRef(false);
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.getStyle() || !map.getLayer('hex-layer')) return;
-    if (cinema.cinemaActive && vizMode === 'hexagons') {
-      hexCinemaActiveRef.current = true;
-      map.setPaintProperty('hex-layer', 'fill-extrusion-height', buildHexCinemaHeightExpr(cinema.cinemaYear));
-    } else if (hexCinemaActiveRef.current) {
-      hexCinemaActiveRef.current = false;
-      map.setPaintProperty('hex-layer', 'fill-extrusion-height', buildHexHeightExpr());
-    }
-  }, [cinema.cinemaActive, vizMode, cinema.cinemaYear, mapRef]);
 
   // ── Callbacks ─────────────────────────────────────────────────────────────
   const handleSidebarClose = useCallback(() => setSidebarOpen(false), []);
