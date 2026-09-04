@@ -1,0 +1,412 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// MapLibre control overrides
+
+/* ------------------------------------------------------------------ */
+/*  MapLibre control overrides                                         */
+/* ------------------------------------------------------------------ */
+
+:global {
+  .maplibregl-ctrl-group {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: $radius-md !important;
+    box-shadow: $shadow-md !important;
+
+    @media (max-width: 767px) {
+      display: none !important;
+    }
+
+    button {
+      background: transparent !important;
+      border-color: $color-border-subtle !important;
+      color: var(--color-text-secondary) !important;
+
+      &:hover {
+        background: rgba(212, 168, 94, 0.08) !important;
+      }
+
+      .maplibregl-ctrl-icon {
+        filter: invert(0.8);
+      }
+    }
+  }
+
+  .maplibregl-ctrl-attrib {
+    background: var(--glass-bg-medium) !important;
+    color: var(--color-text-secondary) !important;
+    font-size: 10px !important;
+    border-radius: $radius-sm !important;
+
+    a {
+      color: var(--color-accent-sky) !important;
+    }
+  }
+}
+
+/* Info button and methodology blocks inside Layers tab */
+.infoBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--tint-subtle);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  margin-left: $space-2;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    background: var(--color-brand-tint-12);
+    border-color: var(--color-accent-brand);
+    color: var(--color-accent-brand);
+  }
+
+  &.infoBtnActive {
+    background: var(--color-brand-tint-12);
+    border-color: var(--color-accent-brand);
+    color: var(--color-accent-brand);
+  }
+}
+
+.vizInfoBlock {
+  margin-top: $space-2;
+  padding: $space-3;
+  background: var(--tint-faint);
+  border-left: 2px solid var(--color-accent-brand);
+  border-radius: $radius-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  cursor: default;
+}
+
+.vizInfoText {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  margin: 0;
+
+  strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+}
+
+// ---------- Pulse Marker ----------
+
+.pulseMarker {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 50;
+}
+
+.pulseDot {
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent-brand);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--color-accent-brand);
+  z-index: 2;
+}
+
+.pulseRing {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--color-accent-brand);
+  border-radius: 50%;
+  animation: markerPulse 1.8s ease-out infinite;
+  opacity: 0;
+  z-index: 1;
+}
+
+@keyframes markerPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+// ---------- Hexagon Info Button & Popover ----------
+
+.vizInfoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
+    background: rgba(212, 168, 94, 0.08);
+  }
+
+  &.vizInfoBtnActive {
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
+    background: rgba(212, 168, 94, 0.12);
+  }
+}
+
+.hexInfoPopover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: $space-2;
+  width: 260px;
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  padding: $space-3;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  animation: fadeIn 200ms ease-out;
+  z-index: 1000;
+
+  @media (max-width: 767px) {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+  }
+}
+
+.hexInfoTitle {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-accent-brand);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hexInfoText {
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.hexInfoFooter {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  border-top: 1px solid var(--glass-border);
+  padding-top: $space-2;
+  margin-top: $space-1;
+}
+
+// ---------- Onboarding / Welcome Helper popups ----------
+
+/* Compact map guide — a single floating card, never blocks the map */
+.guideCard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: $z-modal;
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  background: rgba(12, 19, 29, 0.94);
+  border: 1px solid rgba(212, 168, 94, 0.35);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  border-radius: $radius-lg;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  // opacity-only entrance — a transform animation would clobber the
+  // centering translate once its forwards fill kicks in
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @media (max-width: 767px) {
+    // bottom sheet on phones — keeps the map visible while reading
+    top: auto;
+    bottom: calc($space-3 + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    width: calc(100vw - 24px);
+  }
+}
+
+.guideHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.guideTitle {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-accent-brand);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.guideList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-2;
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--color-text-secondary);
+
+    b {
+      color: var(--color-text-primary);
+      font-weight: 600;
+    }
+
+    i {
+      display: block;
+      font-style: normal;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(212, 168, 94, 0.75);
+    }
+  }
+}
+
+.guideIco {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-top: 1px;
+  border-radius: $radius-md;
+  background: rgba(212, 168, 94, 0.1);
+  border: 1px solid rgba(212, 168, 94, 0.25);
+  color: var(--color-accent-brand);
+}
+
+.onboardingBtn {
+  background: $color-accent-brand;
+  border: 1px solid $color-accent-brand;
+  border-radius: $radius-pill;
+  color: #121a24;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: color.adjust($color-accent-brand, $lightness: 10%);
+  }
+}
+
+.guideClose {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Help Trigger Button (to re-open onboarding guide)
+.helpGuideBtn {
+  position: absolute;
+  bottom: $space-4;
+  right: $space-4;
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
+    background: var(--glass-bg-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 767px) {
+    bottom: $space-4;
+    right: $space-4;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@keyframes helperFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -1,0 +1,358 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Layers tab, gradient legend and bivariate UHI grid
+
+/* ------------------------------------------------------------------ */
+/*  Layers tab body                                                    */
+/* ------------------------------------------------------------------ */
+
+.layersBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--glass-border) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $color-border-subtle; border-radius: 2px; }
+}
+
+.layersIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: $space-2;
+  border-bottom: 1px solid rgba(30, 42, 56, 0.5);
+}
+
+.layersIntroLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-primary);
+}
+
+.layersIntroMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.vizOptionList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.vizOption {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  padding: $space-3 $space-4;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(30, 42, 56, 0.7);
+  border-radius: $radius-md;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition:
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(212, 168, 94, 0.22);
+  }
+
+  &.vizOptionActive {
+    background: rgba(212, 168, 94, 0.05);
+    border-color: rgba(212, 168, 94, 0.38);
+  }
+}
+
+.vizOptionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.vizOptionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.vizOptionIcon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+
+  .vizOptionActive & {
+    color: $color-accent-brand;
+  }
+}
+
+.vizOptionName {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-primary);
+}
+
+.vizOptionBadge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: $color-accent-brand;
+  background: rgba(212, 168, 94, 0.12);
+  border: 1px solid rgba(212, 168, 94, 0.32);
+  padding: 2px 7px;
+  border-radius: $radius-pill;
+  flex-shrink: 0;
+}
+
+// Teal badge for elevation
+.vizOptionBadgeElevation {
+  @extend .vizOptionBadge;
+  color: #27ae60;
+  background: rgba(39, 174, 96, 0.1);
+  border-color: rgba(39, 174, 96, 0.3);
+}
+
+// Orange badge for LST
+.vizOptionBadgeLst {
+  @extend .vizOptionBadge;
+  color: #fdae61;
+  background: rgba(253, 174, 97, 0.1);
+  border-color: rgba(253, 174, 97, 0.3);
+}
+
+// Purple badge for building type/use
+.vizOptionBadgeType {
+  @extend .vizOptionBadge;
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+// Red-orange badge for UHI bivariate
+.vizOptionBadgeUhi {
+  @extend .vizOptionBadge;
+  color: #C8705A;
+  background: rgba(200, 112, 90, 0.12);
+  border-color: rgba(200, 112, 90, 0.35);
+}
+
+.vizOptionDesc {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1.5;
+}
+
+// Discrete swatches (year mode)
+.vizGradientDiscrete {
+  display: flex;
+  height: 8px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  gap: 1px;
+}
+
+.vizGradientSwatch {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+}
+
+// Continuous gradient bar (elevation / LST)
+.vizGradientContinuous {
+  height: 8px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.vizGradientLabels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+  opacity: 0.75;
+}
+
+// Dot indicator on Layers tab when non-default mode is active
+.tabDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: $color-accent-brand;
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Legend gradient (elevation / LST modes)                           */
+/* ------------------------------------------------------------------ */
+
+.legendGradientWrap {
+  display: flex;
+  gap: $space-3;
+  align-items: stretch;
+  margin: $space-2 0;
+}
+
+.legendGradientBar {
+  width: 14px;
+  flex-shrink: 0;
+  border-radius: $radius-sm;
+  min-height: 140px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.legendGradientTicks {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.legendGradientSource {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: $space-2;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Bivariate UHI Grid Legend                                         */
+/* ------------------------------------------------------------------ */
+
+.uhiGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  gap: $space-2;
+  margin: $space-3 0 $space-1;
+  align-items: center;
+  justify-items: center;
+  width: fit-content;
+}
+
+.uhiYLabel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 120px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding-right: $space-1;
+  text-align: right;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.uhiCells {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 120px;
+  height: 120px;
+}
+
+.uhiRow {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  height: 38px;
+}
+
+.uhiCell {
+  flex: 1;
+  height: 100%;
+  border-radius: $radius-xs;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.5);
+    z-index: 5;
+  }
+
+  &.active {
+    opacity: 1 !important;
+    transform: scale(1.1);
+    border-color: #ffffff;
+    box-shadow: 0 0 0 2px var(--color-accent-brand), 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+  }
+
+  &.dimmed {
+    opacity: 0.25;
+  }
+}
+
+.uhiXLabel {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  width: 120px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding-top: $space-1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.uhiAxes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: $space-3;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  font-weight: 500;
+  
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}

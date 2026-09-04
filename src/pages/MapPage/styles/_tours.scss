@@ -1,0 +1,432 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Guided tour catalogue and narrative card
+
+/*  Guided tours                                                       */
+/* ------------------------------------------------------------------ */
+
+// The mobile "Modes" trigger is styled identically to a launcher pill, so the
+// two share one rule rather than @extend-ing — @extend does not reach across
+// the partials this stylesheet is split into.
+.tourLauncherBtn,
+.modesToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 6px 12px;
+  min-height: 30px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap,
+    transform $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--glass-bg-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  &.tourLauncherBtnActive {
+    color: $color-accent-brand;
+    background: rgba(212, 168, 94, 0.12);
+    border-color: rgba(212, 168, 94, 0.35);
+  }
+}
+
+.modesChevron {
+  transition: transform 0.2s $ease-snap;
+}
+
+.modesChevronOpen {
+  transform: rotate(180deg);
+}
+
+.modesDropdown {
+  position: absolute;
+  top: calc(100% + #{$space-2});
+  left: 0;
+  z-index: $z-dropdown;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: $space-2;
+  min-width: 168px;
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: $space-3;
+  box-shadow: $shadow-md;
+  animation: fadeSlideUp 180ms $ease-cinematic;
+
+  .tourLauncherBtn {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+.tourCatalog {
+  position: absolute;
+  top: calc(100% + #{$space-2});
+  left: 0;
+  z-index: $z-dropdown;
+  width: 330px;
+  max-width: calc(100vw - 32px);
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: $space-4;
+  animation: fadeSlideUp 240ms $ease-cinematic;
+
+  @media (max-width: 767px) {
+    left: 0;
+    transform: none;
+    width: calc(100vw - #{$space-3} * 2);
+  }
+}
+
+.tourCatalogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tourCatalogTitle {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.02em;
+}
+
+.tourCatalogSub {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.tourList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-3;
+}
+
+.tourListItem {
+  display: flex;
+  align-items: stretch;
+  gap: $space-3;
+  width: 100%;
+  padding: $space-3;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  cursor: pointer;
+  text-align: left;
+  transition: background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    transform $duration-ui $ease-snap;
+
+  &:hover {
+    background: var(--tint-subtle);
+    border-color: rgba(212, 168, 94, 0.4);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+}
+
+.tourListStrip {
+  width: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.tourListBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tourListTitle {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.tourListTagline {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.tourListMeta {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+}
+
+.tourListEra {
+  font-weight: 700;
+}
+
+/* ---------- Active tour narrative card ---------- */
+
+.tourCard {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-toolbar;
+  width: 440px;
+  max-width: calc(100vw - 24px);
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: $space-4;
+  animation: tourCardIn 420ms $ease-cinematic;
+  box-shadow: $shadow-float;
+
+  @media (max-width: 767px) {
+    bottom: $space-3;
+  }
+}
+
+@keyframes tourCardIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tourCard {
+    animation: none;
+  }
+}
+
+.tourCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.tourCardTourName {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tourExitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    border-color: var(--glass-border);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 1px;
+  }
+}
+
+.tourProgress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: $space-2 0 $space-3;
+}
+
+.tourDot {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  background: var(--tint-bar);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap, color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap, transform $duration-ui $ease-snap;
+
+  &:hover {
+    transform: scale(1.07);
+    border-color: var(--color-accent-brand);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+}
+
+.tourDotActive {
+  color: #071018;
+  border-color: rgba(255, 255, 255, 0.72);
+  transform: scale(1.07);
+}
+
+.tourDotDone { color: #071018; }
+
+.tourStopHeader {
+  display: flex;
+  align-items: baseline;
+  gap: $space-3;
+}
+
+.tourStopIndex {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.tourStopTitleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tourStopName {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.01em;
+}
+
+.tourStopYear {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.tourStopText {
+  margin-top: $space-2;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--color-text-data);
+}
+
+.tourWordActive {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  transition: color 80ms ease;
+}
+
+.tourNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $space-3;
+}
+
+.tourNavBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 14px;
+  min-height: 44px;
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover:not(:disabled) {
+    color: var(--color-text-primary);
+    background: var(--tint-subtle);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+}
+
+.tourNavBtnPrimary {
+  background: var(--tint-faint);
+}
+
+.tourNavCount {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-secondary);
+}

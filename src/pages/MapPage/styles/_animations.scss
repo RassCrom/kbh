@@ -1,0 +1,36 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Shared keyframes
+
+/* ------------------------------------------------------------------ */
+/*  Animations                                                         */
+/* ------------------------------------------------------------------ */
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

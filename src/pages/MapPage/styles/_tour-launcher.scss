@@ -1,0 +1,31 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Tour launcher row beside the back button
+
+/* ------------------------------------------------------------------ */
+/*  Tour launcher (standalone, beside back button)                      */
+/* ------------------------------------------------------------------ */
+
+.tourLauncher {
+  position: absolute;
+  top: $space-4;
+  left: 108px;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+
+  @media (max-width: 767px) {
+    top: 62px;
+    left: $space-3;
+  }
+}
+
+/* ------------------------------------------------------------------ */

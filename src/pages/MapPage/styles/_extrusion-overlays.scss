@@ -1,0 +1,222 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// 3D extrusion mode and overlay rows
+
+/*  Layers tab - 3D extrusion mode + overlay rows                      */
+/* ------------------------------------------------------------------ */
+
+.extrudeModeRow {
+  display: flex;
+  gap: $space-2;
+  margin-top: $space-2;
+}
+
+.extrudeModeBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 10px;
+  min-height: 34px;
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--tint-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  &.extrudeModeBtnActive {
+    color: $color-accent-brand;
+    background: rgba(212, 168, 94, 0.1);
+    border-color: rgba(212, 168, 94, 0.4);
+  }
+}
+
+.extrudeModeHint {
+  margin-top: $space-2;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.overlayList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  margin-top: $space-2;
+}
+
+.overlayRow {
+  background: var(--tint-faint);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  padding: $space-3;
+  transition: border-color $duration-ui $ease-snap, background $duration-ui $ease-snap;
+
+  &.overlayRowActive {
+    border-color: rgba(212, 168, 94, 0.35);
+    background: var(--color-brand-tint-06);
+  }
+}
+
+.overlayRowMain {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.overlayRowIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: $radius-sm;
+  background: var(--tint-subtle);
+  color: $color-accent-brand;
+  flex-shrink: 0;
+}
+
+.overlayRowText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.overlayRowTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.overlayRowBadge {
+  padding: 1px 6px;
+  background: var(--color-brand-tint-12);
+  border: 1px solid rgba(212, 168, 94, 0.4);
+  border-radius: $radius-pill;
+  color: var(--color-accent-brand);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.overlayRowDesc {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  line-height: 1.4;
+}
+
+.overlaySwitch {
+  position: relative;
+  width: 34px;
+  height: 19px;
+  padding: 0;
+  background: var(--tint-bar);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  &.overlaySwitchOn {
+    background: rgba(212, 168, 94, 0.45);
+    border-color: $color-accent-brand;
+  }
+}
+
+.overlaySwitchKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--color-text-secondary);
+  transition: transform $duration-ui $ease-snap, background $duration-ui $ease-snap;
+
+  .overlaySwitchOn & {
+    transform: translateX(15px);
+    background: #fff;
+  }
+}
+
+.overlayRowInfo {
+  margin-top: $space-2;
+  padding-top: $space-2;
+  border-top: 1px solid var(--glass-border);
+  animation: fadeSlideUp 180ms $ease-cinematic;
+}
+
+.overlayError {
+  margin-bottom: $space-2;
+  padding: $space-2;
+  border: 1px solid rgba(240, 106, 106, 0.35);
+  border-radius: $radius-sm;
+  background: rgba(240, 106, 106, 0.08);
+  color: #f49a9a;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.overlayLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: $space-2;
+}
+
+.overlayLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--color-text-secondary);
+}
+
+.overlayLegendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ------------------------------------------------------------------ */

@@ -1,0 +1,111 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Cinematic globe intro
+
+/*  Cinematic globe intro                                              */
+/* ------------------------------------------------------------------ */
+
+.introOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: $z-modal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 10vh;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(4, 6, 12, 0.55) 100%);
+}
+
+.introTitleBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-2;
+  animation: introTitleIn 1100ms $ease-cinematic both;
+}
+
+.introKicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: $color-accent-brand;
+}
+
+.introTitle {
+  font-family: var(--font-heading);
+  font-size: clamp(42px, 9vw, 84px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: #f4f2ec;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+}
+
+.introSub {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: rgba(223, 224, 228, 0.75);
+  text-transform: uppercase;
+}
+
+.introSkipBtn {
+  pointer-events: auto;
+  margin-top: $space-6;
+  padding: $space-2 20px;
+  min-height: 38px;
+  background: rgba(14, 21, 33, 0.6);
+  border: 1px solid rgba(212, 168, 94, 0.4);
+  border-radius: $radius-pill;
+  color: $color-accent-brand;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap, border-color $duration-ui $ease-snap;
+  animation: introTitleIn 1100ms 500ms $ease-cinematic both;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.14);
+    border-color: $color-accent-brand;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+}
+
+@keyframes introTitleIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .introTitleBlock,
+  .introSkipBtn {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */

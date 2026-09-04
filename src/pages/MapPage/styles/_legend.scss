@@ -1,0 +1,200 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Legend panel
+
+/* ------------------------------------------------------------------ */
+/*  Legend panel                                                        */
+/* ------------------------------------------------------------------ */
+
+.legend {
+  position: absolute;
+  bottom: $space-2;
+  left: $space-4;
+  z-index: $z-panel;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  max-width: 256px;
+
+  @media (max-width: 767px) {
+    bottom: auto;
+    // below the back button (16+44) and the Tours launcher row (62+30)
+    top: 104px;
+    left: $space-4;
+    max-width: 220px;
+    z-index: $z-panel;
+  }
+}
+
+.legendToggle {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background $duration-ui $ease-snap,
+    color $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap,
+    transform $duration-ui $ease-snap;
+
+  &:hover {
+    color: $color-accent-brand;
+    border-color: $color-accent-brand;
+    background: var(--glass-bg-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.legendBody {
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-lg;
+  padding: $space-4;
+  animation: fadeSlideUp 250ms $ease-cinematic;
+  // Prevent the legend from overflowing the viewport on short screens
+  max-height: 72vh;
+  overflow-y: auto;
+
+  @media (max-width: 767px) {
+    // Legend body opens upward; limit height so it clears the timeline
+    max-height: 45vh;
+  }
+  scrollbar-width: thin;
+  scrollbar-color: var(--glass-border) transparent;
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: $color-border-subtle; border-radius: 2px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+}
+
+.legendTitle {
+  @include typ.label-lg;
+  color: var(--color-accent-brand);
+  margin-bottom: $space-3;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.legendTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-3;
+}
+
+.eraDetailToggle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+  background: var(--tint-subtle);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
+  }
+
+  &[aria-pressed="true"] {
+    color: var(--color-accent-brand);
+    background: var(--color-brand-tint-12);
+    border-color: var(--color-accent-brand);
+  }
+}
+
+.legendList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.legendItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-2;
+}
+
+.legendSwatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-top: 2px; // align with first text line
+  border-radius: $radius-sm;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.legendTextGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.legendLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.legendDesc {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+.resetButton {
+  margin-top: $space-3;
+  width: 100%;
+  padding: $space-2;
+  background: var(--tint-subtle);
+  border: 1px solid var(--tint-bar);
+  border-radius: $radius-sm;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all $duration-ui $ease-snap;
+
+  &:hover {
+    background: rgba(212, 168, 94, 0.1);
+    color: var(--color-accent-brand);
+    border-color: rgba(212, 168, 94, 0.3);
+  }
+}

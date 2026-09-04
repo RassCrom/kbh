@@ -1,0 +1,178 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Buildings/hexagons switch and theme toggle
+
+/* ------------------------------------------------------------------ */
+/*  Viz mode toggle (Buildings / Hexagons)                            */
+/* ------------------------------------------------------------------ */
+
+.vizToggleGroup {
+  position: absolute;
+  top: $space-4;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-toolbar;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.vizToggleRow {
+  display: flex;
+  align-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  padding: 3px;
+  gap: 2px;
+}
+
+.vizBtn {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--tint-subtle);
+  }
+
+  &.vizBtnActive {
+    color: $color-accent-brand;
+    background: rgba(212, 168, 94, 0.12);
+    border-color: rgba(212, 168, 94, 0.35);
+  }
+}
+
+.vizMetricWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  // Mobile: the viz group is centred under the top bar while the Tours/Cinema
+  // launcher hangs top-left at ~62-92px — push the metric row below it.
+  @media (max-width: 767px) {
+    margin-top: 44px;
+  }
+}
+
+.vizMetricRow {
+  display: flex;
+  align-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  padding: 2px;
+  gap: 2px;
+  animation: fadeSlideUp 160ms $ease-cinematic;
+}
+
+.vizMetricBtn {
+  flex: 1;
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-pill;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color $duration-ui $ease-snap,
+    background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-text-primary);
+    background: var(--tint-subtle);
+  }
+
+  &.vizMetricActive {
+    color: $color-accent-brand;
+    background: rgba(212, 168, 94, 0.12);
+    border-color: rgba(212, 168, 94, 0.3);
+  }
+}
+
+.vizLoadingRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: 4px $space-3;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  animation: fadeSlideUp 160ms $ease-cinematic;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.vizSpinner {
+  animation: spin 0.9s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Theme toggle button (Sun / Moon)                                  */
+/* ------------------------------------------------------------------ */
+
+.themeToggle {
+  position: absolute;
+  top: $space-4;
+  right: 60px; // 16px outer margin + 36px filterToggle + 8px gap
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-md;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background   $duration-ui $ease-snap,
+    color        $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow   $duration-ui $ease-snap;
+
+  &:hover {
+    color: var(--color-accent-brand);
+    border-color: var(--color-accent-brand);
+    background: var(--glass-bg-hover);
+  }
+
+  @media (max-width: 767px) {
+    display: none; // theme toggle is accessible inside the filter sidebar header
+  }
+}

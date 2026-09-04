@@ -1,0 +1,218 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Charts tab body
+
+/* ------------------------------------------------------------------ */
+/*  Charts tab body                                                    */
+/* ------------------------------------------------------------------ */
+
+.chartBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--glass-border) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $color-border-subtle; border-radius: 2px; }
+}
+
+.chartLiveRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+}
+
+.chartLiveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent-brand);
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.chartLiveLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.chartCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(30, 42, 56, 0.6);
+  border-radius: $radius-md;
+  padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+}
+
+.chartCardHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $space-2;
+}
+
+.chartCardTitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-primary);
+}
+
+.chartCardMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.chartEmpty {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: $space-4 0;
+  opacity: 0.6;
+}
+
+/* Horizontal bar rows */
+
+.hBarList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.hBarRow {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  cursor: pointer;
+  transition: opacity $duration-ui ease;
+
+  &:hover {
+    opacity: 0.85;
+    .hBarLabel, .hBarCount {
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+.hBarLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  width: 72px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color $duration-ui ease;
+}
+
+.hBarTrack {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hBarCount {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+  transition: color $duration-ui ease;
+}
+
+/* Vertical decade bars */
+
+.decadeChart {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+}
+
+.decadeBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 64px;
+}
+
+.decadeCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+}
+
+.decadeBarWrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  cursor: pointer;
+
+  &:hover {
+    .decadeBar {
+      filter: brightness(1.2) saturate(1.1);
+      transform: scaleY(1.03);
+    }
+  }
+}
+
+.decadeBar {
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+  min-height: 0;
+  transform-origin: bottom;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.2s ease,
+              transform 0.2s ease;
+}
+
+.decadeLabel {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0.7;
+}

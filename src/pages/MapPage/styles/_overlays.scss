@@ -1,0 +1,60 @@
+@use '../../../styles/tokens/colors' as *;
+@use '../../../styles/tokens/spacing' as *;
+@use 'sass:color';
+@use '../../../styles/tokens/radius' as *;
+@use '../../../styles/tokens/transitions' as *;
+@use '../../../styles/tokens/shadows' as *;
+@use '../../../styles/tokens/z-index' as *;
+@use '../../../styles/mixins/typography' as typ;
+
+// Floating UI overlays (back button, misc chrome)
+
+/* ------------------------------------------------------------------ */
+/*  Floating UI overlays                                               */
+/* ------------------------------------------------------------------ */
+
+.backBtn {
+  position: absolute;
+  top: $space-4;
+  left: $space-4;
+  z-index: $z-toolbar;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4 $space-2 $space-3;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: $radius-pill;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: background $duration-ui $ease-snap,
+    border-color $duration-ui $ease-snap,
+    box-shadow $duration-ui $ease-snap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--glass-bg-hover);
+    border-color: $color-accent-brand;
+    color: $color-accent-brand;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 767px) {
+    padding: $space-2;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+
+    span {
+      display: none;
+    }
+  }
+}
