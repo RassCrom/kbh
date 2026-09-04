@@ -819,6 +819,7 @@ export default function MapPage() {
             hoverInfo={hoverInfo}
             selectedBuilding={selectedBuilding}
             colorMode={colorMode}
+            eraConfig={activeEraConfig}
           />
 
           {/* Touch tap-to-preview */}

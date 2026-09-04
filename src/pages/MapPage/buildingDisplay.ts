@@ -5,29 +5,40 @@ const DISTRICT_LABELS = Object.fromEntries(
   DISTRICT_OPTIONS.map(({ label, value }) => [value, label]),
 ) as Record<string, string>;
 
-export const BUILDING_TYPE_LABELS: Record<string, string> = {
-  rc: 'Residential',
-  bc: 'Business',
-  ec: 'Entertainment',
-  sc: 'Shopping',
-  sf: 'Sport',
-  mosque: 'Mosque',
-  church: 'Church',
-  healthcare: 'Healthcare',
-  hospital: 'Hospital',
-  clinic: 'Clinic',
-  utility: 'Utility',
-  'cultural site': 'Cultural',
-  admin: 'Administrative',
-  airport: 'Airport',
-  'train station': 'Train Station',
-  school: 'School',
-  kdgd: 'Kindergarten',
-  kindergarten: 'Kindergarten',
-  uni: 'University',
-  university: 'University',
-  house: 'House',
+/**
+ * Single source of truth for the `type` attribute's display names, in a
+ * compact form (filter chips, chart rows) and a descriptive one (tooltips,
+ * detail panels). Both codes and full words are keyed because the dataset
+ * carries `kdgd`/`uni` while some records spell them out.
+ */
+export const BUILDING_TYPES: Record<string, { short: string; long: string }> = {
+  rc: { short: 'Residential', long: 'Residential Complex' },
+  bc: { short: 'Business', long: 'Business Center' },
+  ec: { short: 'Entertainment', long: 'Entertainment Center' },
+  sc: { short: 'Shopping', long: 'Shopping Center' },
+  sf: { short: 'Sport', long: 'Sport Facility' },
+  mosque: { short: 'Mosque', long: 'Mosque' },
+  church: { short: 'Church', long: 'Church' },
+  healthcare: { short: 'Healthcare', long: 'Healthcare Facility' },
+  hospital: { short: 'Hospital', long: 'Hospital' },
+  clinic: { short: 'Clinic', long: 'Clinic' },
+  utility: { short: 'Utility', long: 'Utility Infrastructure' },
+  'cultural site': { short: 'Cultural', long: 'Cultural Site' },
+  admin: { short: 'Admin', long: 'Administrative Building' },
+  airport: { short: 'Airport', long: 'Airport' },
+  'train station': { short: 'Train Stn', long: 'Train Station' },
+  school: { short: 'School', long: 'School' },
+  kdgd: { short: 'Kindergarten', long: 'Kindergarten' },
+  kindergarten: { short: 'Kindergarten', long: 'Kindergarten' },
+  uni: { short: 'University', long: 'University' },
+  university: { short: 'University', long: 'University' },
+  house: { short: 'House', long: 'Private House' },
 };
+
+/** Compact label for a raw `type` code, falling back to the code itself. */
+export function buildingTypeLabel(type: string, form: 'short' | 'long' = 'short'): string {
+  return BUILDING_TYPES[type]?.[form] ?? type;
+}
 
 export interface ThemeAttribute {
   label: string;
@@ -64,8 +75,7 @@ export function formatDistrict(value: unknown): string {
 
 export function formatBuildingType(value: unknown): string {
   if (value == null || value === '') return 'No data';
-  const type = String(value);
-  return BUILDING_TYPE_LABELS[type] ?? type;
+  return buildingTypeLabel(String(value));
 }
 
 function formatNumber(value: unknown, suffix: string): string {

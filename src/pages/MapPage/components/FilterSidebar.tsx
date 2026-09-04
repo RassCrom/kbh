@@ -7,6 +7,7 @@ import {
 import s from '../MapPage.module.scss';
 import { TYPE_OPTIONS, DISTRICT_OPTIONS, ERA_CONFIG, DISTRICT_TOTAL_COUNTS } from '../constants';
 import { type MapTheme } from '../mapTheme';
+import { buildingTypeLabel } from '../buildingDisplay';
 import { type ColorMode, type DecadeLstPoint, type ExtrudeMode, ELEVATION_STEPS, LST_STEPS, TYPE_LEGEND, UHI_MATRIX } from '../mapHelpers';
 
 
@@ -33,15 +34,6 @@ const DISTRICT_CHART_ROWS = DISTRICT_OPTIONS
 
 const DISTRICT_CHART_TOTAL = DISTRICT_CHART_ROWS.reduce((s, r) => s + r.count, 0);
 
-// ── Short display names for type codes ──────────────────────────────────────
-const TYPE_LABELS: Record<string, string> = {
-  rc: 'Residential', bc: 'Business', ec: 'Entertainment',
-  sc: 'Shopping', sf: 'Sport', mosque: 'Mosque', church: 'Church',
-  healthcare: 'Healthcare', hospital: 'Hospital', clinic: 'Clinic',
-  utility: 'Utility', 'cultural site': 'Cultural', admin: 'Admin',
-  airport: 'Airport', 'train station': 'Train Stn', school: 'School',
-  kindergarten: 'Kindergarten', university: 'University', house: 'House',
-};
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
@@ -480,7 +472,7 @@ export const FilterSidebar = memo(function FilterSidebar({
   // 3. Type breakdown
   const typeData = useMemo(() => {
     const rows = Object.entries(typeCounts)
-      .map(([type, count]) => ({ label: TYPE_LABELS[type] ?? type, count }))
+      .map(([type, count]) => ({ label: buildingTypeLabel(type), count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 8);
     const total = rows.reduce((s, r) => s + r.count, 0);

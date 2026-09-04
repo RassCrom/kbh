@@ -1,7 +1,12 @@
 /**
  * Guided tour definitions — each stop pairs narrative text with a camera pose.
  * Coordinates are approximate landmark anchors; tweak freely as data improves.
+ *
+ * Titles, colours, era and duration live in `src/data/tourMeta.ts` so the home
+ * page can render tour cards without loading these scripts.
  */
+
+import { TOUR_META_BY_ID, type TourMeta } from '../../data/tourMeta';
 
 export interface TourStop {
   id: string;
@@ -16,25 +21,17 @@ export interface TourStop {
   };
 }
 
-export interface Tour {
-  id: string;
-  title: string;
+export type Tour = TourMeta & {
+  /** Short pitch shown in the map's tour catalogue. */
   tagline: string;
-  era: string;
-  color: string;
-  duration: string;
   stops: TourStop[];
-}
+};
 
 export const TOURS: Tour[] = [
   {
-    id: 'nurzhol',
-    title: 'Nurzhol Axis — Birth of a Capital',
+    ...TOUR_META_BY_ID.nurzhol,
     tagline:
       'Walk the ceremonial boulevard shaped by Kisho Kurokawa\'s award-winning 1998 masterplan, from the tent to the pyramid.',
-    era: '1997 – 2017',
-    color: '#00AFCA',
-    duration: '~6 min',
     stops: [
       {
         id: 'khan-shatyr',
@@ -87,13 +84,9 @@ export const TOURS: Tour[] = [
     ],
   },
   {
-    id: 'tselinograd',
-    title: 'Tselinograd — The Soviet Grid',
+    ...TOUR_META_BY_ID.tselinograd,
     tagline:
       'The right bank remembers: khrushchyovkas, the Virgin Lands campaign, and a city drawn with a ruler.',
-    era: '1954 – 1990',
-    color: '#4A7BAA',
-    duration: '~5 min',
     stops: [
       {
         id: 'station',
@@ -138,13 +131,9 @@ export const TOURS: Tour[] = [
     ],
   },
   {
-    id: 'sacred',
-    title: 'Sacred & Monumental Astana',
+    ...TOUR_META_BY_ID.sacred,
     tagline:
       'Mosques, cathedrals, a pyramid for all faiths and the museums of a young state writing its history.',
-    era: '1990s – 2022',
-    color: '#F5B82E',
-    duration: '~5 min',
     stops: [
       {
         id: 'grand-mosque',
@@ -189,13 +178,9 @@ export const TOURS: Tour[] = [
     ],
   },
   {
-    id: 'expo',
-    title: 'EXPO & the Future City',
+    ...TOUR_META_BY_ID.expo,
     tagline:
       'The 2017 World Expo left behind a sphere, a university district and the seeds of a tech quarter on the southern steppe.',
-    era: '2010 – 2024',
-    color: '#8B5CF6',
-    duration: '~5 min',
     stops: [
       {
         id: 'nur-alem',

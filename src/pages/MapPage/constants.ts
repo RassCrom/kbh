@@ -1,73 +1,98 @@
 export interface EraStop {
+  /** Full name with its year range, used in the legend. */
   label: string;
+  /** Compact name for tooltips and other tight spaces. */
+  shortLabel: string;
   color: string;
   bounds: [number, number];
   description: string;
 }
 
+/**
+ * Resolves the era a construction year falls into. Year 0 (or anything
+ * outside every range) resolves to the list's "Unknown" stop, so callers
+ * always get a label and colour back.
+ */
+export function eraForYear(year: number, eras: EraStop[]): EraStop {
+  const unknown = eras.find((e) => e.bounds[0] === -1) ?? eras[eras.length - 1];
+  if (!Number.isFinite(year) || year <= 0) return unknown;
+  return eras.find((e) => e.bounds[0] !== -1 && year >= e.bounds[0] && year <= e.bounds[1]) ?? unknown;
+}
+
 export const ERA_CONFIG: EraStop[] = [
   {
     label: 'Russian Empire (< 1917)',
+    shortLabel: 'Pre-Soviet',
     color: '#8B2635',
     bounds: [0, 1916] as [number, number],
     description: 'Akmolinsk — Cossack frontier garrison, tsarist brick & timber, Orthodox churches',
   },
   {
     label: 'Early Soviet (1917–1935)',
+    shortLabel: 'Early Soviet',
     color: '#D32F2F',
     bounds: [1917, 1935] as [number, number],
     description: 'Constructivism & NEP era — bold geometric forms, revolutionary anti-ornament',
   },
   {
     label: 'Stalinist era (1936–1952)',
+    shortLabel: 'Stalinist',
     color: '#C47A24',
     bounds: [1936, 1952] as [number, number],
     description: 'Socialist Realism — gilded spires, columns, grand civic monuments',
   },
   {
     label: 'Khrushchev Thaw (1953–1963)',
+    shortLabel: 'Khrushchev',
     color: '#5E9E6A',
     bounds: [1953, 1963] as [number, number],
     description: 'Khrushchyovki — mass prefab 5-story slabs; Virgin Lands campaign influx',
   },
   {
     label: 'Brezhnev Stagnation (1964–1984)',
+    shortLabel: 'Brezhnev',
     color: '#4A7BAA',
     bounds: [1964, 1984] as [number, number],
     description: 'Brezhnevki — 9–12 story panel blocks, monotonous mass housing',
   },
   {
     label: 'Late Soviet / Perestroika (1985–1990)',
+    shortLabel: 'Late Soviet',
     color: '#7B4D9E',
     bounds: [1985, 1990] as [number, number],
     description: 'Glasnost-era experiment & decline — last Soviet buildings, fading ideology',
   },
   {
     label: 'Early Independence (1991–1996)',
+    shortLabel: 'Post-Soviet',
     color: '#A07840',
     bounds: [1991, 1996] as [number, number],
     description: 'Economic collapse & hyperinflation — near-zero construction, raw steppe period',
   },
   {
     label: 'Capital Founding (1997–2006)',
+    shortLabel: 'Early Astana',
     color: '#007A9A',
     bounds: [1997, 2006] as [number, number],
     description: 'Capital transferred in 1997 — Kurokawa\'s 1998 masterplan, Baiterek tower, new national identity',
   },
   {
     label: 'Capital Boom & EXPO (2007–2018)',
+    shortLabel: 'Boom Era',
     color: '#00AFCA',
     bounds: [2007, 2018] as [number, number],
     description: 'Khan Shatyr (Foster), EXPO 2017, Left Bank starchitect skyline, peak prosperity',
   },
   {
     label: 'Tokayev era (2019+)',
+    shortLabel: 'Contemporary',
     color: '#F5B82E',
     bounds: [2019, 2100] as [number, number],
     description: 'Renamed back to Astana 2022 — continued growth under President Tokayev',
   },
   {
     label: 'Unknown',
+    shortLabel: 'Unknown',
     color: '#242424',
     bounds: [-1, -1] as [number, number],
     description: 'Construction year undocumented',
@@ -81,30 +106,35 @@ export const ERA_CONFIG: EraStop[] = [
 export const ERA_CONFIG_SIMPLE: EraStop[] = [
   {
     label: 'Imperial & Early Soviet (< 1936)',
+    shortLabel: 'Imperial & Early Soviet',
     color: '#B23A3A',
     bounds: [0, 1935],
     description: 'Akmolinsk\'s tsarist garrison years through revolutionary Constructivism and the NEP era',
   },
   {
     label: 'Soviet Era (1936–1990)',
+    shortLabel: 'Soviet Era',
     color: '#4A7BAA',
     bounds: [1936, 1990],
     description: 'Sixty years of Soviet mass housing — Stalinist monuments through Brezhnev-era panel blocks and late-Soviet decline',
   },
   {
     label: 'Independence & Founding (1991–2006)',
+    shortLabel: 'Independence',
     color: '#A07840',
     bounds: [1991, 2006],
     description: 'Independence, hyperinflation, and the 1997 capital transfer through Kurokawa\'s founding masterplan',
   },
   {
     label: 'Modern Astana (2007+)',
+    shortLabel: 'Modern Astana',
     color: '#00AFCA',
     bounds: [2007, 2100],
     description: 'EXPO-era boom and the contemporary skyline under President Tokayev',
   },
   {
     label: 'Unknown',
+    shortLabel: 'Unknown',
     color: '#242424',
     bounds: [-1, -1],
     description: 'Construction year undocumented',

@@ -1,43 +1,8 @@
 import { IS_TOUCH_DEVICE } from '../useIsMobile';
+import { eraForYear, type EraStop } from '../constants';
+import { buildingTypeLabel } from '../buildingDisplay';
 import { type ColorMode } from '../mapHelpers';
 import s from '../MapPage.module.scss';
-
-const TYPE_LABELS: Record<string, string> = {
-  rc: 'Residential Complex',
-  bc: 'Business Center',
-  ec: 'Entertainment Center',
-  sc: 'Shopping Center',
-  sf: 'Sport Facility',
-  mosque: 'Mosque',
-  church: 'Church',
-  healthcare: 'Healthcare Facility',
-  hospital: 'Hospital',
-  clinic: 'Clinic',
-  utility: 'Utility Infrastructure',
-  'cultural site': 'Cultural Site',
-  admin: 'Administrative Building',
-  airport: 'Airport',
-  'train station': 'Train Station',
-  school: 'School',
-  kdgd: 'Kindergarten',
-  uni: 'University',
-  house: 'Private House',
-};
-
-// Helper to resolve an era label + color based on average year
-const getEraInfo = (yr: number): { label: string; color: string } => {
-  if (yr <= 0) return { label: 'Unknown', color: '#555' };
-  if (yr < 1917) return { label: 'Pre-Soviet', color: '#8B2635' };
-  if (yr < 1936) return { label: 'Early Soviet', color: '#D32F2F' };
-  if (yr < 1953) return { label: 'Stalinist', color: '#C47A24' };
-  if (yr < 1964) return { label: 'Khrushchev', color: '#5E9E6A' };
-  if (yr < 1985) return { label: 'Brezhnev', color: '#4A7BAA' };
-  if (yr < 1991) return { label: 'Late Soviet', color: '#7B4D9E' };
-  if (yr < 1997) return { label: 'Post-Soviet', color: '#A07840' };
-  if (yr < 2007) return { label: 'Early Astana', color: '#007A9A' };
-  if (yr < 2019) return { label: 'Boom Era', color: '#00AFCA' };
-  return { label: 'Contemporary', color: '#F5B82E' };
-};
 
 interface HoverTooltipProps {
   hoverInfo: {
@@ -47,6 +12,8 @@ interface HoverTooltipProps {
   } | null;
   selectedBuilding: Record<string, unknown> | null;
   colorMode: ColorMode;
+  /** Active era grouping, so tooltip labels match the legend. */
+  eraConfig: EraStop[];
 }
 
 const GRAFFITI_STYLE_COLORS: Record<string, string> = {
@@ -60,6 +27,7 @@ export function HoverTooltip({
   hoverInfo,
   selectedBuilding,
   colorMode,
+  eraConfig,
 }: HoverTooltipProps) {
   if (!hoverInfo || selectedBuilding || IS_TOUCH_DEVICE) return null;
 
@@ -108,7 +76,7 @@ export function HoverTooltip({
 
     const densityPct = Math.min(100, (count / 200) * 100);
     const densityLabel = count < 10 ? 'Sparse' : count < 50 ? 'Moderate' : count < 120 ? 'Dense' : 'Very Dense';
-    const era = getEraInfo(avgYear);
+    const era = eraForYear(avgYear, eraConfig);
 
     return (
       <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14, minWidth: 200 }}>
@@ -160,7 +128,7 @@ export function HoverTooltip({
                 color: era.color, letterSpacing: '0.04em',
                 textTransform: 'uppercase',
               }}>
-                {era.label}
+                {era.shortLabel}
               </span>
             </span>
           </div>
@@ -185,7 +153,7 @@ export function HoverTooltip({
   const demVal = p.dem_mean != null ? Number(p.dem_mean).toFixed(1) : null;
   const lstVal = p.lst_1mean != null ? Number(p.lst_1mean).toFixed(1) : null;
   const rawType = p.type ? String(p.type) : null;
-  const typeLabel = rawType ? (TYPE_LABELS[rawType] || rawType) : null;
+  const typeLabel = rawType ? buildingTypeLabel(rawType, 'long') : null;
   const hasData = !!(name || year || demVal || lstVal || typeLabel);
 
   return (

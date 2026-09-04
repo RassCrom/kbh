@@ -2,46 +2,16 @@ import { useState, useMemo } from 'react';
 import { Clock, ArrowLeft, ArrowRight, Search, FileText, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './ArticlesPage.module.scss';
+import { STORIES } from '../../data/stories';
 
-type Article = {
-  id: string;
-  era: string;
-  title: string;
-  excerpt: string;
-  readTime: string;
-  image?: string;
-  route?: string;
-};
-
-const ARTICLES: Article[] = [
-  {
-    id: 'soviet-grid',
-    route: '/stories/soviet-grid',
-    era: '1960s',
-    readTime: '8 min read',
-    title: 'The Soviet Grid: How Tselinograd Was Planned',
-    excerpt:
-      "Before becoming Astana, this city was Tselinograd — a Soviet agricultural hub laid out with a ruler. Scroll the map through its grid, era by era.",
-  },
-  {
-    id: 'bayterek',
-    route: '/stories/bayterek',
-    era: '2000s',
-    readTime: '12 min read',
-    title: 'Rise of Bayterek: Symbolism in Steel and Glass',
-    excerpt:
-      "A 105-metre monument at the heart of Astana is less a building than a declaration. How a Kazakh creation myth became Central Asia's most recognisable silhouette.",
-  },
-];
-
-const ALL_ERAS = ['All', ...new Set(ARTICLES.map((a) => a.era))];
+const ALL_ERAS = ['All', ...new Set(STORIES.map((a) => a.era))];
 
 export default function ArticlesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEra, setSelectedEra] = useState('All');
 
   const filteredArticles = useMemo(() => {
-    return ARTICLES.filter((article) => {
+    return STORIES.filter((article) => {
       const matchesSearch =
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         article.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
@@ -71,7 +41,7 @@ export default function ArticlesPage() {
 
       <main className={s.main}>
         {/* Search controls are only useful once the archive has entries. */}
-        {ARTICLES.length > 0 && <div className={s.toolbar}>
+        {STORIES.length > 0 && <div className={s.toolbar}>
           <div className={s.searchBox}>
             <Search className={s.searchIcon} size={16} />
             <input
@@ -151,7 +121,7 @@ export default function ArticlesPage() {
           </div>
         ) : (
           <div className={s.emptyState}>
-            {ARTICLES.length === 0 ? (
+            {STORIES.length === 0 ? (
               <>
                 <h2>The archive is being prepared</h2>
                 <p>Long-form stories are in production. The interactive atlas and guided tours are ready now.</p>
