@@ -1,8 +1,9 @@
 import { useRef } from 'react';
-import { Map, MapPin, Clock, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Map, MapPin, Clock, Route, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './Tours.module.scss';
 import { TOUR_META } from '../../data/tourMeta';
+import { formatTourDistance } from '../../data/tourDistances';
 
 export default function Tours() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -58,6 +59,11 @@ export default function Tours() {
                   <span className={s.metaItem}>
                     <Clock size={12} /> {tour.duration}
                   </span>
+                  {formatTourDistance(tour.id) && (
+                    <span className={s.metaItem}>
+                      <Route size={12} /> {formatTourDistance(tour.id)}
+                    </span>
+                  )}
                   <span className={s.metaItem}>{tour.era}</span>
                 </div>
                 <Link to={`/map?tour=${tour.id}`} className={s.startBtn}>

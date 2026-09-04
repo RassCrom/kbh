@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "audit:data": "node scripts/audit-crime-data.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:tour-routes": "node scripts/build-tour-routes.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

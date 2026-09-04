@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { TOURS, type Tour } from '../tours';
 import { PREFERS_REDUCED_MOTION } from './useMapInit';
+import { legsForTour, pointAt, sliceTo, bearingAt, lerpAngle, angleDelta } from '../tourGeometry';
 
 // Tour route/marker accent
 const TOUR_ACCENT = '#d4a85e';
@@ -10,50 +11,95 @@ const SCROLL_DISTANCE_PER_STOP = 360;
 const LINE_FOLLOW_RATE = 0.16;
 const CAMERA_FOLLOW_RATE = 0.055;
 
+/** Fraction of a leg spent turning out of, and into, a stop's framing. */
+const FRAMING_BLEND = 0.28;
+/**
+ * Ceiling on how far the camera may swing in one frame.
+ *
+ * Real walking routes double back — one leg leaves its mosque heading
+ * south-east and immediately reverses to the north-east — and following that
+ * literally snaps the view round in a single frame. Capping the rate turns any
+ * such reversal into a short sweep instead, whatever the geometry does.
+ */
+const MAX_TURN_PER_FRAME = 5;
+/** How far the camera climbs mid-leg, in zoom levels per kilometre travelled. */
+const TRAVEL_PULLBACK_PER_KM = 0.55;
+const MAX_TRAVEL_PULLBACK = 1.6;
+
+/** Resolves a scroll position into a leg index and how far along it we are. */
+function resolveLeg(tour: Tour, step: number, progress: number) {
+  const legs = legsForTour(tour.id);
+  const isReturning = progress < 0 && step > 0;
+  const legIndex = isReturning ? step - 1 : step;
+  const t = isReturning ? 1 + progress : progress;
+  return { leg: legs[legIndex], legIndex, t: Math.max(0, Math.min(1, t)) };
+}
+
 function getTourPosition(tour: Tour, step: number, progress: number): [number, number] {
-  const isReturning = progress < 0 && step > 0;
-  const fromIndex = isReturning ? step - 1 : step;
-  const toIndex = isReturning ? step : Math.min(step + 1, tour.stops.length - 1);
-  const amount = isReturning ? 1 + progress : progress;
-  const from = tour.stops[fromIndex].camera.center;
-  const to = tour.stops[toIndex].camera.center;
-  return [
-    from[0] + (to[0] - from[0]) * amount,
-    from[1] + (to[1] - from[1]) * amount,
-  ];
+  const { leg, t } = resolveLeg(tour, step, progress);
+  if (leg) return pointAt(leg, t);
+
+  // No generated route for this tour — fall back to a straight hop.
+  const to = tour.stops[Math.min(step + 1, tour.stops.length - 1)].camera.center;
+  const from = tour.stops[step].camera.center;
+  return [from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t];
 }
 
+/** The tour's whole route, drawn faintly ahead of the visitor. */
+function fullRouteCoordinates(tour: Tour): [number, number][] {
+  const legs = legsForTour(tour.id);
+  if (legs.length === 0) return tour.stops.map((st) => st.camera.center as [number, number]);
+  return legs.flatMap((leg, i) => (i === 0 ? leg.coordinates : leg.coordinates.slice(1)));
+}
+
+/** The path walked so far: whole legs behind us, plus a partial current leg. */
 function getTourRouteData(tour: Tour, step: number, progress: number): GeoJSON.Feature {
+  const legs = legsForTour(tour.id);
+  const { legIndex, t } = resolveLeg(tour, step, progress);
   const coords: [number, number][] = [];
-  const isReturning = progress < 0 && step > 0;
-  const lastCompletedStop = isReturning ? step - 1 : step;
-  for (let i = 0; i <= lastCompletedStop; i++) {
-    coords.push(tour.stops[i].camera.center as [number, number]);
+
+  for (let i = 0; i < legIndex; i++) {
+    const done = legs[i];
+    if (done) coords.push(...done.coordinates);
+    else coords.push(tour.stops[i].camera.center as [number, number]);
   }
-  if (isReturning) {
-    coords.push(getTourPosition(tour, step, progress));
-  } else if (step < tour.stops.length - 1 && progress > 0) {
-    coords.push(getTourPosition(tour, step, progress));
-  }
+
+  const current = legs[legIndex];
+  if (current) coords.push(...sliceTo(current, t));
+  else coords.push(tour.stops[Math.min(legIndex, tour.stops.length - 1)].camera.center as [number, number]);
+
   if (coords.length === 1) coords.push([...coords[0]]);
-  return {
-    type: 'Feature',
-    geometry: { type: 'LineString', coordinates: coords },
-    properties: {},
-  };
+  return { type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: {} };
 }
 
-function interpolateCamera(from: Tour['stops'][number]['camera'], to: Tour['stops'][number]['camera'], progress: number) {
-  const bearingDelta = ((to.bearing - from.bearing + 540) % 360) - 180;
-  return {
-    center: [
-      from.center[0] + (to.center[0] - from.center[0]) * progress,
-      from.center[1] + (to.center[1] - from.center[1]) * progress,
-    ] as [number, number],
-    zoom: from.zoom + (to.zoom - from.zoom) * progress,
-    pitch: from.pitch + (to.pitch - from.pitch) * progress,
-    bearing: from.bearing + bearingDelta * progress,
-  };
+/**
+ * Camera pose partway along a leg.
+ *
+ * Position rides the real street geometry, and the bearing turns to face the
+ * direction of travel through the middle of the leg, easing out of the
+ * departing stop's framing and into the arriving one so each stop is still
+ * composed deliberately. The camera also climbs a little mid-leg, scaled by how
+ * far it has to cover, so long hops read as travel rather than a slow crawl.
+ */
+function interpolateCamera(tour: Tour, step: number, progress: number) {
+  const from = tour.stops[step].camera;
+  const to = tour.stops[Math.min(step + 1, tour.stops.length - 1)].camera;
+  const { leg, t } = resolveLeg(tour, step, progress);
+
+  const center = getTourPosition(tour, step, progress);
+  const zoom = from.zoom + (to.zoom - from.zoom) * t;
+  const pitch = from.pitch + (to.pitch - from.pitch) * t;
+
+  if (!leg) return { center, zoom, pitch, bearing: lerpAngle(from.bearing, to.bearing, t) };
+
+  const travelBearing = bearingAt(leg, t);
+  let bearing: number;
+  if (t < FRAMING_BLEND) bearing = lerpAngle(from.bearing, travelBearing, t / FRAMING_BLEND);
+  else if (t > 1 - FRAMING_BLEND) bearing = lerpAngle(travelBearing, to.bearing, (t - (1 - FRAMING_BLEND)) / FRAMING_BLEND);
+  else bearing = travelBearing;
+
+  const pullback = Math.min(MAX_TRAVEL_PULLBACK, (leg.distance / 1000) * TRAVEL_PULLBACK_PER_KM);
+  return { center, zoom: zoom - pullback * Math.sin(Math.PI * t), pitch, bearing };
 }
 
 interface UseMapToursOptions {
@@ -79,6 +125,7 @@ export function useMapTours(opts: UseMapToursOptions) {
   const tourTargetPositionRef = useRef(0);
   const tourLinePositionRef = useRef(0);
   const tourCameraPositionRef = useRef(0);
+  const lastBearingRef = useRef<number | null>(null);
 
   const pendingTourRef = useRef<Tour | null>(
     (() => {
@@ -133,7 +180,7 @@ export function useMapTours(opts: UseMapToursOptions) {
   const ensureTourLayers = useCallback((map: maplibregl.Map, tour: Tour) => {
     const baseRouteData: GeoJSON.Feature = {
       type: 'Feature',
-      geometry: { type: 'LineString', coordinates: tour.stops.map((st) => st.camera.center) },
+      geometry: { type: 'LineString', coordinates: fullRouteCoordinates(tour) },
       properties: {},
     };
 
@@ -299,6 +346,7 @@ export function useMapTours(opts: UseMapToursOptions) {
     tourTargetPositionRef.current = 0;
     tourLinePositionRef.current = 0;
     tourCameraPositionRef.current = 0;
+    lastBearingRef.current = null;
     setTourStep(0);
     ensureTourLayers(map, tour);
   }, [
@@ -336,6 +384,7 @@ export function useMapTours(opts: UseMapToursOptions) {
     tourTargetPositionRef.current = nextStep;
     tourLinePositionRef.current = nextStep;
     tourCameraPositionRef.current = nextStep;
+    lastBearingRef.current = null;
     if (opts.mapRef.current && activeTour) {
       updateTourLine(opts.mapRef.current, activeTour, nextStep, 0);
     }
@@ -432,9 +481,16 @@ export function useMapTours(opts: UseMapToursOptions) {
 
     const renderCameraPosition = () => {
       const { step, progress } = splitPosition(tourCameraPositionRef.current);
-      const from = activeTour.stops[step].camera;
-      const to = activeTour.stops[Math.min(step + 1, maxPosition)].camera;
-      map.jumpTo(interpolateCamera(from, to, progress));
+      const pose = interpolateCamera(activeTour, step, progress);
+      const previous = lastBearingRef.current;
+      if (previous !== null) {
+        const swing = angleDelta(previous, pose.bearing);
+        if (Math.abs(swing) > MAX_TURN_PER_FRAME) {
+          pose.bearing = previous + Math.sign(swing) * MAX_TURN_PER_FRAME;
+        }
+      }
+      lastBearingRef.current = pose.bearing;
+      map.jumpTo(pose);
     };
 
     const commitReachedStop = (direction: number) => {

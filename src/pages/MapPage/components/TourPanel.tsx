@@ -4,6 +4,7 @@ import {
   Volume2, VolumeX, Play, Pause, MonitorSpeaker, Compass, ArrowUp,
 } from 'lucide-react';
 import { TOURS, type Tour } from '../tours';
+import { formatTourDistance } from '../../../data/tourDistances';
 import { useTourNarration } from '../hooks/useTourNarration';
 import s from '../MapPage.module.scss';
 
@@ -305,6 +306,9 @@ export function TourPanel({
                   <span className={s.tourListMeta}>
                     <span><MapPin size={10} /> {tour.stops.length} stops</span>
                     <span><Clock size={10} /> {tour.duration}</span>
+                    {formatTourDistance(tour.id) && (
+                      <span><Route size={10} /> {formatTourDistance(tour.id)}</span>
+                    )}
                     <span className={s.tourListEra} style={{ color: tour.color }}>{tour.era}</span>
                   </span>
                 </span>

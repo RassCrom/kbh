@@ -251,10 +251,16 @@ QGIS is used for data collection and pre web visualization in gpkg format. For w
 2. Add the tour definition in `src/pages/MapPage/tours.ts`, spreading
    `TOUR_META_BY_ID.<tour-id>` and supplying the tagline and stops. Each stop
    pairs narrative text with a camera pose.
-3. Add any narration assets under `public/audio/tours/<tour-id>/` as
+3. Run `node scripts/build-tour-routes.mjs`. It routes every consecutive pair of
+   stops over the OpenStreetMap road network and regenerates
+   `src/pages/MapPage/tourRoutes.ts` (the geometry the camera follows) and
+   `src/data/tourDistances.ts`. Re-run it whenever a stop moves.
+4. Add any narration assets under `public/audio/tours/<tour-id>/` as
    `<stop-id>.mp3` plus a matching `<stop-id>.json` of word timings. Stops
-   without an MP3 fall back to the browser's speech synthesis.
-4. Verify deep linking with `/map?tour=<tour-id>`. The homepage card appears
+   without an MP3 fall back to the browser's speech synthesis. Note that the
+   timings pin the narration to the exact wording — editing a stop's `text`
+   without re-recording desynchronises the word highlighting.
+5. Verify deep linking with `/map?tour=<tour-id>`. The homepage card appears
    automatically from step 1 — there is no second list to update.
 
 ### Adding a Story
