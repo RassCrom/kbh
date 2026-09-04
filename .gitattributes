@@ -1,0 +1,30 @@
+# Normalize all text files to LF in the repository, regardless of the
+# checkout platform. Without this, editing an SCSS file on Windows can turn a
+# four-line change into a several-thousand-line diff.
+* text=auto eol=lf
+
+# Explicitly mark binary assets so Git never attempts line-ending conversion
+# or textual diffing on them.
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ico     binary
+*.webp    binary
+*.mp3     binary
+*.mp4     binary
+*.webm    binary
+*.glb     binary
+*.gltf    binary
+*.bin     binary
+*.pmtiles binary
+*.woff    binary
+*.woff2   binary
+*.ttf     binary
+*.otf     binary
+*.pdf     binary
+*.zip     binary
+
+# Keep generated lockfiles out of diff noise while still merging sanely.
+package-lock.json -diff
+pnpm-lock.yaml    -diff
