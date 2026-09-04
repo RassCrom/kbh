@@ -97,8 +97,10 @@ export function TourPanel({
     // Key change re-triggers the card entrance animation on every stop
     const animKey = `${activeTour.id}-${tourStep}`;
 
+    // data-tour-card lets useMapTours measure this card and offset the map
+    // centre above it, so the route never runs underneath the narration.
     return (
-      <div className={s.tourCard} key={animKey} role="region" aria-label="Guided tour">
+      <div className={s.tourCard} data-tour-card key={animKey} role="region" aria-label="Guided tour">
         {/* Silent-autoplay countdown rail */}
         {autoplayOn && !voiceOn && !isLast && (
           <span

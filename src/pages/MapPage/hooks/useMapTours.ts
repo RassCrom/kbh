@@ -21,10 +21,55 @@ const FRAMING_BLEND = 0.28;
  * literally snaps the view round in a single frame. Capping the rate turns any
  * such reversal into a short sweep instead, whatever the geometry does.
  */
-const MAX_TURN_PER_FRAME = 5;
-/** How far the camera climbs mid-leg, in zoom levels per kilometre travelled. */
-const TRAVEL_PULLBACK_PER_KM = 0.55;
-const MAX_TRAVEL_PULLBACK = 1.6;
+const MAX_TURN_PER_FRAME = 8;
+
+/**
+ * Mid-leg framing, shaped so a short leg feels like walking the street.
+ *
+ * On the boulevard-length hops the camera drops closer and leans further over
+ * mid-leg, putting the viewer among the facades. That would be unusable on the
+ * cross-city legs — covering 11 km at street zoom flies past far too fast — so
+ * past LONG_LEG_M the boost tapers into a climb instead.
+ */
+const WALK_ZOOM_BOOST = 1.1;
+const WALK_PITCH_BOOST = 8;
+const MAX_WALK_PITCH = 72;
+const SHORT_LEG_M = 1500;
+const LONG_LEG_M = 6000;
+const LONG_LEG_PULLBACK = 1.2;
+
+/** Gap left between the narration card and the point the camera centres on. */
+const CARD_CLEARANCE = 24;
+/** Never give up more than this share of the viewport to the card. */
+const MAX_CARD_PADDING_RATIO = 0.5;
+
+/**
+ * Bottom padding that lifts the map's centre clear of the narration card.
+ *
+ * The card is anchored to the bottom of the map, so centring the camera on the
+ * visitor's position parks the route and the pulsing "you are here" marker
+ * directly behind it. Padding shifts what MapLibre treats as the centre of the
+ * viewport, which moves the whole route up into open space instead.
+ */
+function cardPadding(): number {
+  if (typeof document === 'undefined') return 0;
+  const card = document.querySelector('[data-tour-card]');
+  if (!card) return 0;
+  const { height } = card.getBoundingClientRect();
+  if (!height) return 0;
+  return Math.min(
+    height + CARD_CLEARANCE,
+    window.innerHeight * MAX_CARD_PADDING_RATIO,
+  );
+}
+
+/** Zoom offset applied at the middle of a leg, by how far the leg covers. */
+function travelZoomOffset(distance: number): number {
+  if (distance <= SHORT_LEG_M) return WALK_ZOOM_BOOST;
+  if (distance >= LONG_LEG_M) return -LONG_LEG_PULLBACK;
+  const t = (distance - SHORT_LEG_M) / (LONG_LEG_M - SHORT_LEG_M);
+  return WALK_ZOOM_BOOST + (-LONG_LEG_PULLBACK - WALK_ZOOM_BOOST) * t;
+}
 
 /** Resolves a scroll position into a leg index and how far along it we are. */
 function resolveLeg(tour: Tour, step: number, progress: number) {
@@ -98,8 +143,18 @@ function interpolateCamera(tour: Tour, step: number, progress: number) {
   else if (t > 1 - FRAMING_BLEND) bearing = lerpAngle(travelBearing, to.bearing, (t - (1 - FRAMING_BLEND)) / FRAMING_BLEND);
   else bearing = travelBearing;
 
-  const pullback = Math.min(MAX_TRAVEL_PULLBACK, (leg.distance / 1000) * TRAVEL_PULLBACK_PER_KM);
-  return { center, zoom: zoom - pullback * Math.sin(Math.PI * t), pitch, bearing };
+  // Peaks mid-leg and returns to zero at each stop, so arrivals keep the
+  // framing the stop was composed with.
+  const shape = Math.sin(Math.PI * t);
+  const offset = travelZoomOffset(leg.distance);
+  return {
+    center,
+    zoom: zoom + offset * shape,
+    pitch: offset > 0
+      ? Math.min(MAX_WALK_PITCH, pitch + WALK_PITCH_BOOST * shape)
+      : pitch,
+    bearing,
+  };
 }
 
 interface UseMapToursOptions {
@@ -126,6 +181,7 @@ export function useMapTours(opts: UseMapToursOptions) {
   const tourLinePositionRef = useRef(0);
   const tourCameraPositionRef = useRef(0);
   const lastBearingRef = useRef<number | null>(null);
+  const cardPaddingRef = useRef(0);
 
   const pendingTourRef = useRef<Tour | null>(
     (() => {
@@ -134,6 +190,23 @@ export function useMapTours(opts: UseMapToursOptions) {
       return TOURS.find((t) => t.id === id) ?? null;
     })(),
   );
+
+  // The card mounts with the tour and its height varies per stop, so measure
+  // after each render rather than once at the start.
+  useEffect(() => {
+    if (!activeTour) {
+      cardPaddingRef.current = 0;
+      return;
+    }
+    const measure = () => { cardPaddingRef.current = cardPadding(); };
+    measure();
+    const settle = window.setTimeout(measure, 450); // after the card's entry animation
+    window.addEventListener('resize', measure);
+    return () => {
+      window.clearTimeout(settle);
+      window.removeEventListener('resize', measure);
+    };
+  }, [activeTour, tourStep]);
 
   // ── Sonar pulse ──────────────────────────────────────────────────────────
   const tourPulseRafRef = useRef<number | null>(null);
@@ -373,7 +446,7 @@ export function useMapTours(opts: UseMapToursOptions) {
         'tour-pulse', 'tour-stops-points', 'tour-stops-labels'].forEach((id) => {
         if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'none');
       });
-      map.easeTo({ pitch: 0, duration: 800 });
+      map.easeTo({ pitch: 0, padding: { top: 0, right: 0, bottom: 0, left: 0 }, duration: 800 });
     }
   }, [opts.mapRef, stopTourPulse]);
 
@@ -418,6 +491,7 @@ export function useMapTours(opts: UseMapToursOptions) {
         zoom: stop.camera.zoom,
         pitch: stop.camera.pitch,
         bearing: stop.camera.bearing,
+        padding: { top: 0, right: 0, bottom: cardPaddingRef.current, left: 0 },
         duration: PREFERS_REDUCED_MOTION ? 0 : 2100,
         curve: 1.42,
         essential: false,
@@ -490,7 +564,7 @@ export function useMapTours(opts: UseMapToursOptions) {
         }
       }
       lastBearingRef.current = pose.bearing;
-      map.jumpTo(pose);
+      map.jumpTo({ ...pose, padding: { top: 0, right: 0, bottom: cardPaddingRef.current, left: 0 } });
     };
 
     const commitReachedStop = (direction: number) => {
