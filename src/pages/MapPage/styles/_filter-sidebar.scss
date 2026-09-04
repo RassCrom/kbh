@@ -113,20 +113,25 @@
   }
 
   @media (max-width: 767px) {
-    // Bottom sheet on mobile
+    // Bottom sheet on mobile. The element is laid out at its FULL height and
+    // positioned entirely with translateY, so useBottomSheet can drag it and
+    // settle on a snap with one transform. Closed sits a full height down;
+    // "peek" is a fraction of that, applied inline by the hook.
     top: auto;
     left: 0;
     right: 0;
     bottom: 0;
     width: 100%;
-    max-height: 70vh;
-    max-height: 70dvh;
+    height: 88vh;
+    height: 88dvh;
+    max-height: none;
     border-left: none;
     border-top: 1px solid var(--glass-border);
     border-radius: $radius-lg $radius-lg 0 0;
     box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.6);
     transform: translateY(100%);
     overflow: hidden; // hide toggle handle
+    touch-action: pan-y;
 
     &::before {
       content: '';
@@ -140,14 +145,39 @@
       align-self: center;
     }
 
+    // Open position is driven by useBottomSheet through --sheet-y so the
+    // drag offset can never leak into the desktop drawer rules above.
     &.open {
-      transform: translateY(0);
+      transform: translateY(var(--sheet-y, 0px));
+      transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    &.open[data-dragging='true'] {
+      transition: none;
     }
 
     // Pad footer above home indicator on iPhone X+
     .filterFooter {
       padding-bottom: calc(#{$space-4} + env(safe-area-inset-bottom, 0px));
     }
+  }
+}
+
+/* Enlarged grab target over the sheet's handle — the ::before pill is only 4px
+   tall, far under the 44px minimum for a reliable touch target. */
+.sheetGrip {
+  display: none;
+
+  @media (max-width: 767px) {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 28px;
+    z-index: 10;
+    cursor: grab;
+    touch-action: none;
   }
 }
 

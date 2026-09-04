@@ -32,7 +32,28 @@
     border-radius: $radius-lg $radius-lg 0 0;
     transform: translateY(100%);
 
-    &.open { transform: translateY(0); }
+    &::before {
+      content: '';
+      flex-shrink: 0;
+      display: block;
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--tint-bar);
+      margin: 10px auto 0;
+      align-self: center;
+    }
+
+    // Open position is driven by useBottomSheet through --sheet-y so the
+    // drag offset can never leak into the desktop drawer rules above.
+    &.open {
+      transform: translateY(var(--sheet-y, 0px));
+      transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    &.open[data-dragging='true'] {
+      transition: none;
+    }
   }
 }
 
@@ -195,4 +216,22 @@
 
 @media (prefers-reduced-motion: reduce) {
   .panel { transition-duration: 0.01ms; }
+}
+
+/* Enlarged grab target over the sheet's handle pill — 4px of pill is well
+   under the 44px minimum touch target. */
+.sheetGrip {
+  display: none;
+
+  @media (max-width: 767px) {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 28px;
+    z-index: 10;
+    cursor: grab;
+    touch-action: none;
+  }
 }

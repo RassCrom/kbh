@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import { X, ImageOff } from 'lucide-react';
 import s from './GraffitiPanel.module.scss';
+import { useIsMobile } from '../useIsMobile';
+import { useBottomSheet } from '../hooks/useBottomSheet';
 
 const STYLE_CONFIG: Record<string, { label: string; color: string }> = {
   mural:     { label: 'Mural',    color: '#CAFF00' },
@@ -32,6 +34,10 @@ interface Props {
 }
 
 export function GraffitiPanel({ properties, onClose }: Props) {
+  // Mobile sheet: opens fully, swipe or flick down to dismiss.
+  const isMobile = useIsMobile();
+  const sheet = useBottomSheet({ open: !!properties, onClose, peekRatio: 1, enabled: isMobile });
+
   const lastProps = useRef<Record<string, unknown> | null>(null);
   if (properties) lastProps.current = properties;
   const p = properties ?? lastProps.current;
@@ -46,9 +52,15 @@ export function GraffitiPanel({ properties, onClose }: Props) {
   const hasPhoto = !!p?.photo && String(p.photo).trim() !== '';
 
   return (
-    <aside className={`${s.panel} ${properties ? s.open : ''}`} aria-label="Graffiti details">
+    <aside
+      ref={sheet.ref as React.RefObject<HTMLElement>}
+      className={`${s.panel} ${properties ? s.open : ''}`}
+      aria-label="Graffiti details"
+      {...sheet.sheetProps}
+    >
+      <div className={s.sheetGrip} {...sheet.dragHandleProps} />
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div className={s.header}>
+      <div className={s.header} {...sheet.dragHandleProps}>
         <div
           className={s.styleBadge}
           style={{

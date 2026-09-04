@@ -2,6 +2,8 @@ import { useRef } from 'react';
 import { Building2, CalendarDays, Hash, ShieldAlert, X } from 'lucide-react';
 import type { CrimeProperties } from '../data/crimeData';
 import s from './CrimePanel.module.scss';
+import { useIsMobile } from '../useIsMobile';
+import { useBottomSheet } from '../hooks/useBottomSheet';
 
 const SEVERITY_COLORS: Record<number, string> = {
   1: '#68D5E8',
@@ -25,6 +27,10 @@ interface CrimePanelProps {
 }
 
 export function CrimePanel({ properties, onClose }: CrimePanelProps) {
+  // Mobile sheet: opens fully, swipe or flick down to dismiss.
+  const isMobile = useIsMobile();
+  const sheet = useBottomSheet({ open: !!properties, onClose, peekRatio: 1, enabled: isMobile });
+
   const lastProperties = useRef<CrimeProperties | null>(null);
   if (properties) lastProperties.current = properties;
   const incident = properties ?? lastProperties.current;
@@ -32,11 +38,14 @@ export function CrimePanel({ properties, onClose }: CrimePanelProps) {
 
   return (
     <aside
+      ref={sheet.ref as React.RefObject<HTMLElement>}
       className={`${s.panel} ${properties ? s.open : ''}`}
       aria-label="Crime record details"
       aria-hidden={!properties}
+      {...sheet.sheetProps}
     >
-      <div className={s.header}>
+      <div className={s.sheetGrip} {...sheet.dragHandleProps} />
+      <div className={s.header} {...sheet.dragHandleProps}>
         <span className={s.eyebrow}>
           <ShieldAlert size={13} />
           Historical public record

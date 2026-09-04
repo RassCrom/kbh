@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import { X, ImageOff } from 'lucide-react';
-import { ERA_CONFIG } from '../constants';
+import { ERA_CONFIG, eraForYear } from '../constants';
+import { useIsMobile } from '../useIsMobile';
+import { useBottomSheet } from '../hooks/useBottomSheet';
 import {
   formatBuildingType,
   formatDistrict,
@@ -16,13 +18,7 @@ function formatYear(props: Record<string, unknown>): string {
   return '—';
 }
 
-function getEra(year: number) {
-  if (!year) return ERA_CONFIG[ERA_CONFIG.length - 1];
-  return (
-    ERA_CONFIG.find(e => e.bounds[0] !== -1 && year >= e.bounds[0] && year <= e.bounds[1]) ??
-    ERA_CONFIG[ERA_CONFIG.length - 1]
-  );
-}
+const getEra = (year: number) => eraForYear(year, ERA_CONFIG);
 
 function val(v: unknown): string {
   if (v == null || v === '') return '—';
@@ -36,6 +32,10 @@ interface Props {
 }
 
 export function BuildingPanel({ properties, colorMode, onClose }: Props) {
+  // Mobile bottom-sheet drag: peek <-> full, flick down to dismiss.
+  const isMobile = useIsMobile();
+  const sheet = useBottomSheet({ open: !!properties, onClose, enabled: isMobile });
+
   // Keep last known props so content stays visible during exit slide
   const lastProps = useRef<Record<string, unknown> | null>(null);
   if (properties) lastProps.current = properties;
@@ -55,9 +55,17 @@ export function BuildingPanel({ properties, colorMode, onClose }: Props) {
     : '';
 
   return (
-    <aside className={`${s.panel} ${properties ? s.open : ''}`} aria-label="Building details">
+    <aside
+      ref={sheet.ref as React.RefObject<HTMLElement>}
+      className={`${s.panel} ${properties ? s.open : ''}`}
+      aria-label="Building details"
+      {...sheet.sheetProps}
+    >
+      {/* Grab target over the sheet's handle pill */}
+      <div className={s.sheetGrip} {...sheet.dragHandleProps} />
+
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div className={s.header}>
+      <div className={s.header} {...sheet.dragHandleProps}>
         <div
           className={s.eraBadge}
           style={{

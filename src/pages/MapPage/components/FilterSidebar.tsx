@@ -1,4 +1,4 @@
-import { useState, useMemo, memo, useRef } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { ChevronRight, ChevronLeft, X, Search, Sun, Moon } from 'lucide-react';
 import s from '../MapPage.module.scss';
 import { FilterChip, AccordionHeader } from './filter-sidebar/controls';
@@ -8,6 +8,8 @@ import { TYPE_OPTIONS, DISTRICT_OPTIONS, ERA_CONFIG } from '../constants';
 import { type MapTheme } from '../mapTheme';
 import { buildingTypeLabel } from '../buildingDisplay';
 import { type ColorMode, type DecadeLstPoint, type ExtrudeMode } from '../mapHelpers';
+import { useIsMobile } from '../useIsMobile';
+import { useBottomSheet } from '../hooks/useBottomSheet';
 // ── Main component ───────────────────────────────────────────────────────────
 
 interface FilterSidebarProps {
@@ -57,52 +59,9 @@ export const FilterSidebar = memo(function FilterSidebar({
     setExpandedInfo(prev => ({ ...prev, [layer]: !prev[layer] }));
   };
   
-  // Touch drag-to-dismiss logic for mobile bottom sheet
-  const touchStartRef = useRef<number | null>(null);
-  const touchCurrentRef = useRef<number | null>(null);
-  const [translateY, setTranslateY] = useState(0);
-  const [activeDragging, setActiveDragging] = useState(false);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (window.innerWidth >= 768) return;
-    const touch = e.touches[0];
-    touchStartRef.current = touch.clientY;
-    touchCurrentRef.current = touch.clientY;
-    setActiveDragging(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartRef.current === null) return;
-    const touch = e.touches[0];
-    touchCurrentRef.current = touch.clientY;
-    const diff = touch.clientY - touchStartRef.current;
-    
-    // Only allow dragging downwards
-    if (diff > 0) {
-      setTranslateY(diff);
-    } else {
-      setTranslateY(0);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStartRef.current === null || touchCurrentRef.current === null) {
-      touchStartRef.current = null;
-      touchCurrentRef.current = null;
-      setActiveDragging(false);
-      return;
-    }
-    const diff = touchCurrentRef.current - touchStartRef.current;
-    touchStartRef.current = null;
-    touchCurrentRef.current = null;
-    setActiveDragging(false);
-
-    // If dragged down > 100px, close sidebar. Otherwise snap back.
-    if (diff > 100) {
-      onClose();
-    }
-    setTranslateY(0);
-  };
+  // Mobile bottom-sheet drag: peek <-> full, flick down to dismiss.
+  const isMobile = useIsMobile();
+  const sheet = useBottomSheet({ open, onClose, enabled: isMobile });
 
   const [typesExpanded, setTypesExpanded] = useState(true);
   const [districtsExpanded, setDistrictsExpanded] = useState(true);
@@ -182,32 +141,13 @@ export const FilterSidebar = memo(function FilterSidebar({
 
   return (
     <aside
+      ref={sheet.ref as React.RefObject<HTMLElement>}
       className={`${s.filterSidebar} ${open ? s.open : ''}`}
       aria-label="Map filters"
-      style={
-        open && window.innerWidth < 768
-          ? {
-              transform: `translateY(${translateY}px)`,
-              transition: activeDragging ? 'none' : 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-            }
-          : undefined
-      }
+      {...sheet.sheetProps}
     >
-      {/* Invisible overlay for the very top drag handle area on mobile */}
-      <div
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '24px',
-          cursor: 'grab',
-          zIndex: 10,
-        }}
-      />
+      {/* Grab target over the sheet's handle pill */}
+      <div className={s.sheetGrip} {...sheet.dragHandleProps} />
 
       {/* Edge tab toggle */}
       <button
@@ -224,9 +164,7 @@ export const FilterSidebar = memo(function FilterSidebar({
       {/* ── Header with tab switcher ───────────────────────────────────────── */}
       <div
         className={s.filterHeader}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        {...sheet.dragHandleProps}
       >
         <div className={s.tabRow}>
           <button

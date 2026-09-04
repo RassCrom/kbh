@@ -29,13 +29,16 @@ $z-building-panel: 150;
   }
 
   @media (max-width: 767px) {
-    // Bottom sheet on mobile
+    // Bottom sheet on mobile. Laid out at full height and positioned with
+    // translateY so useBottomSheet can drag it between snaps; "peek" leaves
+    // roughly the old 55dvh showing.
     top: auto;
     left: 0;
     right: 0;
     width: 100%;
-    height: 55vh;
-    height: 55dvh;
+    height: 85vh;
+    height: 85dvh;
+    touch-action: pan-y;
     border-left: none;
     border-top: 1px solid var(--glass-border);
     border-radius: 16px 16px 0 0;
@@ -54,8 +57,15 @@ $z-building-panel: 150;
       align-self: center;
     }
 
+    // Open position is driven by useBottomSheet through --sheet-y so the drag
+    // offset can never leak into the desktop drawer rules above.
     &.open {
-      transform: translateY(0);
+      transform: translateY(var(--sheet-y, 0px));
+      transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    &.open[data-dragging='true'] {
+      transition: none;
     }
   }
 }
@@ -267,3 +277,21 @@ $z-building-panel: 150;
   }
 }
 
+
+/* Enlarged grab target over the sheet's 4px handle pill — that pill is far
+   below the 44px minimum touch target on its own. */
+.sheetGrip {
+  display: none;
+
+  @media (max-width: 767px) {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 28px;
+    z-index: 10;
+    cursor: grab;
+    touch-action: none;
+  }
+}
