@@ -1,11 +1,11 @@
 import {
-  Building2, Flame, Hexagon, History, Info, Layers, Mountain, Ruler, Thermometer,
+  Building2, Flame, Hexagon, History, Info, Layers, Mountain, Ruler, Thermometer, TreePine,
 } from 'lucide-react';
 import s from '../../MapPage.module.scss';
 import { ERA_CONFIG } from '../../constants';
 import { OverlayRow } from './controls';
 import {
-  ELEVATION_STEPS, LST_STEPS, TYPE_LEGEND, UHI_MATRIX,
+  ELEVATION_STEPS, LST_STEPS, RULE333_COLORS, RULE333_LABELS, TYPE_LEGEND, UHI_MATRIX,
   type ColorMode, type ExtrudeMode,
 } from '../../mapHelpers';
 
@@ -32,13 +32,14 @@ export function LayersTab({
           <span className={s.layersIntroMeta}>Color buildings by data attribute</span>
         </div>
 
-        <div className={s.vizOptionList}>
+        <div className={s.vizOptionList} role="radiogroup" aria-label="Building visualization layer">
 
           {/* Year Built */}
           <div
             className={`${s.vizOption} ${colorMode === 'year' ? s.vizOptionActive : ''}`}
             onClick={() => onColorModeChange('year')}
-            role="button"
+            role="radio"
+            aria-checked={colorMode === 'year'}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -94,7 +95,8 @@ export function LayersTab({
           <div
             className={`${s.vizOption} ${colorMode === 'elevation' ? s.vizOptionActive : ''}`}
             onClick={() => onColorModeChange('elevation')}
-            role="button"
+            role="radio"
+            aria-checked={colorMode === 'elevation'}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -150,7 +152,8 @@ export function LayersTab({
           <div
             className={`${s.vizOption} ${colorMode === 'lst' ? s.vizOptionActive : ''}`}
             onClick={() => onColorModeChange('lst')}
-            role="button"
+            role="radio"
+            aria-checked={colorMode === 'lst'}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -206,7 +209,8 @@ export function LayersTab({
           <div
             className={`${s.vizOption} ${colorMode === 'type' ? s.vizOptionActive : ''}`}
             onClick={() => onColorModeChange('type')}
-            role="button"
+            role="radio"
+            aria-checked={colorMode === 'type'}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -262,7 +266,8 @@ export function LayersTab({
           <div
             className={`${s.vizOption} ${colorMode === 'uhi' ? s.vizOptionActive : ''}`}
             onClick={() => onColorModeChange('uhi')}
-            role="button"
+            role="radio"
+            aria-checked={colorMode === 'uhi'}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -312,6 +317,64 @@ export function LayersTab({
             )}
           </div>
 
+          {/* 3-30-300 Rule */}
+          <div
+            className={`${s.vizOption} ${colorMode === 'rule333' ? s.vizOptionActive : ''}`}
+            onClick={() => onColorModeChange('rule333')}
+            role="radio"
+            aria-checked={colorMode === 'rule333'}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onColorModeChange('rule333');
+              }
+            }}
+          >
+            <div className={s.vizOptionHeader}>
+              <div className={s.vizOptionTitleRow}>
+                <TreePine size={13} className={s.vizOptionIcon} />
+                <span className={s.vizOptionName}>3-30-300 Rule</span>
+                <button
+                  type="button"
+                  className={`${s.infoBtn} ${expandedInfo['rule333'] ? s.infoBtnActive : ''}`}
+                  onClick={(e) => toggleInfo('rule333', e)}
+                  title="Show methodology and details"
+                  aria-label="Toggle 3-30-300 methodology"
+                >
+                  <Info size={11} />
+                </button>
+              </div>
+              {colorMode === 'rule333' && <span className={s.vizOptionBadgeRule333}>Active</span>}
+            </div>
+            <p className={s.vizOptionDesc}>Urban greening score · how many of 3 tree-access criteria a building meets</p>
+            <div className={s.vizGradientDiscrete}>
+              {RULE333_COLORS.map((color, i) => (
+                <div
+                  key={color}
+                  className={s.vizGradientSwatch}
+                  style={{ background: color }}
+                  title={RULE333_LABELS[i]}
+                />
+              ))}
+            </div>
+            <div className={s.vizGradientLabels}>
+              <span>{RULE333_LABELS[0]}</span>
+              <span>{RULE333_LABELS[3]}</span>
+            </div>
+            {expandedInfo['rule333'] && (
+              <div className={s.vizInfoBlock} onClick={(e) => e.stopPropagation()}>
+                <p className={s.vizInfoText}>
+                  <strong>Description:</strong> Scores every building against the <strong>3-30-300 rule</strong>:
+                  at least 3 visible trees from home, 30% neighborhood canopy cover, and a park within 300 m.
+                </p>
+                <p className={s.vizInfoText}>
+                  <strong>Methodology:</strong> Computed per building from tree canopy and park-access data (<code>rule333_score</code>), counting how many of the three criteria are met.
+                </p>
+              </div>
+            )}
+          </div>
+
         </div>
 
         {/* ── 3D extrusion mode ───────────────────────────────────────── */}
@@ -354,8 +417,6 @@ export function LayersTab({
           <span className={s.layersIntroMeta}>Independent data layers on top of the basemap</span>
         </div>
         <div className={s.overlayList}>
-
-
 
           <OverlayRow
             icon={<Hexagon size={13} />}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
-import { Protocol } from 'pmtiles';
+import { PMTiles, Protocol } from 'pmtiles';
 import { darkDramaticStyle } from '../darkDramaticStyle';
 import {
   buildYearColorExpr, buildHeightExtrusionExpr,
@@ -11,6 +11,14 @@ import {
 } from '../hexUtils';
 import { landmarksGeoJSON, LANDMARKS, type Landmark } from '../overlays/landmarksData';
 import { IS_TOUCH_DEVICE } from '../useIsMobile';
+import {
+  BUILDINGS_ARCHIVE_PATH,
+  BUILDINGS_PM_TILES_URL,
+  BUILDINGS_SOURCE_LAYER,
+  TIMELINE_FALLBACK_MAX_YEAR,
+  TIMELINE_MIN_YEAR,
+  normalizeBuildingTypeGroup,
+} from '../constants';
 
 // ---------------------------------------------------------------------------
 // Backport of maplibre-gl#7117 — see MapPage.tsx for full comment
@@ -31,6 +39,22 @@ function patchRenderTaskQueue(map: maplibregl.Map): void {
 }
 
 const landmarkLayerQueued = new WeakSet<maplibregl.Map>();
+
+interface ArchiveMetadata {
+  tilestats?: {
+    layers?: Array<{
+      layer?: string;
+      attributes?: Array<{ attribute?: string; max?: number }>;
+    }>;
+  };
+}
+
+function timelineMaxFromMetadata(metadata: unknown): number | null {
+  const layers = (metadata as ArchiveMetadata)?.tilestats?.layers ?? [];
+  const buildings = layers.find((layer) => layer.layer === BUILDINGS_SOURCE_LAYER) ?? layers[0];
+  const max = Number(buildings?.attributes?.find((attribute) => attribute.attribute === 'year_int')?.max);
+  return Number.isFinite(max) && max >= TIMELINE_MIN_YEAR ? max : null;
+}
 
 /** Lazily attach the three.js landmark layer only once close-up 3D is useful. */
 export function addLandmarks3D(map: maplibregl.Map): void {
@@ -127,7 +151,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
   const [decadeLstData, setDecadeLstData] = useState<DecadeLstPoint[]>([]);
   const [archStyleOptions, setArchStyleOptions] = useState<string[]>([]);
   const [companyOptions, setCompanyOptions] = useState<string[]>([]);
-  const lastBoundsStrRef = useRef<string>('');
+  const lastHistogramSignatureRef = useRef<string>('');
   // These are patchable by MapPage after tour/cinema hooks initialize
   const activeTourRef = useRef<unknown>(null);
   const cinemaActiveRef = useRef<boolean>(false);
@@ -147,6 +171,8 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
     if (!containerRef.current) return;
 
     const protocol = new Protocol();
+    const buildingArchive = new PMTiles(BUILDINGS_ARCHIVE_PATH);
+    protocol.add(buildingArchive);
     maplibregl.addProtocol('pmtiles', protocol.tile);
 
     const playIntro = opts.introActiveRef.current;
@@ -163,6 +189,10 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
       maxZoom: 23,
       attributionControl: { compact: true },
     });
+    map.getCanvas().setAttribute(
+      'aria-label',
+      'Interactive map of Astana. Use arrow keys to pan and plus or minus to zoom.',
+    );
 
     patchRenderTaskQueue(map);
 
@@ -189,18 +219,30 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
       });
     }
 
+    let currentSliderMax = TIMELINE_FALLBACK_MAX_YEAR;
+
     map.on('load', () => {
+      void buildingArchive.getMetadata()
+        .then((metadata) => {
+          const archiveMax = timelineMaxFromMetadata(metadata);
+          if (archiveMax === null) return;
+          currentSliderMax = archiveMax;
+          opts.setSliderMax(archiveMax);
+          opts.setYearRange(([min]) => [min, archiveMax]);
+        })
+        .catch((error) => console.warn('Could not read the building archive timeline metadata:', error));
+
       // ── Building sources & layers ───────────────────────────────────────
       map.addSource('all-buildings', {
         type: 'vector',
-        url: 'pmtiles:///buildings-ast-v44.pmtiles',
+        url: BUILDINGS_PM_TILES_URL,
       });
 
       map.addLayer({
         id: 'buildings-fill',
         type: 'fill',
         source: 'all-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         paint: {
           'fill-color': buildYearColorExpr(),
           'fill-opacity': [
@@ -217,7 +259,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
         id: 'buildings-outline',
         type: 'line',
         source: 'all-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         paint: {
           'line-color': 'rgba(37, 29, 13, 0.3)',
           'line-width': [
@@ -233,7 +275,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
         id: 'buildings-3d',
         type: 'fill-extrusion',
         source: 'all-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         minzoom: 13,
         paint: {
           'fill-extrusion-color': buildYearColorExpr(),
@@ -250,7 +292,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
         id: 'buildings-hover',
         type: 'fill',
         source: 'all-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         maxzoom: 13,
         paint: {
           'fill-color': '#d4a85e',
@@ -264,7 +306,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
         id: 'buildings-3d-hover',
         type: 'fill-extrusion',
         source: 'all-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         minzoom: 13,
         paint: {
           'fill-extrusion-color': [
@@ -282,7 +324,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
         id: 'buildings-selected',
         type: 'line',
         source: 'all-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         paint: {
           'line-color': '#d4a85e',
           'line-width': [
@@ -296,7 +338,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
         id: 'buildings-hidden',
         type: 'fill',
         source: 'all-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         paint: { 'fill-color': 'transparent' },
       });
 
@@ -373,7 +415,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
       const clearHover = () => {
         if (hoveredId !== null) {
           map.setFeatureState(
-            { source: 'all-buildings', sourceLayer: 'buildings', id: hoveredId },
+            { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: hoveredId },
             { hover: false },
           );
           hoveredId = null;
@@ -389,7 +431,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
           clearHover();
           if (id !== undefined) {
             map.setFeatureState(
-              { source: 'all-buildings', sourceLayer: 'buildings', id },
+              { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id },
               { hover: true },
             );
             hoveredId = id;
@@ -425,7 +467,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
       const clearTapPreviewState = () => {
         if (opts.tapPreviewIdRef.current !== null) {
           map.setFeatureState(
-            { source: 'all-buildings', sourceLayer: 'buildings', id: opts.tapPreviewIdRef.current },
+            { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: opts.tapPreviewIdRef.current },
             { hover: false },
           );
           opts.tapPreviewIdRef.current = null;
@@ -437,13 +479,13 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
       const selectBuilding = (feat: maplibregl.MapGeoJSONFeature) => {
         if (opts.selectedBuildingIdRef.current !== null) {
           map.setFeatureState(
-            { source: 'all-buildings', sourceLayer: 'buildings', id: opts.selectedBuildingIdRef.current },
+            { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: opts.selectedBuildingIdRef.current },
             { selected: false },
           );
         }
         if (feat.id !== undefined) {
           map.setFeatureState(
-            { source: 'all-buildings', sourceLayer: 'buildings', id: feat.id },
+            { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: feat.id },
             { selected: true },
           );
           opts.selectedBuildingIdRef.current = feat.id;
@@ -496,13 +538,13 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
             } else {
               if (opts.tapPreviewIdRef.current !== null) {
                 map.setFeatureState(
-                  { source: 'all-buildings', sourceLayer: 'buildings', id: opts.tapPreviewIdRef.current },
+                  { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: opts.tapPreviewIdRef.current },
                   { hover: false },
                 );
               }
               if (feat.id !== undefined) {
                 map.setFeatureState(
-                  { source: 'all-buildings', sourceLayer: 'buildings', id: feat.id },
+                  { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: feat.id },
                   { hover: true },
                 );
                 opts.tapPreviewIdRef.current = feat.id;
@@ -519,7 +561,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
           clearTapPreviewState();
           if (opts.selectedBuildingIdRef.current !== null) {
             map.setFeatureState(
-              { source: 'all-buildings', sourceLayer: 'buildings', id: opts.selectedBuildingIdRef.current },
+              { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: opts.selectedBuildingIdRef.current },
               { selected: false },
             );
             opts.selectedBuildingIdRef.current = null;
@@ -530,7 +572,6 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
       // ── Histogram / dropdown update ──────────────────────────────────────
       const archStyles = new Set<string>();
       const companies = new Set<string>();
-      let currentSliderMax = 2029;
       let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
       const updateHistogram = () => {
@@ -543,10 +584,11 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
 
           const bounds = m.getBounds();
           const boundsStr = bounds.toArray().flat().map((n) => n.toFixed(5)).join(',');
-          if (boundsStr === lastBoundsStrRef.current) return;
-          lastBoundsStrRef.current = boundsStr;
-
           const features = m.queryRenderedFeatures(undefined, { layers: ['buildings-hidden'] });
+          const signature = `${boundsStr}|${features.length}`;
+          if (signature === lastHistogramSignatureRef.current) return;
+          lastHistogramSignatureRef.current = signature;
+
           const counts: Record<number, number> = {};
           const types: Record<string, number> = {};
           const decadeLstRaw: Record<number, number[]> = {};
@@ -577,7 +619,7 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
                 }
               }
             }
-            if (!isNaN(y) && y >= 1900) {
+            if (!isNaN(y) && y >= TIMELINE_MIN_YEAR) {
               counts[y] = (counts[y] || 0) + 1;
               if (y > localMax) { localMax = y; hasUpdates = true; }
               const lstRaw = f.properties.lst_1mean;
@@ -591,8 +633,8 @@ export function useMapInit(containerRef: React.RefObject<HTMLDivElement | null>,
             if (style && typeof style === 'string' && style.trim()) archStyles.add(style.trim());
             const company = f.properties.company;
             if (company && typeof company === 'string' && company.trim()) companies.add(company.trim());
-            const type = f.properties.type;
-            if (type && typeof type === 'string' && type.trim()) types[type.trim()] = (types[type.trim()] || 0) + 1;
+            const typeGroup = normalizeBuildingTypeGroup(f.properties.type);
+            types[typeGroup] = (types[typeGroup] || 0) + 1;
           }
 
           setYearCounts(counts);

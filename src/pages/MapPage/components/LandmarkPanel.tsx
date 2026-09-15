@@ -8,7 +8,7 @@ interface Props {
   onFlyTo: (landmark: Landmark) => void;
 }
 
-/** Popup for the 3D landmark models (Bayterek, Kabanbai mausoleum). */
+/** Popup for an interactive 3D landmark model. */
 export function LandmarkPanel({ landmark, onClose, onFlyTo }: Props) {
   if (!landmark) return null;
 

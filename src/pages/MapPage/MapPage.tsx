@@ -6,7 +6,14 @@ import { Link } from 'react-router-dom';
 import s from './MapPage.module.scss';
 import { useIsMobile, IS_TOUCH_DEVICE } from './useIsMobile';
 
-import { ERA_CONFIG, ERA_CONFIG_SIMPLE, DISTRICT_BOUNDS } from './constants';
+import {
+  ERA_CONFIG,
+  ERA_CONFIG_SIMPLE,
+  DISTRICT_BOUNDS,
+  BUILDINGS_SOURCE_LAYER,
+  TIMELINE_FALLBACK_MAX_YEAR,
+  TIMELINE_MIN_YEAR,
+} from './constants';
 import { buildCombinedFilter, type ColorMode, type ExtrudeMode } from './mapHelpers';
 import { TimelineSlider } from './components/TimelineSlider';
 import { FilterSidebar } from './components/FilterSidebar';
@@ -37,7 +44,7 @@ import { useCinemaMode } from './hooks/useCinemaMode';
 import { useMapOverlays } from './hooks/useMapOverlays';
 import { useMapLayerSync } from './hooks/useMapLayerSync';
 
-const COLOR_MODES: ColorMode[] = ['year', 'elevation', 'lst', 'type', 'uhi'];
+const COLOR_MODES: ColorMode[] = ['year', 'elevation', 'lst', 'type', 'uhi', 'rule333'];
 const INTRO_SESSION_KEY = 'kbh-map-intro-seen';
 
 export default function MapPage() {
@@ -83,7 +90,7 @@ export default function MapPage() {
     isPlaying,
     handleTogglePlay,
     handlePlayReset,
-  } = useTimeLapse(1900, 2029, { onTick: onPlayTick });
+  } = useTimeLapse(TIMELINE_MIN_YEAR, TIMELINE_FALLBACK_MAX_YEAR, { onTick: onPlayTick });
 
   // ── Sidebar filter state ──────────────────────────────────────────────────
   const {
@@ -430,7 +437,7 @@ export default function MapPage() {
     const map = mapRef.current;
     if (map && selectedBuildingIdRef.current !== null) {
       map.setFeatureState(
-        { source: 'all-buildings', sourceLayer: 'buildings', id: selectedBuildingIdRef.current },
+        { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: selectedBuildingIdRef.current },
         { selected: false },
       );
       selectedBuildingIdRef.current = null;
@@ -458,11 +465,11 @@ export default function MapPage() {
     const map = mapRef.current;
     if (map && tapPreviewIdRef.current !== null) {
       map.setFeatureState(
-        { source: 'all-buildings', sourceLayer: 'buildings', id: tapPreviewIdRef.current },
+        { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: tapPreviewIdRef.current },
         { hover: false },
       );
       map.setFeatureState(
-        { source: 'all-buildings', sourceLayer: 'buildings', id: tapPreviewIdRef.current },
+        { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: tapPreviewIdRef.current },
         { selected: true },
       );
       selectedBuildingIdRef.current = tapPreviewIdRef.current;
@@ -479,7 +486,7 @@ export default function MapPage() {
     const map = mapRef.current;
     if (map && tapPreviewIdRef.current !== null) {
       map.setFeatureState(
-        { source: 'all-buildings', sourceLayer: 'buildings', id: tapPreviewIdRef.current },
+        { source: 'all-buildings', sourceLayer: BUILDINGS_SOURCE_LAYER, id: tapPreviewIdRef.current },
         { hover: false },
       );
       tapPreviewIdRef.current = null;
@@ -512,7 +519,9 @@ export default function MapPage() {
   const uiHidden = introActive;
 
   return (
-    <div className={s.mapPage}>
+    <>
+      <a className="skip-link" href="#map-main">Skip to interactive map</a>
+      <main id="map-main" className={s.mapPage} aria-label="Interactive map of Astana buildings">
       <div ref={containerRef} className={s.mapContainer} />
       {compareActive && mapLoaded && (
         <HistoricalCompare mainMapRef={mapRef} mapTheme={mapTheme} />
@@ -590,7 +599,7 @@ export default function MapPage() {
                     <ChevronDown size={12} className={`${s.modesChevron} ${modesMenuOpen ? s.modesChevronOpen : ''}`} />
                   </button>
                   {modesMenuOpen && (
-                    <div className={s.modesDropdown} role="menu">
+                    <div className={s.modesDropdown} role="group" aria-label="Map modes">
                       <TourPanel
                         activeTour={tours.activeTour}
                         tourStep={tours.tourStep}
@@ -796,11 +805,14 @@ export default function MapPage() {
           {/* Timeline slider */}
           {!tours.activeTour && !cinema.cinemaActive && !compareActive && (
             <TimelineSlider
-              min={1900}
+              min={TIMELINE_MIN_YEAR}
               max={sliderMax}
               value={yearRange}
               onChange={setYearRange}
               data={yearCounts}
+              eras={activeEraConfig}
+              hoveredEra={hoveredEra}
+              onHoveredEraChange={setHoveredEra}
               sidebarOpen={sidebarOpen}
               buildingOpen={!!selectedBuilding}
               legendOpen={legendOpen}
@@ -823,6 +835,7 @@ export default function MapPage() {
           )}
         </>
       )}
-    </div>
+      </main>
+    </>
   );
 }

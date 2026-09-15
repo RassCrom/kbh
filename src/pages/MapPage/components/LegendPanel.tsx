@@ -8,6 +8,8 @@ import {
   UHI_LST_BINS,
   ELEVATION_STEPS,
   LST_STEPS,
+  RULE333_COLORS,
+  RULE333_LABELS,
   type ColorMode
 } from '../mapHelpers';
 import s from '../MapPage.module.scss';
@@ -96,24 +98,31 @@ export function LegendPanel({
                   <li
                     key={era.label}
                     className={s.legendItem}
-                    onMouseEnter={() => onHoveredEraChange(era.label)}
-                    onMouseLeave={() => onHoveredEraChange(null)}
-                    onClick={() => {
-                      if (era.bounds[0] !== -1) {
-                        onYearRangeChange([Math.max(1900, era.bounds[0]), Math.min(sliderMax, era.bounds[1])]);
-                      }
-                    }}
                     style={{
-                      cursor: era.bounds[0] !== -1 ? 'pointer' : 'default',
                       opacity: hoveredEra && hoveredEra !== era.label ? 0.35 : 1,
                       transition: 'opacity 0.2s',
                     }}
                   >
-                    <span className={s.legendSwatch} style={{ background: era.color }} />
-                    <div className={s.legendTextGroup}>
-                      <span className={s.legendLabel}>{era.label}</span>
-                      <span className={s.legendDesc}>{era.description}</span>
-                    </div>
+                    <button
+                      type="button"
+                      className={s.legendItemButton}
+                      disabled={era.bounds[0] === -1}
+                      aria-label={era.bounds[0] === -1 ? era.label : `Filter timeline to ${era.label}`}
+                      onMouseEnter={() => onHoveredEraChange(era.label)}
+                      onMouseLeave={() => onHoveredEraChange(null)}
+                      onFocus={() => onHoveredEraChange(era.label)}
+                      onBlur={() => onHoveredEraChange(null)}
+                      onClick={() => onYearRangeChange([
+                        Math.max(1900, era.bounds[0]),
+                        Math.min(sliderMax, era.bounds[1]),
+                      ])}
+                    >
+                      <span className={s.legendSwatch} style={{ background: era.color }} />
+                      <span className={s.legendTextGroup}>
+                        <span className={s.legendLabel}>{era.label}</span>
+                        <span className={s.legendDesc}>{era.description}</span>
+                      </span>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -205,34 +214,41 @@ export function LegendPanel({
                     <li
                       key={item.label}
                       className={`${s.legendItem} ${dimmed ? s.legendItemDimmed : ''}`}
-                      onClick={() => handleTypeLegendClick(item.label)}
                       style={{
-                        cursor: 'pointer',
                         opacity: dimmed ? 0.35 : 1,
                         transition: 'all 0.2s ease',
-                        transform: active && selectedTypes.length > 0 ? 'translateX(4px)' : 'none',
                       }}
                     >
-                      <span
-                        className={s.legendSwatch}
+                      <button
+                        type="button"
+                        className={s.legendItemButton}
+                        onClick={() => handleTypeLegendClick(item.label)}
+                        aria-pressed={active && selectedTypes.length > 0}
                         style={{
-                          background: item.color,
-                          boxShadow: active && selectedTypes.length > 0 ? `0 0 8px ${item.color}` : 'none',
-                          border: active && selectedTypes.length > 0 ? '1px solid #fff' : '1px solid rgba(255, 255, 255, 0.08)',
+                          transform: active && selectedTypes.length > 0 ? 'translateX(4px)' : 'none',
                         }}
-                      />
-                      <div className={s.legendTextGroup}>
+                      >
                         <span
-                          className={s.legendLabel}
+                          className={s.legendSwatch}
                           style={{
-                            color: active && selectedTypes.length > 0 ? 'var(--color-accent-brand)' : 'var(--color-text-primary)',
-                            fontWeight: active && selectedTypes.length > 0 ? '700' : '600',
+                            background: item.color,
+                            boxShadow: active && selectedTypes.length > 0 ? `0 0 8px ${item.color}` : 'none',
+                            border: active && selectedTypes.length > 0 ? '1px solid #fff' : '1px solid rgba(255, 255, 255, 0.08)',
                           }}
-                        >
-                          {item.label}
+                        />
+                        <span className={s.legendTextGroup}>
+                          <span
+                            className={s.legendLabel}
+                            style={{
+                              color: active && selectedTypes.length > 0 ? 'var(--color-accent-brand)' : 'var(--color-text-primary)',
+                              fontWeight: active && selectedTypes.length > 0 ? '700' : '600',
+                            }}
+                          >
+                            {item.label}
+                          </span>
+                          <span className={s.legendDesc}>{item.desc}</span>
                         </span>
-                        <span className={s.legendDesc}>{item.desc}</span>
-                      </div>
+                      </button>
                     </li>
                   );
                 })}
@@ -290,11 +306,14 @@ export function LegendPanel({
                           const isDimmed = isAnySelected && !isSelected;
 
                           return (
-                            <div
+                            <button
+                              type="button"
                               key={ci}
                               className={`${s.uhiCell} ${isSelected ? s.active : ''} ${isDimmed ? s.dimmed : ''}`}
                               style={{ background: color }}
                               title={`${UHI_AGE_BINS[ci].label} · ${UHI_LST_BINS[r].label}`}
+                              aria-label={`${UHI_AGE_BINS[ci].label}, ${UHI_LST_BINS[r].label}`}
+                              aria-pressed={isSelected}
                               onClick={() => {
                                 onSelectedUhiCellsChange((prev) =>
                                   prev.includes(cellId)
@@ -320,6 +339,24 @@ export function LegendPanel({
                 <span>↔ Building Age</span>
               </div>
               <div className={s.legendGradientSource}>Bivariate · year_int × lst_1mean</div>
+            </>
+          )}
+
+          {colorMode === 'rule333' && (
+            <>
+              <h3 className={s.legendTitle}>3-30-300 Rule</h3>
+              <ul className={s.legendList}>
+                {[...RULE333_COLORS].reverse().map((color, i) => {
+                  const label = RULE333_LABELS[RULE333_LABELS.length - 1 - i];
+                  return (
+                    <li key={color} className={s.legendItem}>
+                      <span className={s.legendSwatch} style={{ background: color }} />
+                      <span className={s.legendLabel}>{label}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className={s.legendGradientSource}>rule333_score · 0–3 criteria met</div>
             </>
           )}
         </div>

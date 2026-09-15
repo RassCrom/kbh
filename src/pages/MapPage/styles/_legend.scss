@@ -144,6 +144,42 @@
   gap: $space-2;
 }
 
+.legendItemButton {
+  width: 100%;
+  min-height: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: $space-2;
+  padding: 3px;
+  margin: -3px;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  font: inherit;
+  transition: background $duration-ui $ease-snap, transform $duration-ui $ease-snap;
+
+  &:hover:not(:disabled) {
+    background: var(--tint-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  @media (max-width: 767px) {
+    min-height: 44px;
+    padding: 6px 3px;
+  }
+}
+
 .legendSwatch {
   display: inline-block;
   width: 12px;

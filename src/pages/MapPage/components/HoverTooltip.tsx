@@ -1,7 +1,7 @@
 import { IS_TOUCH_DEVICE } from '../useIsMobile';
 import { eraForYear, type EraStop } from '../constants';
 import { buildingTypeLabel } from '../buildingDisplay';
-import { type ColorMode } from '../mapHelpers';
+import { RULE333_COLORS, RULE333_LABELS, type ColorMode } from '../mapHelpers';
 import s from '../MapPage.module.scss';
 
 interface HoverTooltipProps {
@@ -154,7 +154,8 @@ export function HoverTooltip({
   const lstVal = p.lst_1mean != null ? Number(p.lst_1mean).toFixed(1) : null;
   const rawType = p.type ? String(p.type) : null;
   const typeLabel = rawType ? buildingTypeLabel(rawType, 'long') : null;
-  const hasData = !!(name || year || demVal || lstVal || typeLabel);
+  const rule333Score = p.rule333_score != null ? Number(p.rule333_score) : null;
+  const hasData = !!(name || year || demVal || lstVal || typeLabel || rule333Score != null);
 
   return (
     <div className={s.tooltip} style={{ left: hoverInfo.x + 14, top: hoverInfo.y - 14 }}>
@@ -200,6 +201,14 @@ export function HoverTooltip({
                 </div>
               )}
             </>
+          )}
+          {colorMode === 'rule333' && rule333Score != null && RULE333_LABELS[rule333Score] && (
+            <div className={s.tooltipRow}>
+              <span className={s.tooltipKey}>3-30-300</span>
+              <span className={s.tooltipVal} style={{ color: RULE333_COLORS[rule333Score] }}>
+                {RULE333_LABELS[rule333Score]}
+              </span>
+            </div>
           )}
           <div className={s.tooltipHint}>Click for more info</div>
         </>

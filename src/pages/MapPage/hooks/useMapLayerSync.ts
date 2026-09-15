@@ -4,8 +4,8 @@ import { type EraStop } from '../constants';
 import { applyMapTheme, type MapTheme } from '../mapTheme';
 import {
   buildYearColorExpr, buildElevationColorExpr, buildLstColorExpr, buildTypeColorExpr,
-  buildUhiColorExpr, buildCombinedFilter, buildHeightExtrusionExpr, buildAgeExtrusionExpr,
-  type ColorMode, type ExtrudeMode,
+  buildUhiColorExpr, buildRule333ColorExpr, buildCombinedFilter, buildHeightExtrusionExpr,
+  buildAgeExtrusionExpr, type ColorMode, type ExtrudeMode,
 } from '../mapHelpers';
 import {
   buildCountColorExpr, buildYearAvgColorExpr, buildHexHeightExpr,
@@ -71,7 +71,8 @@ export function useMapLayerSync(opts: Options): void {
           colorMode === 'lst' ? buildLstColorExpr() :
             colorMode === 'type' ? buildTypeColorExpr() :
               colorMode === 'uhi' ? buildUhiColorExpr() :
-                buildYearColorExpr(activeEraConfig);
+                colorMode === 'rule333' ? buildRule333ColorExpr() :
+                  buildYearColorExpr(activeEraConfig);
       if (map.getLayer('buildings-fill')) map.setPaintProperty('buildings-fill', 'fill-color', colorExpr);
       if (map.getLayer('buildings-3d')) map.setPaintProperty('buildings-3d', 'fill-extrusion-color', colorExpr);
     };

@@ -59,6 +59,8 @@ export function BuildingPanel({ properties, colorMode, onClose }: Props) {
       ref={sheet.ref as React.RefObject<HTMLElement>}
       className={`${s.panel} ${properties ? s.open : ''}`}
       aria-label="Building details"
+      aria-hidden={!properties}
+      inert={!properties}
       {...sheet.sheetProps}
     >
       {/* Grab target over the sheet's handle pill */}

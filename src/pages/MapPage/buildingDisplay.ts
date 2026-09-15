@@ -1,5 +1,5 @@
 import { DISTRICT_OPTIONS } from './constants';
-import type { ColorMode } from './mapHelpers';
+import { RULE333_LABELS, type ColorMode } from './mapHelpers';
 
 const DISTRICT_LABELS = Object.fromEntries(
   DISTRICT_OPTIONS.map(({ label, value }) => [value, label]),
@@ -114,6 +114,15 @@ export function getThemeDetails(
           { label: 'Mean summer LST', value: formatNumber(properties.lst_1mean, '°C') },
         ],
       };
+    case 'rule333': {
+      const score = Number(properties.rule333_score);
+      return {
+        label: '3-30-300 Rule',
+        attributes: [
+          { label: 'Criteria met', value: RULE333_LABELS[score] ?? 'No data' },
+        ],
+      };
+    }
     default:
       return {
         label: 'Year Built',

@@ -32,46 +32,6 @@ function buildLights(scene: THREE.Scene, boost = 1): void {
   }
 }
 
-/** Procedural Bayterek: tapered white shaft, flaring lattice crown, golden orb. */
-function buildBayterek(): THREE.Group {
-  const g = new THREE.Group();
-  const white = new THREE.MeshStandardMaterial({ color: 0xe8eaf0, roughness: 0.35, metalness: 0.15 });
-  const gold = new THREE.MeshStandardMaterial({
-    color: 0xd4a85e, roughness: 0.18, metalness: 0.85,
-    emissive: 0x8a6520, emissiveIntensity: 0.35,
-  });
-
-  // Central shaft
-  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 4.2, 88, 24), white);
-  shaft.position.y = 44;
-  g.add(shaft);
-
-  // Flaring crown — three nested open cones forming the "branches"
-  for (const [r, y, h] of [[16, 86, 26], [12, 82, 22], [8, 78, 18]] as const) {
-    const cone = new THREE.Mesh(
-      new THREE.CylinderGeometry(r, 1.4, h, 20, 1, true),
-      new THREE.MeshStandardMaterial({
-        color: 0xdfe4ee, roughness: 0.4, metalness: 0.2,
-        side: THREE.DoubleSide, transparent: true, opacity: 0.82,
-      }),
-    );
-    cone.position.y = y;
-    g.add(cone);
-  }
-
-  // Golden orb
-  const orb = new THREE.Mesh(new THREE.SphereGeometry(11, 36, 24), gold);
-  orb.position.y = 97;
-  g.add(orb);
-
-  // Base plinth
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(10, 12, 3, 28), white);
-  base.position.y = 1.5;
-  g.add(base);
-
-  return g;
-}
-
 /** Fallback if the GLB fails: simple steppe mausoleum (drum + conical dome). */
 function buildMausoleumFallback(): THREE.Group {
   const g = new THREE.Group();
@@ -119,43 +79,22 @@ export function createLandmarksLayer(): maplibregl.CustomLayerInterface {
       });
       renderer.autoClear = false;
 
-      // Bayterek — GLB with procedural fallback (extra-bright: the model's
-      // baked materials read too dark against the night basemap)
-      const bayterekScene = new THREE.Scene();
-      buildLights(bayterekScene, 2.3);
-      scenes.push({
-        scene: bayterekScene,
-        mercator: maplibregl.MercatorCoordinate.fromLngLat(LANDMARKS[0].lngLat, 0),
-        scale: maplibregl.MercatorCoordinate.fromLngLat(LANDMARKS[0].lngLat, 0)
-          .meterInMercatorCoordinateUnits(),
-      });
       const gltfLoader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
-      gltfLoader.load(
-        '/bayterek-v2.glb',
-        (gltf) => {
-          bayterekScene.add(normalizeModel(gltf.scene, 105));
-          map.triggerRepaint();
-        },
-        undefined,
-        () => {
-          bayterekScene.add(buildBayterek());
-          map.triggerRepaint();
-        },
-      );
-
       // Kabanbai — GLB with procedural fallback
+      const kabanbai = LANDMARKS.find((landmark) => landmark.id === 'kabanbai');
+      if (!kabanbai) return;
       const kabanbaiScene = new THREE.Scene();
       buildLights(kabanbaiScene);
       scenes.push({
         scene: kabanbaiScene,
-        mercator: maplibregl.MercatorCoordinate.fromLngLat(LANDMARKS[1].lngLat, 0),
-        scale: maplibregl.MercatorCoordinate.fromLngLat(LANDMARKS[1].lngLat, 0)
+        mercator: maplibregl.MercatorCoordinate.fromLngLat(kabanbai.lngLat, 0),
+        scale: maplibregl.MercatorCoordinate.fromLngLat(kabanbai.lngLat, 0)
           .meterInMercatorCoordinateUnits(),
       });
       gltfLoader.load(
         '/kabanbay.glb',
         (gltf) => {
-          kabanbaiScene.add(normalizeModel(gltf.scene, 12));
+          kabanbaiScene.add(normalizeModel(gltf.scene, 36));
           map.triggerRepaint();
         },
         undefined,

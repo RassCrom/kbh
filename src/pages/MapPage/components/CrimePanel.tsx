@@ -42,6 +42,7 @@ export function CrimePanel({ properties, onClose }: CrimePanelProps) {
       className={`${s.panel} ${properties ? s.open : ''}`}
       aria-label="Crime record details"
       aria-hidden={!properties}
+      inert={!properties}
       {...sheet.sheetProps}
     >
       <div className={s.sheetGrip} {...sheet.dragHandleProps} />

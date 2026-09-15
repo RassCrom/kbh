@@ -16,21 +16,6 @@ export interface Landmark {
 
 export const LANDMARKS: Landmark[] = [
   {
-    id: 'bayterek',
-    name: 'Bayterek Tower',
-    lngLat: [71.43050756481662, 51.12862200109599],
-    year: '1997–2002',
-    height: '97 m (105 m with orb)',
-    architect: 'Concept: N. Nazarbayev · Design: A. Rustembekov',
-    description:
-      'The symbol of post-independence Astana. Bayterek embodies the Kazakh legend of the Samruk bird laying a golden egg in the branches of the tree of life — the gilded sphere holds an observation deck at 97 m, the year the capital moved here.',
-    facts: [
-      'The 97 m height marks 1997, the year Astana became the capital',
-      'The orb is 22 m in diameter and weighs about 300 tonnes',
-      'Centerpiece of the Nurzhol Boulevard axis by Kisho Kurokawa',
-    ],
-  },
-  {
     id: 'kabanbai',
     name: 'Kabanbai Batyr Mausoleum',
     lngLat: [71.40986540891022, 50.87289280012467],
@@ -47,7 +32,7 @@ export const LANDMARKS: Landmark[] = [
   },
 ];
 
-/** GeoJSON for the invisible hit-target + glow halo markers. */
+/** GeoJSON for the landmark hit-targets and glow halo markers. */
 export function landmarksGeoJSON(): GeoJSON.FeatureCollection {
   return {
     type: 'FeatureCollection',

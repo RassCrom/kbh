@@ -56,6 +56,8 @@ export function GraffitiPanel({ properties, onClose }: Props) {
       ref={sheet.ref as React.RefObject<HTMLElement>}
       className={`${s.panel} ${properties ? s.open : ''}`}
       aria-label="Graffiti details"
+      aria-hidden={!properties}
+      inert={!properties}
       {...sheet.sheetProps}
     >
       <div className={s.sheetGrip} {...sheet.dragHandleProps} />

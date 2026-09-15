@@ -4,6 +4,7 @@ import { Columns2 } from 'lucide-react';
 import { darkDramaticStyle } from '../darkDramaticStyle';
 import { buildHeightExtrusionExpr, buildYearColorExpr } from '../mapHelpers';
 import { applyMapTheme, type MapTheme } from '../mapTheme';
+import { BUILDINGS_PM_TILES_URL, BUILDINGS_SOURCE_LAYER } from '../constants';
 import s from '../MapPage.module.scss';
 
 const HISTORICAL_YEAR = 1990;
@@ -60,13 +61,13 @@ export function HistoricalCompare({ mainMapRef, mapTheme }: HistoricalComparePro
 
       compareMap.addSource('historical-buildings', {
         type: 'vector',
-        url: 'pmtiles:///buildings-ast-v44.pmtiles',
+        url: BUILDINGS_PM_TILES_URL,
       });
       compareMap.addLayer({
         id: 'historical-buildings-fill',
         type: 'fill',
         source: 'historical-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         filter: historicalFilter,
         paint: {
           'fill-color': buildYearColorExpr(),
@@ -77,7 +78,7 @@ export function HistoricalCompare({ mainMapRef, mapTheme }: HistoricalComparePro
         id: 'historical-buildings-outline',
         type: 'line',
         source: 'historical-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         filter: historicalFilter,
         paint: {
           'line-color': 'rgba(255,255,255,0.22)',
@@ -88,7 +89,7 @@ export function HistoricalCompare({ mainMapRef, mapTheme }: HistoricalComparePro
         id: 'historical-buildings-3d',
         type: 'fill-extrusion',
         source: 'historical-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         minzoom: 13,
         filter: historicalFilter,
         paint: {

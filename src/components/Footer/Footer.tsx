@@ -56,7 +56,6 @@ export default function Footer() {
           <h4 className={s.colTitle}>Project</h4>
           <ul className={s.links}>
             <li><a href="#team" className={s.link}>About Us</a></li>
-            <li><a href="#" className={s.link}>Open Data</a></li>
             {/* <li><a href="#newsletter" className={s.link}>Newsletter</a></li> */}
           </ul>
         </div>

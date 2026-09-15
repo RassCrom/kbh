@@ -8,6 +8,12 @@ export interface EraStop {
   description: string;
 }
 
+export const BUILDINGS_ARCHIVE_PATH = '/ast-merged-150926-v3.pmtiles';
+export const BUILDINGS_PM_TILES_URL = `pmtiles://${BUILDINGS_ARCHIVE_PATH}`;
+export const BUILDINGS_SOURCE_LAYER = 'astana_buildings';
+export const TIMELINE_MIN_YEAR = 1900;
+export const TIMELINE_FALLBACK_MAX_YEAR = new Date().getFullYear();
+
 /**
  * Resolves the era a construction year falls into. Year 0 (or anything
  * outside every range) resolves to the list's "Unknown" stop, so callers
@@ -197,11 +203,41 @@ export const TYPE_OPTIONS: { label: string; value: string }[] = [
 ];
 
 export const TYPE_GROUP_MAPPING: Record<string, string[]> = {
-  'Residential': ['rc', 'house'],
-  'Commercial & Leisure': ['bc', 'sc', 'ec'],
-  'Education & Research': ['school', 'kdgd', 'uni'],
-  'Religious Landmarks': ['mosque', 'church'],
-  'Culture & Sport': ['cultural site', 'sf'],
-  'Healthcare': ['healthcare', 'hospital', 'clinic'],
-  'Infrastructure & Admin': ['admin', 'utility', 'airport', 'train station'],
+  'Residential': [
+    'apartments', 'detached', 'dorm', 'dormitory', 'h', 'house', 'rc', 'residential',
+  ],
+  'Commercial & Leisure': [
+    'bc', 'commercial', 'ec', 'hotel', 'kiosk', 'office', 'restaurant', 'retail', 'sc', 'tc', 'trc',
+  ],
+  'Education & Research': [
+    'college', 'kdgd', 'kg', 'kindergarten', 'sch', 'school', 'uni', 'university',
+  ],
+  'Religious Landmarks': ['chapel', 'church', 'mosque', 'religion'],
+  'Culture & Sport': [
+    'congress_hall', 'cultural site', 'grandstand', 'history', 'museum', 'sf', 'sport',
+    'sports_centre', 'stadium', 'theater', 'triumphal_arch',
+  ],
+  'Healthcare': ['clinic', 'hc', 'healthcare', 'hospital'],
+  'Infrastructure & Admin': [
+    'admin', 'airport', 'airport_terminal', 'car filling station', 'civic', 'emb', 'fire_station',
+    'garage', 'garages', 'gov', 'government', 'hangar', 'history; admin', 'industrial', 'manufacture',
+    'parking', 'police', 'public', 'service', 'train station', 'train_station', 'transportation',
+    'utility', 'warehouse',
+  ],
+  'Other / Undocumented': [
+    '', 'construction', 'container', 'greenhouse', 'guardhouse', 'int', 'no', 'p', 'pandus',
+    'pavilion', 'roof', 'shed', 'stable',
+  ],
 };
+
+const TYPE_GROUP_BY_VALUE = new Map(
+  Object.entries(TYPE_GROUP_MAPPING).flatMap(([group, values]) =>
+    values.map((value) => [value.trim().toLowerCase(), group] as const),
+  ),
+);
+
+/** Coalesces the archive's raw building-use values into the legend/chart groups. */
+export function normalizeBuildingTypeGroup(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim()) return 'Other / Undocumented';
+  return TYPE_GROUP_BY_VALUE.get(value.trim().toLowerCase()) ?? 'Other / Undocumented';
+}

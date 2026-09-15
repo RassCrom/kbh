@@ -87,7 +87,9 @@
 /* ------------------------------------------------------------------ */
 
 .filterSidebar {
-  position: absolute;
+  // Viewport anchoring prevents a browser from horizontally scrolling the
+  // document when a keyboard user focuses a tab during the slide-in motion.
+  position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
@@ -278,6 +280,16 @@
     border-color: var(--color-accent-brand);
     background: rgba(212, 168, 94, 0.08);
   }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .filterHeaderLeft {
@@ -329,6 +341,22 @@
     border-color: $color-border-subtle;
     background: rgba(255, 255, 255, 0.04);
   }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 767px) {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.sidebarTabPanel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
 }
 
 .filterBody {
@@ -465,6 +493,8 @@
   transition: all $duration-ui $ease-snap;
 
   &:focus {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
     background: rgba(212, 168, 94, 0.03);
     border-color: $color-accent-brand;
   }
@@ -574,7 +604,8 @@
   }
 
   &:focus {
-    outline: none;
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
     border-color: $color-accent-brand;
     background-color: rgba(212, 168, 94, 0.06);
   }
@@ -659,6 +690,11 @@
     color: $color-accent-brand;
     background: rgba(212, 168, 94, 0.1);
     border-color: rgba(212, 168, 94, 0.3);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-accent-brand;
+    outline-offset: 2px;
   }
 }
 

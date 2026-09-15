@@ -6,7 +6,6 @@ import { HBar, LstScatterChart, DISTRICT_CHART_ROWS, DISTRICT_CHART_TOTAL } from
 import { LayersTab } from './filter-sidebar/LayersTab';
 import { TYPE_OPTIONS, DISTRICT_OPTIONS, ERA_CONFIG } from '../constants';
 import { type MapTheme } from '../mapTheme';
-import { buildingTypeLabel } from '../buildingDisplay';
 import { type ColorMode, type DecadeLstPoint, type ExtrudeMode } from '../mapHelpers';
 import { useIsMobile } from '../useIsMobile';
 import { useBottomSheet } from '../hooks/useBottomSheet';
@@ -33,6 +32,9 @@ interface FilterSidebarProps {
   onDistrictsToggle: () => void;
 }
 
+const SIDEBAR_TABS = ['filters', 'charts', 'layers'] as const;
+type SidebarTab = (typeof SIDEBAR_TABS)[number];
+
 export const FilterSidebar = memo(function FilterSidebar({
   open, onClose, onToggle,
   selectedTypes, onTypeToggle, onClearTypes,
@@ -52,7 +54,7 @@ export const FilterSidebar = memo(function FilterSidebar({
   districtsVisible,
   onDistrictsToggle,
 }: FilterSidebarProps) {
-  const [tab, setTab] = useState<'filters' | 'charts' | 'layers'>('filters');
+  const [tab, setTab] = useState<SidebarTab>('filters');
   const [expandedInfo, setExpandedInfo] = useState<Record<string, boolean>>({});
   const toggleInfo = (layer: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -69,6 +71,21 @@ export const FilterSidebar = memo(function FilterSidebar({
   const [companyExpanded, setCompanyExpanded] = useState(true);
   const [typeSearch, setTypeSearch] = useState('');
   const [showAllTypes, setShowAllTypes] = useState(false);
+
+  const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const currentIndex = SIDEBAR_TABS.indexOf(tab);
+    let nextIndex: number;
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % SIDEBAR_TABS.length;
+    else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + SIDEBAR_TABS.length) % SIDEBAR_TABS.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = SIDEBAR_TABS.length - 1;
+    else return;
+
+    event.preventDefault();
+    const nextTab = SIDEBAR_TABS[nextIndex];
+    setTab(nextTab);
+    requestAnimationFrame(() => document.getElementById(`map-sidebar-tab-${nextTab}`)?.focus());
+  };
 
   const filteredTypes = useMemo(() => {
     if (!typeSearch.trim()) return TYPE_OPTIONS;
@@ -130,7 +147,7 @@ export const FilterSidebar = memo(function FilterSidebar({
   // 3. Type breakdown
   const typeData = useMemo(() => {
     const rows = Object.entries(typeCounts)
-      .map(([type, count]) => ({ label: buildingTypeLabel(type), count }))
+      .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 8);
     const total = rows.reduce((s, r) => s + r.count, 0);
@@ -141,19 +158,22 @@ export const FilterSidebar = memo(function FilterSidebar({
 
   return (
     <aside
+      id="map-filter-sidebar"
       ref={sheet.ref as React.RefObject<HTMLElement>}
       className={`${s.filterSidebar} ${open ? s.open : ''}`}
       aria-label="Map filters"
       {...sheet.sheetProps}
     >
       {/* Grab target over the sheet's handle pill */}
-      <div className={s.sheetGrip} {...sheet.dragHandleProps} />
+      {open && <div className={s.sheetGrip} {...sheet.dragHandleProps} aria-hidden="true" />}
 
       {/* Edge tab toggle */}
       <button
         className={s.toggleHandle}
         onClick={onToggle}
         aria-label={open ? 'Collapse panel' : 'Expand panel'}
+        aria-controls="map-filter-sidebar"
+        aria-expanded={open}
       >
         {open ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         {!open && activeCount > 0 && (
@@ -162,27 +182,48 @@ export const FilterSidebar = memo(function FilterSidebar({
       </button>
 
       {/* ── Header with tab switcher ───────────────────────────────────────── */}
-      <div
+      {open && <div
         className={s.filterHeader}
         {...sheet.dragHandleProps}
       >
-        <div className={s.tabRow}>
+        <div className={s.tabRow} role="tablist" aria-label="Map sidebar views">
           <button
+            id="map-sidebar-tab-filters"
+            type="button"
+            role="tab"
+            aria-selected={tab === 'filters'}
+            aria-controls="map-sidebar-panel-filters"
+            tabIndex={tab === 'filters' ? 0 : -1}
             className={`${s.tabBtn} ${tab === 'filters' ? s.tabActive : ''}`}
             onClick={() => setTab('filters')}
+            onKeyDown={handleTabKeyDown}
           >
             Filters
             {activeCount > 0 && <span className={s.tabBadge}>{activeCount}</span>}
           </button>
           <button
+            id="map-sidebar-tab-charts"
+            type="button"
+            role="tab"
+            aria-selected={tab === 'charts'}
+            aria-controls="map-sidebar-panel-charts"
+            tabIndex={tab === 'charts' ? 0 : -1}
             className={`${s.tabBtn} ${tab === 'charts' ? s.tabActive : ''}`}
             onClick={() => setTab('charts')}
+            onKeyDown={handleTabKeyDown}
           >
             Charts
           </button>
           <button
+            id="map-sidebar-tab-layers"
+            type="button"
+            role="tab"
+            aria-selected={tab === 'layers'}
+            aria-controls="map-sidebar-panel-layers"
+            tabIndex={tab === 'layers' ? 0 : -1}
             className={`${s.tabBtn} ${tab === 'layers' ? s.tabActive : ''}`}
             onClick={() => setTab('layers')}
+            onKeyDown={handleTabKeyDown}
           >
             Layers
             {colorMode !== 'year' && <span className={s.tabDot} />}
@@ -201,11 +242,16 @@ export const FilterSidebar = memo(function FilterSidebar({
             <X size={16} />
           </button>
         </div>
-      </div>
+      </div>}
 
       {/* ── Filters tab ───────────────────────────────────────────────────── */}
-      {tab === 'filters' && (
-        <div className={s.filterBody}>
+      {open && tab === 'filters' && (
+        <div
+          id="map-sidebar-panel-filters"
+          className={s.filterBody}
+          role="tabpanel"
+          aria-labelledby="map-sidebar-tab-filters"
+        >
           <div className={s.filterSection}>
             <AccordionHeader
               title="Building Type" expanded={typesExpanded}
@@ -217,6 +263,7 @@ export const FilterSidebar = memo(function FilterSidebar({
                 <div className={s.searchInputWrapper}>
                   <input
                     type="text" placeholder="Search building types..."
+                    aria-label="Search building types"
                     className={s.searchInput} value={typeSearch}
                     onChange={(e) => setTypeSearch(e.target.value)}
                   />
@@ -284,6 +331,7 @@ export const FilterSidebar = memo(function FilterSidebar({
             {archExpanded && (
               <div className={s.sectionContent}>
                 <select className={s.filterSelect} value={selectedArchStyle}
+                  aria-label="Architectural style"
                   onChange={(e) => onArchStyleChange(e.target.value)}>
                   <option value="">All styles</option>
                   {safeArchStyleOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -302,6 +350,7 @@ export const FilterSidebar = memo(function FilterSidebar({
             {companyExpanded && (
               <div className={s.sectionContent}>
                 <select className={s.filterSelect} value={selectedCompany}
+                  aria-label="Construction company"
                   onChange={(e) => onCompanyChange(e.target.value)}>
                   <option value="">All companies</option>
                   {safeCompanyOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -313,8 +362,13 @@ export const FilterSidebar = memo(function FilterSidebar({
       )}
 
       {/* ── Charts tab ────────────────────────────────────────────────────── */}
-      {tab === 'charts' && (
-        <div className={s.chartBody}>
+      {open && tab === 'charts' && (
+        <div
+          id="map-sidebar-panel-charts"
+          className={s.chartBody}
+          role="tabpanel"
+          aria-labelledby="map-sidebar-tab-charts"
+        >
 
           {/* Live indicator */}
           <div className={s.chartLiveRow}>
@@ -329,7 +383,7 @@ export const FilterSidebar = memo(function FilterSidebar({
           {/* Chart 1 — Era distribution */}
           <div className={s.chartCard}>
             <div className={s.chartCardHeader}>
-              <span className={s.chartCardTitle}>Era Distribution</span>
+              <h3 className={s.chartCardTitle}>Era Distribution</h3>
               <span className={s.chartCardMeta}>by construction period</span>
             </div>
             {eraData.rows.length > 0 ? (
@@ -346,14 +400,19 @@ export const FilterSidebar = memo(function FilterSidebar({
           {/* Chart 2 — Decade activity */}
           <div className={s.chartCard}>
             <div className={s.chartCardHeader}>
-              <span className={s.chartCardTitle}>Decade Activity</span>
+              <h3 className={s.chartCardTitle}>Decade Activity</h3>
               <span className={s.chartCardMeta}>buildings by decade</span>
             </div>
             <div className={s.decadeChart}>
               <div className={s.decadeBars}>
                 {decadeData.bars.map(b => (
                   <div key={b.decade} className={s.decadeCol}>
-                    <div className={s.decadeBarWrap} title={`${b.decade}s: ${b.count.toLocaleString()}`}>
+                    <div
+                      className={s.decadeBarWrap}
+                      title={`${b.decade}s: ${b.count.toLocaleString()}`}
+                      role="img"
+                      aria-label={`${b.decade}s: ${b.count.toLocaleString()} buildings`}
+                    >
                       <div
                         className={s.decadeBar}
                         style={{
@@ -373,7 +432,7 @@ export const FilterSidebar = memo(function FilterSidebar({
           {/* Chart 3 — Building type breakdown */}
           <div className={s.chartCard}>
             <div className={s.chartCardHeader}>
-              <span className={s.chartCardTitle}>Building Types</span>
+              <h3 className={s.chartCardTitle}>Building Types</h3>
               <span className={s.chartCardMeta}>top 8 by count</span>
             </div>
             {typeData.rows.length > 0 ? (
@@ -393,7 +452,7 @@ export const FilterSidebar = memo(function FilterSidebar({
           {/* Chart 4 — District comparison (static totals) */}
           <div className={s.chartCard}>
             <div className={s.chartCardHeader}>
-              <span className={s.chartCardTitle}>Districts</span>
+              <h3 className={s.chartCardTitle}>Districts</h3>
               <span className={s.chartCardMeta}>total buildings per district</span>
             </div>
             <div className={s.hBarList}>
@@ -406,7 +465,7 @@ export const FilterSidebar = memo(function FilterSidebar({
           {/* Chart 5 — Era × Summer Heat scatter */}
           <div className={s.chartCard}>
             <div className={s.chartCardHeader}>
-              <span className={s.chartCardTitle}>Era × Summer Heat</span>
+              <h3 className={s.chartCardTitle}>Era × Summer Heat</h3>
               <span className={s.chartCardMeta}>mean LST by decade</span>
             </div>
             <LstScatterChart data={decadeLstData} />
@@ -416,21 +475,28 @@ export const FilterSidebar = memo(function FilterSidebar({
       )}
 
       {/* ── Layers tab ────────────────────────────────────────────────── */}
-      {tab === 'layers' && (
-        <LayersTab
-          colorMode={colorMode}
-          onColorModeChange={onColorModeChange}
-          extrudeMode={extrudeMode}
-          onExtrudeModeChange={onExtrudeModeChange}
-          districtsVisible={districtsVisible}
-          onDistrictsToggle={onDistrictsToggle}
-          expandedInfo={expandedInfo}
-          toggleInfo={toggleInfo}
-        />
+      {open && tab === 'layers' && (
+        <div
+          id="map-sidebar-panel-layers"
+          className={s.sidebarTabPanel}
+          role="tabpanel"
+          aria-labelledby="map-sidebar-tab-layers"
+        >
+          <LayersTab
+            colorMode={colorMode}
+            onColorModeChange={onColorModeChange}
+            extrudeMode={extrudeMode}
+            onExtrudeModeChange={onExtrudeModeChange}
+            districtsVisible={districtsVisible}
+            onDistrictsToggle={onDistrictsToggle}
+            expandedInfo={expandedInfo}
+            toggleInfo={toggleInfo}
+          />
+        </div>
       )}
 
       {/* Footer — only on filters tab */}
-      {tab === 'filters' && activeCount > 0 && (
+      {open && tab === 'filters' && activeCount > 0 && (
         <div className={s.filterFooter}>
           <button className={s.filterReset} onClick={onReset}>Clear all filters</button>
         </div>

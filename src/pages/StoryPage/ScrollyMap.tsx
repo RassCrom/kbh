@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Protocol } from 'pmtiles';
 import { darkDramaticStyle } from '../MapPage/darkDramaticStyle';
 import { buildYearColorExpr, buildHeightExtrusionExpr } from '../MapPage/mapHelpers';
+import { BUILDINGS_PM_TILES_URL, BUILDINGS_SOURCE_LAYER } from '../MapPage/constants';
 
 export interface ChapterConfig {
   id: string;
@@ -67,7 +68,7 @@ export function ScrollyMap({ chapter }: ScrollyMapProps) {
     map.on('load', () => {
       map.addSource('story-buildings', {
         type: 'vector',
-        url: 'pmtiles:///buildings-ast-v44.pmtiles',
+        url: BUILDINGS_PM_TILES_URL,
       });
 
       // Dim base coat — the city is always present as context
@@ -75,7 +76,7 @@ export function ScrollyMap({ chapter }: ScrollyMapProps) {
         id: 'story-base',
         type: 'fill',
         source: 'story-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         paint: {
           'fill-color': '#252b38',
           'fill-opacity': 0.55,
@@ -87,7 +88,7 @@ export function ScrollyMap({ chapter }: ScrollyMapProps) {
         id: 'story-active',
         type: 'fill',
         source: 'story-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         paint: {
           'fill-color': buildYearColorExpr(),
           'fill-opacity': 0.92,
@@ -100,7 +101,7 @@ export function ScrollyMap({ chapter }: ScrollyMapProps) {
         id: 'story-3d',
         type: 'fill-extrusion',
         source: 'story-buildings',
-        'source-layer': 'buildings',
+        'source-layer': BUILDINGS_SOURCE_LAYER,
         minzoom: 13,
         layout: { visibility: 'none' },
         paint: {

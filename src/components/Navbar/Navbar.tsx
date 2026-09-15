@@ -3,20 +3,8 @@ import { Map } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import s from './Navbar.module.scss';
 
-const NAV_ITEMS = [
-  { label: 'Overview', href: '#hero' },
-  { label: 'Stats', href: '#stats' },
-  { label: 'Stories', href: '#articles' },
-  { label: 'Tours', href: '#tours' },
-  { label: 'About', href: '#team' },
-];
-
-const DESKTOP_BP = 768;
-
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(() => window.scrollY > 40);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
     let frame = 0;
@@ -38,42 +26,6 @@ export default function Navbar() {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
-  useEffect(() => {
-    const sections = document.querySelectorAll('section[id]');
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
-        });
-      },
-      { rootMargin: '-40% 0px -40% 0px' }
-    );
-
-    sections.forEach((sec) => observer.observe(sec));
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= DESKTOP_BP) setMenuOpen(false);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : '';
-
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [menuOpen]);
-
-  const handleNavClick = () => setMenuOpen(false);
 
   return (
     <nav className={`${s.navbar} ${scrolled ? s.scrolled : ''}`} id="main-nav">
@@ -102,70 +54,10 @@ export default function Navbar() {
         <span>Astana Buildings</span>
       </a>
 
-      <ul className={s.nav}>
-        {NAV_ITEMS.map((item) => (
-          <li key={item.href}>
-            <a
-              href={item.href}
-              className={`${s.navLink} ${
-                activeSection === item.href.slice(1) ? s.active : ''
-              }`}
-            >
-              {item.label}
-            </a>
-          </li>
-        ))}
-
-        <li>
-          <Link to="/map" className={s.mapLink}>
-            <Map size={15} />
-            <span>Map</span>
-          </Link>
-        </li>
-      </ul>
-
-      <button
-        className={`${s.hamburger} ${menuOpen ? s.open : ''}`}
-        onClick={() => setMenuOpen((prev) => !prev)}
-        aria-label="Toggle menu"
-        aria-expanded={menuOpen}
-      >
-        <span />
-        <span />
-        <span />
-      </button>
-
-      <ul
-        className={`${s.mobileMenu} ${menuOpen ? s.open : ''}`}
-        aria-hidden={!menuOpen}
-      >
-        {NAV_ITEMS.map((item) => (
-          <li key={item.href}>
-            <a
-              href={item.href}
-              className={`${s.navLink} ${
-                activeSection === item.href.slice(1) ? s.active : ''
-              }`}
-              onClick={handleNavClick}
-              tabIndex={menuOpen ? 0 : -1}
-            >
-              {item.label}
-            </a>
-          </li>
-        ))}
-
-        <li>
-          <Link
-            to="/map"
-            className={s.mapLink}
-            onClick={handleNavClick}
-            tabIndex={menuOpen ? 0 : -1}
-          >
-            <Map size={18} />
-            <span>Map</span>
-          </Link>
-        </li>
-      </ul>
+      <Link to="/map" className={s.mapLink}>
+        <Map size={15} />
+        <span>Map</span>
+      </Link>
     </nav>
   );
 }

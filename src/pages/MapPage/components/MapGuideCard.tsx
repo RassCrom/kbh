@@ -11,12 +11,12 @@ interface HelpTriggerProps {
 
 export function MapGuideCard({ onDismiss }: MapGuideCardProps) {
   return (
-    <div className={s.guideCard} role="dialog" aria-label="Astana map guide">
+    <section className={s.guideCard} aria-labelledby="astana-map-guide-title">
       <div className={s.guideHeader}>
-        <h4 className={s.guideTitle}>
+        <h2 id="astana-map-guide-title" className={s.guideTitle}>
           <MapIcon size={14} />
           Astana Map Guide
-        </h4>
+        </h2>
         <button className={s.guideClose} onClick={onDismiss} aria-label="Close guide">
           <X size={14} />
         </button>
@@ -54,7 +54,7 @@ export function MapGuideCard({ onDismiss }: MapGuideCardProps) {
       <button className={s.onboardingBtn} onClick={onDismiss}>
         Explore the map
       </button>
-    </div>
+    </section>
   );
 }
 

@@ -30,9 +30,14 @@ const DISTRICT_CHART_TOTAL = DISTRICT_CHART_ROWS.reduce((s, r) => s + r.count, 0
 
 
 function HBar({ label, count, total, color }: { label: string; count: number; total: number; color?: string }) {
-  const pct = total > 0 ? Math.max((count / total) * 100, count > 0 ? 2 : 0) : 0;
+  const share = total > 0 ? (count / total) * 100 : 0;
+  const pct = Math.max(share, count > 0 ? 2 : 0);
   return (
-    <div className={s.hBarRow}>
+    <div
+      className={s.hBarRow}
+      role="img"
+      aria-label={`${label}: ${count.toLocaleString()} buildings, ${share.toFixed(1)} percent`}
+    >
       <span className={s.hBarLabel}>{label}</span>
       <div className={s.hBarTrack}>
         <div
@@ -111,6 +116,8 @@ function LstScatterChart({ data }: { data: DecadeLstPoint[] }) {
         viewBox={`0 0 ${W} ${H}`}
         style={{ width: '100%', display: 'block', overflow: 'visible' }}
         onMouseLeave={() => setHov(null)}
+        role="img"
+        aria-label={`Mean summer surface temperature by construction decade. ${data.map((point) => `${point.decade}s: ${point.meanLst.toFixed(1)} degrees Celsius across ${point.count} buildings`).join('. ')}`}
       >
         {/* Horizontal grid lines */}
         {yTicks.map(v => (

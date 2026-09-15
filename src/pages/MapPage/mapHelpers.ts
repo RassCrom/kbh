@@ -1,7 +1,7 @@
 import maplibregl from 'maplibre-gl';
-import { ERA_CONFIG, type EraStop } from './constants';
+import { ERA_CONFIG, TYPE_GROUP_MAPPING, type EraStop } from './constants';
 
-export type ColorMode = 'year' | 'elevation' | 'lst' | 'type' | 'uhi';
+export type ColorMode = 'year' | 'elevation' | 'lst' | 'type' | 'uhi' | 'rule333';
 
 export const TYPE_LEGEND = [
   { label: 'Residential', color: '#F4A261', desc: 'Apartments, houses, residential complexes' },
@@ -111,17 +111,14 @@ export function buildYearColorExpr(eras: EraStop[] = ERA_CONFIG): maplibregl.Exp
 }
 
 export function buildTypeColorExpr(): maplibregl.ExpressionSpecification {
-  const parsedType = ['coalesce', ['get', 'type'], ''];
+  const parsedType = ['downcase', ['to-string', ['coalesce', ['get', 'type'], '']]];
+  const groupedColors = TYPE_LEGEND
+    .filter((item) => item.label !== 'Other / Undocumented')
+    .flatMap((item) => [TYPE_GROUP_MAPPING[item.label] ?? [], item.color]);
   return [
     'match',
     parsedType,
-    ['rc', 'house'], '#F4A261', // Residential (warm coral)
-    ['bc', 'sc', 'ec'], '#8B5CF6', // Commercial & Leisure (vibrant violet)
-    ['school', 'kdgd', 'uni'], '#3B82F6', // Education & Research (electric blue)
-    ['mosque', 'church'], '#00E5FF', // Religious Landmarks (glowing turquoise/cyan)
-    ['cultural site', 'sf'], '#EC4899', // Culture & Sport (hot pink)
-    ['healthcare', 'hospital', 'clinic'], '#10B981', // Healthcare (emerald green)
-    ['admin', 'utility', 'airport', 'train station'], '#64748B', // Infrastructure & Admin (cool slate)
+    ...groupedColors,
     '#475569' // Default fallback / Other / Undocumented (dark gray)
   ] as unknown as maplibregl.ExpressionSpecification;
 }
@@ -200,6 +197,29 @@ export function buildLstColorExpr(): maplibregl.ExpressionSpecification {
       47, LST_STEPS[7].color,      // 47
       48, LST_STEPS[8].color,      // 48+
     ] as any,
+    '#2a2a35',
+  ] as unknown as maplibregl.ExpressionSpecification;
+}
+
+// ── 3-30-300 urban greening rule ────────────────────────────────────────────
+// rule333_score: how many of the three criteria a building meets
+// (3 visible trees · 30% neighborhood canopy · a park within 300 m).
+export const RULE333_COLORS = ['#E4574C', '#F4A93C', '#33C7C0', '#B15FD1'] as const;
+export const RULE333_LABELS = [
+  'Meets 0 of 3',
+  'Meets 1 of 3',
+  'Meets 2 of 3',
+  'Meets 3 of 3',
+] as const;
+
+export function buildRule333ColorExpr(): maplibregl.ExpressionSpecification {
+  return [
+    'match',
+    ['to-number', ['coalesce', ['get', 'rule333_score'], -1]],
+    0, RULE333_COLORS[0],
+    1, RULE333_COLORS[1],
+    2, RULE333_COLORS[2],
+    3, RULE333_COLORS[3],
     '#2a2a35',
   ] as unknown as maplibregl.ExpressionSpecification;
 }

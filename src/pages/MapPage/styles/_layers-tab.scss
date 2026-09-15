@@ -163,6 +163,14 @@
   border-color: rgba(200, 112, 90, 0.35);
 }
 
+// Magenta badge for the 3-30-300 green rule score
+.vizOptionBadgeRule333 {
+  @extend .vizOptionBadge;
+  color: #B15FD1;
+  background: rgba(177, 95, 209, 0.12);
+  border-color: rgba(177, 95, 209, 0.35);
+}
+
 .vizOptionDesc {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -299,6 +307,8 @@
 }
 
 .uhiCell {
+  appearance: none;
+  padding: 0;
   flex: 1;
   height: 100%;
   border-radius: $radius-xs;
@@ -310,6 +320,13 @@
     transform: scale(1.15);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.5);
     z-index: 5;
+  }
+
+
+  &:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 2px;
+    z-index: 6;
   }
 
   &.active {
